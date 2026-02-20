@@ -32,7 +32,7 @@ export default function TeacherDashboardPage() {
       </div>
       <Link
         href="/dashboard/teacher/courses/create"
-        className="inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
+        className="inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
       >
         Create New Course
       </Link>

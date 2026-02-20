@@ -19,7 +19,7 @@ export default function CartButton({ hideWhenEmpty = false }: CartButtonProps) {
   return (
     <Link
       href="/checkout"
-      className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+      className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
       aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
     >
       <svg viewBox="0 0 24 24" className="h-4 w-4 text-slate-700" fill="none" aria-hidden="true">
@@ -33,7 +33,6 @@ export default function CartButton({ hideWhenEmpty = false }: CartButtonProps) {
         <circle cx="10" cy="19" r="1.6" fill="currentColor" />
         <circle cx="17" cy="19" r="1.6" fill="currentColor" />
       </svg>
-      <span>Cart</span>
       <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
         {itemCount}
       </span>

@@ -143,7 +143,7 @@ export default function MyCoursesPage() {
                   href={`/dashboard/student/my-courses/${enrollment.courseId}`}
                   className="mt-2 inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
                 >
-                  Revised
+                  Revise
                 </Link>
               </article>
             ))}

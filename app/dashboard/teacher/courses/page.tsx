@@ -36,7 +36,7 @@ export default function TeacherCoursesPage() {
         <h2 className="text-2xl font-bold text-slate-900">My Courses</h2>
         <Link
           href="/dashboard/teacher/courses/create"
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
+          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
           Create Course
         </Link>

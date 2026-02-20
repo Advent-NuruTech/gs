@@ -191,7 +191,7 @@ export default function LessonViewPage() {
         ) : null}
 
         <div
-          className="prose-content overflow-x-auto rounded-md border border-slate-200 bg-white p-4 text-slate-700 sm:p-5 [&_*]:max-w-full [&_*]:break-words"
+          className="prose-content overflow-x-auto rounded-md border border-slate-200 bg-white p-4 text-slate-700 sm:p-5 [&_*]:max-w-full [&_*]:break-words [&_iframe]:w-full [&_img]:h-auto [&_img]:w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:overflow-x-auto [&_video]:w-full"
           dangerouslySetInnerHTML={{ __html: renderedLessonContent }}
         />
 
@@ -244,7 +244,7 @@ export default function LessonViewPage() {
         </div>
       </article>
 
-      <aside className="space-y-2 rounded-lg border border-slate-200 bg-white p-4 lg:sticky lg:top-4 lg:h-fit">
+      <aside className="min-w-0 space-y-2 rounded-lg border border-slate-200 bg-white p-4 lg:sticky lg:top-4 lg:h-fit">
         <h2 className="text-base font-semibold text-slate-900">Course Curriculum</h2>
         {allLessons.map((item) => {
           const completed = enrollment?.completedLessons.includes(item.id) ?? false;

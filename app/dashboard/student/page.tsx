@@ -131,7 +131,7 @@ export default function StudentDashboardPage() {
                     isRevised ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"
                   }`}
                 >
-                  {isRevised ? "Revised" : "Continue"}
+                  {isRevised ? "Revise" : "Continue"}
                 </Link>
               </article>
             );
@@ -147,27 +147,23 @@ export default function StudentDashboardPage() {
                 href={`/dashboard/student/my-courses/${enrollment.courseId}`}
                 className="inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
               >
-                Revised
+                Revise
               </Link>
             </article>
           ))}
         </div>
       )}
 
-      <section className="space-y-3">
-        <h3 className="text-xl font-bold text-slate-900">Other Courses You May Like</h3>
-        {recommendedCourses.length === 0 ? (
-          <p className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">
-            Explore more courses from the catalog.
-          </p>
-        ) : (
+      {recommendedCourses.length > 0 ? (
+        <section className="space-y-3">
+          <h3 className="text-xl font-bold text-slate-900">Other Courses You May Like</h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {recommendedCourses.map((course) => (
               <CourseCard key={course.id} course={course} />
             ))}
           </div>
-        )}
-      </section>
+        </section>
+      ) : null}
     </section>
   );
 }
