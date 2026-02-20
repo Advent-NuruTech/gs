@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "firebase/*": ["./lib/firebase/sdk/*"]
     }
   },
   "include": [

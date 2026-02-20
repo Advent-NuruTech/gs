@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AdventSkool LMS
 
-## Getting Started
+Production-ready, modular LMS built with Next.js App Router, Firebase Auth + Firestore (REST integration), and Cloudinary uploads.
 
-First, run the development server:
+## Stack
+
+- Next.js App Router (React 19)
+- Firebase Auth + Firestore (via REST-compatible `firebase/*` local shim)
+- Cloudinary image uploads
+- TypeScript + ESLint
+
+## Features
+
+- Role-based dashboards: `student`, `teacher`, `admin`
+- Course upload:
+  - title
+  - original price
+  - discounted price
+  - Cloudinary thumbnail upload
+  - rich text outline
+  - dynamic unlimited lesson creation
+- Lesson management:
+  - title
+  - rich text content editor (bold, italic, underline, color, lists, size, links)
+  - Cloudinary image upload
+  - video URL
+  - automatic YouTube ID extraction
+  - link detection in notes/content
+  - quiz questions per lesson
+- Enrollment and progress:
+  - `enrollments/{userId_courseId}`
+  - completion tracking
+  - progress percentage
+  - sequential lesson unlock logic
+- Scalable architecture:
+  - service layer
+  - reusable hooks
+  - modular components
+  - Firestore-style subcollections for lessons
+- Firestore security rules included at `lib/firebase/securityRules.txt`
+
+## Project Structure
+
+The structure matches the LMS architecture requested across:
+
+- `app/` route groups for public/auth/dashboard
+- `components/` split by `ui`, `course`, and `dashboard`
+- `services/` for business logic and Firestore access
+- `hooks/`, `context/`, `lib/`, and `types/`
+- `middleware.ts` for role route protection
+
+## Environment Variables
+
+Create `.env.local` from `.env.example`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Required variables:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
+- `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Run
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Quality checks:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run typecheck
+npm run lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- In this environment, package download is cache-restricted, so Firebase is integrated through local `firebase/*` compatibility modules in `lib/firebase/sdk/*` that call Firebase REST APIs.
+- Next.js currently warns that `middleware.ts` convention is deprecated in favor of `proxy.ts` in newer versions.
