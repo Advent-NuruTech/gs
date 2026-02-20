@@ -134,10 +134,24 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <div className="relative">
           <button
             type="button"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
+            className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
             onClick={() => setIsNotificationOpen((prev) => !prev)}
+            aria-label={`Notifications with ${unreadCount} unread`}
           >
-            Notifications ({unreadCount})
+            <svg viewBox="0 0 24 24" className="h-4 w-4 text-slate-700" fill="none" aria-hidden="true">
+              <path
+                d="M15 17H5.2a1 1 0 0 1-.8-1.6l1.3-1.8V10a6 6 0 1 1 12 0v3.6l1.3 1.8a1 1 0 0 1-.8 1.6H15Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+            <span>Notifications</span>
+            <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
+              {unreadCount}
+            </span>
           </button>
           {isNotificationOpen ? (
             <div className="absolute right-0 top-11 z-20 w-80 max-w-[88vw] space-y-2 rounded-md border border-slate-200 bg-white p-3 shadow-lg">

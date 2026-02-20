@@ -156,16 +156,28 @@ export default function LessonViewPage() {
     }
   };
 
-  if (!lesson) return <div>Loading lesson...</div>;
-  if (!isUnlocked) return <div>Lesson is locked. Complete the previous lesson first.</div>;
+  if (!lesson) {
+    return <div className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">Loading lesson...</div>;
+  }
+
+  if (!isUnlocked) {
+    return (
+      <div className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">
+        Lesson is locked. Complete the previous lesson first.
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <article className="space-y-5">
-        <Link href={`/dashboard/student/my-courses/${params.courseId}`} className="text-sm text-blue-700 hover:underline">
+      <article className="min-w-0 space-y-5">
+        <Link
+          href={`/dashboard/student/my-courses/${params.courseId}`}
+          className="text-sm text-blue-700 hover:underline"
+        >
           Back to course
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">{lesson.title}</h1>
+        <h1 className="break-words text-2xl font-bold text-slate-900">{lesson.title}</h1>
 
         {videoEmbedUrl ? (
           <section className="overflow-hidden rounded-md border border-slate-200 bg-white">
@@ -179,7 +191,7 @@ export default function LessonViewPage() {
         ) : null}
 
         <div
-          className="prose-content rounded-md border border-slate-200 bg-white p-4 text-slate-700 sm:p-5"
+          className="prose-content overflow-x-auto rounded-md border border-slate-200 bg-white p-4 text-slate-700 sm:p-5 [&_*]:max-w-full [&_*]:break-words"
           dangerouslySetInnerHTML={{ __html: renderedLessonContent }}
         />
 
@@ -189,26 +201,44 @@ export default function LessonViewPage() {
             <p className="mb-3 text-sm text-slate-600">
               Quiz is compulsory before this lesson can be marked complete.
             </p>
-            <Link href={`/dashboard/student/my-courses/${params.courseId}/lesson/${params.lessonId}/quiz`}>
-              <Button type="button" variant={quizCompleted ? "secondary" : "primary"}>
+            <Link
+              href={`/dashboard/student/my-courses/${params.courseId}/lesson/${params.lessonId}/quiz`}
+              className="block w-full sm:inline-block sm:w-auto"
+            >
+              <Button type="button" variant={quizCompleted ? "secondary" : "primary"} className="w-full sm:w-auto">
                 {quizCompleted ? "Review Quiz Answers" : "Take Quiz"}
               </Button>
             </Link>
           </section>
         ) : null}
 
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
           {previousLesson ? (
-            <Link href={`/dashboard/student/my-courses/${params.courseId}/lesson/${previousLesson.id}`}>
-              <Button variant="secondary">Previous Lesson</Button>
+            <Link
+              href={`/dashboard/student/my-courses/${params.courseId}/lesson/${previousLesson.id}`}
+              className="block w-full sm:inline-block sm:w-auto"
+            >
+              <Button variant="secondary" className="w-full sm:w-auto">
+                Previous Lesson
+              </Button>
             </Link>
           ) : null}
-          <Button type="button" onClick={handleComplete} disabled={saving || isLessonCompleted || !canMarkComplete}>
+          <Button
+            type="button"
+            onClick={handleComplete}
+            disabled={saving || isLessonCompleted || !canMarkComplete}
+            className="w-full sm:w-auto"
+          >
             {isLessonCompleted ? "Lesson Completed" : saving ? "Saving..." : "Mark Lesson Complete"}
           </Button>
           {nextLesson && (enrollment?.unlockedLessons.includes(nextLesson.id) ?? false) ? (
-            <Link href={`/dashboard/student/my-courses/${params.courseId}/lesson/${nextLesson.id}`}>
-              <Button variant="secondary">Next Lesson</Button>
+            <Link
+              href={`/dashboard/student/my-courses/${params.courseId}/lesson/${nextLesson.id}`}
+              className="block w-full sm:inline-block sm:w-auto"
+            >
+              <Button variant="secondary" className="w-full sm:w-auto">
+                Next Lesson
+              </Button>
             </Link>
           ) : null}
         </div>
@@ -237,7 +267,7 @@ export default function LessonViewPage() {
                 if (locked) event.preventDefault();
               }}
             >
-              <p className="font-medium">
+              <p className="break-words font-medium">
                 {item.order}. {item.title}
               </p>
               <p className="text-xs">

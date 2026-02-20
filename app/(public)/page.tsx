@@ -66,7 +66,7 @@ export default function HomePage() {
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:py-16">
       <div className="flex justify-end">
-        <CartButton />
+        <CartButton hideWhenEmpty />
       </div>
       <section className="grid gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 md:grid-cols-2 md:items-center">
         <div className="space-y-4">
@@ -104,6 +104,34 @@ export default function HomePage() {
             <li>Admin analytics, user management, and notifications.</li>
             <li>Checkout + enrollment flow optimized for phones.</li>
           </ul>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-emerald-50 p-6 shadow-sm sm:p-8">
+        <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="space-y-2">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">Why New Learners Stay</p>
+            <h2 className="text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">
+              Start today, track real progress, finish with confidence.
+            </h2>
+            <p className="text-sm text-slate-700 sm:text-base">
+              Bite-size lessons, clear milestones, and practical quizzes keep you moving from first login to course completion.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 rounded-xl border border-slate-200 bg-white p-3 text-center text-sm font-semibold text-slate-800 sm:gap-3 sm:p-4 sm:text-base">
+            <div>
+              <p className="text-xl font-black text-blue-700 sm:text-2xl">24/7</p>
+              <p className="text-xs text-slate-600 sm:text-sm">Access</p>
+            </div>
+            <div>
+              <p className="text-xl font-black text-emerald-700 sm:text-2xl">Step</p>
+              <p className="text-xs text-slate-600 sm:text-sm">By Step</p>
+            </div>
+            <div>
+              <p className="text-xl font-black text-amber-700 sm:text-2xl">Mobile</p>
+              <p className="text-xs text-slate-600 sm:text-sm">Ready</p>
+            </div>
+          </div>
         </div>
       </section>
 
