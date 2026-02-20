@@ -13,16 +13,20 @@ import { listUserPayments } from "@/services/paymentService";
 
 export default function HomePage() {
   const { courses, loading } = useCourse(undefined, { published: true, pageSize: 3 });
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [hiddenCourseIds, setHiddenCourseIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!profile || profile.role !== "student") {
-      setHiddenCourseIds(new Set());
-      return;
-    }
     let active = true;
-    (async () => {
+
+    const loadHiddenCourses = async () => {
+      if (!profile || profile.role !== "student") {
+        if (active) {
+          setHiddenCourseIds((current) => (current.size === 0 ? current : new Set()));
+        }
+        return;
+      }
+
       try {
         const [enrollments, payments] = await Promise.all([
           listUserEnrollments(profile.id),
@@ -41,10 +45,12 @@ export default function HomePage() {
         setHiddenCourseIds(hidden);
       } catch {
         if (active) {
-          setHiddenCourseIds(new Set());
+          setHiddenCourseIds((current) => (current.size === 0 ? current : new Set()));
         }
       }
-    })();
+    };
+
+    loadHiddenCourses();
 
     return () => {
       active = false;
@@ -55,6 +61,7 @@ export default function HomePage() {
     () => courses.filter((course) => !hiddenCourseIds.has(course.id)),
     [courses, hiddenCourseIds],
   );
+  const isStudent = profile?.role === "student";
 
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:py-16">
@@ -76,9 +83,17 @@ export default function HomePage() {
             <Link href="/courses">
               <Button>Browse Courses</Button>
             </Link>
-            <Link href="/register">
-              <Button variant="secondary">Create Student Account</Button>
-            </Link>
+            {!authLoading ? (
+              isStudent ? (
+                <Link href="/dashboard/student">
+                  <Button variant="secondary">Profile</Button>
+                </Link>
+              ) : (
+                <Link href="/register">
+                  <Button variant="secondary">Create Student Account</Button>
+                </Link>
+              )
+            ) : null}
           </div>
         </div>
         <div className="rounded-xl bg-slate-950 p-6 text-slate-100">

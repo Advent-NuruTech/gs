@@ -100,24 +100,31 @@ export default function MyCoursesPage() {
         <div className="space-y-3">
           <h3 className="text-lg font-semibold text-slate-900">In Progress</h3>
           <div className="grid gap-3 md:grid-cols-2">
-            {activeEnrollments.map((enrollment) => (
-              <article key={enrollment.id} className="rounded-md border border-slate-200 bg-white p-4">
-                <h4 className="text-lg font-semibold text-slate-900">
-                  {courseLookup[enrollment.courseId]?.title ?? "Unknown Course"}
-                </h4>
-                <p className="text-sm text-slate-600">Progress: {enrollment.progress}%</p>
-                <Link
-                  href={
-                    enrollment.lastOpenedLessonId
-                      ? `/dashboard/student/my-courses/${enrollment.courseId}/lesson/${enrollment.lastOpenedLessonId}`
-                      : `/dashboard/student/my-courses/${enrollment.courseId}`
-                  }
-                  className="mt-2 inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
-                >
-                  Continue
-                </Link>
-              </article>
-            ))}
+            {activeEnrollments.map((enrollment) => {
+              const isRevised = enrollment.progress >= 100;
+              const href = isRevised
+                ? `/dashboard/student/my-courses/${enrollment.courseId}`
+                : enrollment.lastOpenedLessonId
+                  ? `/dashboard/student/my-courses/${enrollment.courseId}/lesson/${enrollment.lastOpenedLessonId}`
+                  : `/dashboard/student/my-courses/${enrollment.courseId}`;
+
+              return (
+                <article key={enrollment.id} className="rounded-md border border-slate-200 bg-white p-4 sm:p-5">
+                  <h4 className="text-lg font-semibold text-slate-900 break-words">
+                    {courseLookup[enrollment.courseId]?.title ?? "Unknown Course"}
+                  </h4>
+                  <p className="text-sm text-slate-600">Progress: {enrollment.progress}%</p>
+                  <Link
+                    href={href}
+                    className={`mt-2 inline-flex rounded-md px-3 py-2 text-sm font-semibold text-white ${
+                      isRevised ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                  >
+                    {isRevised ? "Revised" : "Continue"}
+                  </Link>
+                </article>
+              );
+            })}
           </div>
         </div>
       ) : null}
@@ -134,9 +141,9 @@ export default function MyCoursesPage() {
                 <p className="text-sm text-emerald-800">You have completed this course.</p>
                 <Link
                   href={`/dashboard/student/my-courses/${enrollment.courseId}`}
-                  className="mt-2 inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white"
+                  className="mt-2 inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
                 >
-                  Revise Course
+                  Revised
                 </Link>
               </article>
             ))}
@@ -146,4 +153,3 @@ export default function MyCoursesPage() {
     </section>
   );
 }
-

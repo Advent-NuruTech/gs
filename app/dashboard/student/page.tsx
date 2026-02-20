@@ -111,28 +111,35 @@ export default function StudentDashboardPage() {
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {activeEnrollments.map((enrollment) => (
-            <article key={enrollment.id} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
-              <h3 className="text-lg font-semibold text-slate-900">
-                {coursesById[enrollment.courseId]?.title ?? "Unknown course"}
-              </h3>
-              <ProgressBar value={enrollment.progress} />
-              <Link
-                href={
-                  enrollment.lastOpenedLessonId
-                    ? `/dashboard/student/my-courses/${enrollment.courseId}/lesson/${enrollment.lastOpenedLessonId}`
-                    : `/dashboard/student/my-courses/${enrollment.courseId}`
-                }
-                className="inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-              >
-                Continue
-              </Link>
-            </article>
-          ))}
+          {activeEnrollments.map((enrollment) => {
+            const isRevised = enrollment.progress >= 100;
+            const href = isRevised
+              ? `/dashboard/student/my-courses/${enrollment.courseId}`
+              : enrollment.lastOpenedLessonId
+                ? `/dashboard/student/my-courses/${enrollment.courseId}/lesson/${enrollment.lastOpenedLessonId}`
+                : `/dashboard/student/my-courses/${enrollment.courseId}`;
+
+            return (
+              <article key={enrollment.id} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 sm:p-5">
+                <h3 className="text-lg font-semibold text-slate-900 break-words">
+                  {coursesById[enrollment.courseId]?.title ?? "Unknown course"}
+                </h3>
+                <ProgressBar value={enrollment.progress} />
+                <Link
+                  href={href}
+                  className={`inline-flex rounded-md px-3 py-2 text-sm font-semibold text-white ${
+                    isRevised ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"
+                  }`}
+                >
+                  {isRevised ? "Revised" : "Continue"}
+                </Link>
+              </article>
+            );
+          })}
 
           {completedEnrollments.map((enrollment) => (
-            <article key={enrollment.id} className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-              <h3 className="text-lg font-semibold text-slate-900">
+            <article key={enrollment.id} className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 sm:p-5">
+              <h3 className="text-lg font-semibold text-slate-900 break-words">
                 {coursesById[enrollment.courseId]?.title ?? "Unknown course"}
               </h3>
               <ProgressBar value={100} />
@@ -140,7 +147,7 @@ export default function StudentDashboardPage() {
                 href={`/dashboard/student/my-courses/${enrollment.courseId}`}
                 className="inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
               >
-                Revise Course
+                Revised
               </Link>
             </article>
           ))}
@@ -164,4 +171,3 @@ export default function StudentDashboardPage() {
     </section>
   );
 }
-

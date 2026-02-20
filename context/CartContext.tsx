@@ -44,7 +44,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = parseStoredCart(window.localStorage.getItem(CART_STORAGE_KEY));
-    setItems(stored);
+    queueMicrotask(() => {
+      setItems(stored);
+    });
   }, []);
 
   useEffect(() => {

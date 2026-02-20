@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -15,9 +15,9 @@ import {
 } from "@/services/teacherInviteService";
 import { TeacherInvite } from "@/types/teacherInvite";
 
-export default function TeacherInvitePage() {
+function TeacherInvitePageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // ✅ safe in client component
+  const searchParams = useSearchParams();
   const { pushToast } = useNotificationContext();
 
   const [invite, setInvite] = useState<TeacherInvite | null>(null);
@@ -26,7 +26,6 @@ export default function TeacherInvitePage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Use token inside useMemo to avoid rerenders
   const token = useMemo(() => searchParams?.get("token")?.trim() ?? "", [searchParams]);
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function TeacherInvitePage() {
       try {
         const data = await findTeacherInviteByToken(token);
         setInvite(data);
-      } catch (error) {
+      } catch {
         setInvite(null);
       } finally {
         setLoadingInvite(false);
@@ -54,8 +53,8 @@ export default function TeacherInvitePage() {
   const inviteExpired = invite ? isInviteExpired(invite) : false;
   const inviteValid = Boolean(invite && !invite.used && !inviteExpired);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
     if (!invite || !inviteValid) return;
 
     setSubmitting(true);
@@ -85,28 +84,28 @@ export default function TeacherInvitePage() {
         </p>
 
         {loadingInvite && <p className="text-sm text-slate-600">Validating invite...</p>}
-        {!loadingInvite && !token && (
+        {!loadingInvite && !token ? (
           <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             Missing invite token.
           </p>
-        )}
-        {!loadingInvite && token && !invite && (
+        ) : null}
+        {!loadingInvite && token && !invite ? (
           <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             Invite token is invalid.
           </p>
-        )}
-        {!loadingInvite && invite?.used && (
+        ) : null}
+        {!loadingInvite && invite?.used ? (
           <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             This invite has already been used.
           </p>
-        )}
-        {!loadingInvite && inviteExpired && (
+        ) : null}
+        {!loadingInvite && inviteExpired ? (
           <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             This invite has expired. Ask admin for a new link.
           </p>
-        )}
+        ) : null}
 
-        {inviteValid && (
+        {inviteValid ? (
           <form className="space-y-4" onSubmit={handleSubmit}>
             <Input
               label="Invite Token"
@@ -124,21 +123,21 @@ export default function TeacherInvitePage() {
             <Input
               label="Display Name"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={(event) => setDisplayName(event.target.value)}
               required
             />
             <Input
               label="Password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               required
             />
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? "Creating account..." : "Accept Invite"}
             </Button>
           </form>
-        )}
+        ) : null}
 
         <p className="text-sm text-slate-600">
           Student?{" "}
@@ -148,5 +147,17 @@ export default function TeacherInvitePage() {
         </p>
       </section>
     </main>
+  );
+}
+
+function TeacherInviteFallback() {
+  return <main className="mx-auto max-w-lg px-4 py-10 text-sm text-slate-600">Loading invite...</main>;
+}
+
+export default function TeacherInvitePage() {
+  return (
+    <Suspense fallback={<TeacherInviteFallback />}>
+      <TeacherInvitePageContent />
+    </Suspense>
   );
 }

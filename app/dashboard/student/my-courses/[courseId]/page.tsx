@@ -53,14 +53,19 @@ export default function StudentCoursePage() {
     [enrollment, payment],
   );
 
-  if (loading) return <div>Loading course...</div>;
-  if (!course) return <div>Course not found.</div>;
+  if (loading) {
+    return <div className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">Loading course...</div>;
+  }
+
+  if (!course) {
+    return <div className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">Course not found.</div>;
+  }
 
   return (
-    <section className="space-y-5">
-      <h2 className="text-2xl font-bold text-slate-900">{course.title}</h2>
+    <section className="mx-auto w-full max-w-5xl space-y-6">
+      <h2 className="text-2xl font-bold text-slate-900 break-words sm:text-3xl">{course.title}</h2>
       <div
-        className="prose-content rounded-md border border-slate-200 bg-white p-4 text-slate-700"
+        className="prose-content overflow-hidden rounded-xl border border-slate-200 bg-white p-4 text-slate-700 sm:p-6"
         dangerouslySetInnerHTML={{ __html: formatContent(course.outline) }}
       />
 
@@ -72,7 +77,9 @@ export default function StudentCoursePage() {
 
       {enrollment ? (
         <>
-          <ProgressBar value={enrollment.progress} />
+          <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+            <ProgressBar value={enrollment.progress} />
+          </div>
           {enrollment.status === "completed" ? (
             <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
               Course completed. You can now revise lessons and quizzes.
@@ -90,24 +97,26 @@ export default function StudentCoursePage() {
       {enrollment ? (
         <div className="space-y-3">
           {lessons.map((lesson) => (
-            <article key={lesson.id} className="rounded-md border border-slate-200 bg-white p-4">
-              <div className="mb-3">
-                <h3 className="text-base font-semibold text-slate-900">
-                  {lesson.order}. {lesson.title}
-                </h3>
-                <LessonUnlock enrollment={enrollment} lessonId={lesson.id} />
+            <article key={lesson.id} className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 space-y-1">
+                  <h3 className="text-base font-semibold text-slate-900 break-words">
+                    {lesson.order}. {lesson.title}
+                  </h3>
+                  <LessonUnlock enrollment={enrollment} lessonId={lesson.id} />
+                </div>
+                {(enrollment.unlockedLessons ?? []).includes(lesson.id) ||
+                (enrollment.completedLessons ?? []).includes(lesson.id) ? (
+                  <Link
+                    href={`/dashboard/student/my-courses/${params.courseId}/lesson/${lesson.id}`}
+                    className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 sm:w-auto"
+                  >
+                    Open Lesson
+                  </Link>
+                ) : (
+                  <span className="text-sm text-slate-500">Locked</span>
+                )}
               </div>
-              {(enrollment.unlockedLessons ?? []).includes(lesson.id) ||
-              (enrollment.completedLessons ?? []).includes(lesson.id) ? (
-                <Link
-                  href={`/dashboard/student/my-courses/${params.courseId}/lesson/${lesson.id}`}
-                  className="inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
-                >
-                  Open Lesson
-                </Link>
-              ) : (
-                <span className="text-sm text-slate-500">Locked</span>
-              )}
             </article>
           ))}
         </div>
@@ -115,4 +124,3 @@ export default function StudentCoursePage() {
     </section>
   );
 }
-
