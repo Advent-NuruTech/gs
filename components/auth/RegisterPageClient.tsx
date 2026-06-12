@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Mail, User, Lock, GraduationCap, Phone } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import Input from "@/components/ui/Input";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { registerUser } from "@/services/authService";
@@ -261,13 +262,13 @@ export default function RegisterPageClient() {
                 />
                 <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
                  By creating an account, you agree  to the{" "}
-                  <Link href="#" className="text-blue-600 hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="#" className="text-blue-600 hover:underline">
-                    Privacy Policy
-                  </Link>
+                   <Link href="/terms" className="text-blue-600 hover:underline">
+                     Terms of Service
+                   </Link>{" "}
+                   and{" "}
+                   <Link href="/privacy" className="text-blue-600 hover:underline">
+                     Privacy Policy
+                   </Link>
                 </label>
               </div>
           <Button
@@ -285,14 +286,14 @@ export default function RegisterPageClient() {
             )}
           </Button>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
-            </div>
-           
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs uppercase tracking-wide text-slate-400">or</span>
+            <span className="h-px flex-1 bg-slate-200" />
           </div>
 
-  
+          <GoogleSignInButton redirectPath={redirectPath} label="Sign up with Google" />
+
           <p className="text-center text-sm text-slate-600">
             Already have an account?{" "}
             <Link

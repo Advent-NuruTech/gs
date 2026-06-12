@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 
+import UpcomingMeetingsWidget from "@/components/meetings/UpcomingMeetingsWidget";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 interface Metrics {
-  users: number;
+  admins: number;
+  teachers: number;
+  students: number;
   courses: number;
   enrollments: number;
   successfulPayments: number;
@@ -13,7 +16,9 @@ interface Metrics {
 
 export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<Metrics>({
-    users: 0,
+    admins: 0,
+    teachers: 0,
+    students: 0,
     courses: 0,
     enrollments: 0,
     successfulPayments: 0,
@@ -29,13 +34,16 @@ export default function AdminDashboardPage() {
         return count ?? 0;
       };
 
-      const [users, courses, enrollments, successfulPayments] = await Promise.all([
-        countOf("profiles"),
-        countOf("courses"),
-        countOf("enrollments"),
-        countOf("payments", { column: "status", value: "success" }),
-      ]);
-      setMetrics({ users, courses, enrollments, successfulPayments });
+      const [admins, teachers, students, courses, enrollments, successfulPayments] =
+        await Promise.all([
+          countOf("profiles", { column: "role", value: "admin" }),
+          countOf("profiles", { column: "role", value: "teacher" }),
+          countOf("profiles", { column: "role", value: "student" }),
+          countOf("courses"),
+          countOf("enrollments"),
+          countOf("payments", { column: "status", value: "success" }),
+        ]);
+      setMetrics({ admins, teachers, students, courses, enrollments, successfulPayments });
     }
     load();
   }, []);
@@ -43,10 +51,19 @@ export default function AdminDashboardPage() {
   return (
     <section className="space-y-4">
       <h2 className="text-2xl font-bold text-slate-900">Admin Dashboard</h2>
-      <div className="grid gap-4 md:grid-cols-4">
+      <UpcomingMeetingsWidget role="admin" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <article className="rounded-md border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-500">Users</p>
-          <p className="text-2xl font-bold text-slate-900">{metrics.users}</p>
+          <p className="text-sm text-slate-500">Students</p>
+          <p className="text-2xl font-bold text-slate-900">{metrics.students}</p>
+        </article>
+        <article className="rounded-md border border-slate-200 bg-white p-4">
+          <p className="text-sm text-slate-500">Teachers</p>
+          <p className="text-2xl font-bold text-slate-900">{metrics.teachers}</p>
+        </article>
+        <article className="rounded-md border border-slate-200 bg-white p-4">
+          <p className="text-sm text-slate-500">Admins</p>
+          <p className="text-2xl font-bold text-slate-900">{metrics.admins}</p>
         </article>
         <article className="rounded-md border border-slate-200 bg-white p-4">
           <p className="text-sm text-slate-500">Courses</p>

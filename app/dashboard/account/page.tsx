@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Mail, Lock, User, Phone, ShieldCheck } from "lucide-react";
 
+import GoogleConnectCard from "@/components/meetings/GoogleConnectCard";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
@@ -124,6 +125,8 @@ export default function AccountPage() {
         <h2 className="text-2xl font-bold text-slate-900">Account Settings</h2>
         <p className="text-sm text-slate-600">Manage your profile, email, and password.</p>
       </div>
+
+      <GoogleConnectCard redirectPath="/dashboard/account" />
 
       {/* Profile */}
       <form onSubmit={saveProfile} className="space-y-4 rounded-xl border border-slate-200 bg-white p-5">

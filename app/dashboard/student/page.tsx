@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import CourseCard from "@/components/course/CourseCard";
 import PaymentDrafts from "@/components/dashboard/PaymentDrafts";
+import UpcomingMeetingsWidget from "@/components/meetings/UpcomingMeetingsWidget";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { useAuth } from "@/hooks/useAuth";
 import { listCourses } from "@/services/courseService";
@@ -99,6 +100,8 @@ export default function StudentDashboardPage() {
   return (
     <section className="space-y-6">
       <h2 className="text-2xl font-bold text-slate-900">Student Dashboard</h2>
+
+      <UpcomingMeetingsWidget role="student" />
 
       <PaymentDrafts
         drafts={pendingDrafts}

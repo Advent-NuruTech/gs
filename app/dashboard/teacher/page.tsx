@@ -3,19 +3,26 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import UpcomingMeetingsWidget from "@/components/meetings/UpcomingMeetingsWidget";
 import { useAuth } from "@/hooks/useAuth";
 import { listCourses } from "@/services/courseService";
+import { getTeacherStudentCount } from "@/services/messageService";
 import { Course } from "@/types/course";
 
 export default function TeacherDashboardPage() {
   const { profile } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
+  const [studentCount, setStudentCount] = useState(0);
 
   useEffect(() => {
     async function load() {
       if (!profile) return;
-      const response = await listCourses({ instructorId: profile.id, pageSize: 50 });
+      const [response, count] = await Promise.all([
+        listCourses({ instructorId: profile.id, pageSize: 50 }),
+        getTeacherStudentCount(profile.id),
+      ]);
       setCourses(response.courses);
+      setStudentCount(count);
     }
     load();
   }, [profile]);
@@ -29,7 +36,12 @@ export default function TeacherDashboardPage() {
           <p className="text-sm text-slate-500">Total Courses</p>
           <p className="text-2xl font-bold text-slate-900">{courses.length}</p>
         </article>
+        <article className="rounded-md border border-slate-200 bg-white p-4">
+          <p className="text-sm text-slate-500">My Students</p>
+          <p className="text-2xl font-bold text-slate-900">{studentCount}</p>
+        </article>
       </div>
+      <UpcomingMeetingsWidget role="teacher" />
       <Link
         href="/dashboard/teacher/courses/create"
         className="inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"

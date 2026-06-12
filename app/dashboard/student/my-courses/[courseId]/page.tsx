@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import LessonUnlock from "@/components/course/LessonUnlock";
+import UpcomingMeetingsWidget from "@/components/meetings/UpcomingMeetingsWidget";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { useAuth } from "@/hooks/useAuth";
 import { formatContent } from "@/lib/utils/formatContent";
@@ -62,6 +63,9 @@ export default function StudentCoursePage() {
   return (
     <section className="mx-auto w-full max-w-5xl space-y-6">
       <h2 className="text-2xl font-bold text-slate-900 break-words sm:text-3xl">{course.title}</h2>
+
+      <UpcomingMeetingsWidget role="student" courseId={course.id} />
+
       <div
         className="prose-content overflow-hidden rounded-xl border border-slate-200 bg-white p-4 text-slate-700 sm:p-6"
         dangerouslySetInnerHTML={{ __html: formatContent(course.outline) }}

@@ -10,6 +10,12 @@ import {
   getNotificationsForUser,
   markNotificationAsRead,
 } from "@/services/notificationService";
+import {
+  listAnnouncementsForUser,
+  markAllAnnouncementsRead,
+  markAnnouncementRead,
+} from "@/services/announcementService";
+import { Announcement } from "@/types/announcement";
 import { NotificationItem } from "@/types/notification";
 
 interface HeaderProps {
@@ -30,17 +36,27 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
   const { profile, logout } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  const announcementsHref =
+    profile?.role === "admin"
+      ? "/dashboard/admin/announcements"
+      : `/dashboard/${profile?.role ?? "student"}/announcements`;
 
   useEffect(() => {
     if (!profile) return;
 
     let active = true;
     (async () => {
-      const rows = await getNotificationsForUser(profile.id);
+      const [rows, announcementRows] = await Promise.all([
+        getNotificationsForUser(profile.id),
+        listAnnouncementsForUser(profile.id).catch(() => [] as Announcement[]),
+      ]);
       if (active) {
         setNotifications(rows);
+        setAnnouncements(announcementRows);
       }
     })();
 
@@ -54,7 +70,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
     [notifications],
   );
 
-  const unreadCount = unreadNotifications.length;
+  const unreadAnnouncements = useMemo(
+    () => announcements.filter((item) => !item.read),
+    [announcements],
+  );
+
+  const unreadCount = unreadNotifications.length + unreadAnnouncements.length;
 
   const filteredAdminLinks = useMemo(() => {
     if (profile?.role !== "admin") return [];
@@ -90,13 +111,34 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const toggleNotifications = () => setIsNotificationOpen((open) => !open);
 
   const markAllRead = async () => {
-    if (!profile || unreadNotifications.length === 0) return;
+    if (!profile || unreadCount === 0) return;
     try {
-      await clearNotificationsForUser(profile.id);
-      setNotifications((current) => current.map((item) => ({ ...item, read: true })));
+      if (unreadNotifications.length > 0) {
+        await clearNotificationsForUser(profile.id);
+        setNotifications((current) => current.map((item) => ({ ...item, read: true })));
+      }
+      if (unreadAnnouncements.length > 0) {
+        await markAllAnnouncementsRead(unreadAnnouncements.map((item) => item.id), profile.id);
+        setAnnouncements((current) => current.map((item) => ({ ...item, read: true })));
+      }
     } catch {
       // Keep the panel usable even if the clear action fails.
     }
+  };
+
+  const openAnnouncement = async (announcement: Announcement) => {
+    if (!announcement.read && profile) {
+      try {
+        await markAnnouncementRead(announcement.id, profile.id);
+        setAnnouncements((current) =>
+          current.map((item) => (item.id === announcement.id ? { ...item, read: true } : item)),
+        );
+      } catch {
+        // Navigation should still work even if marking read fails.
+      }
+    }
+    setIsNotificationOpen(false);
+    router.push(announcementsHref);
   };
 
   return (
@@ -204,9 +246,34 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   ) : null}
                 </div>
                 <div className="max-h-96 space-y-2 overflow-y-auto p-3">
-                  {notifications.length === 0 ? (
+                  {announcements.slice(0, 8).map((item) => (
+                    <button
+                      key={`ann_${item.id}`}
+                      type="button"
+                      onClick={() => openAnnouncement(item)}
+                      className={`flex w-full items-start gap-2 rounded border p-2 text-left text-sm transition ${
+                        item.read
+                          ? "border-slate-100 bg-white hover:bg-slate-50"
+                          : "border-amber-200 bg-amber-50 hover:bg-amber-100"
+                      }`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
+                          item.read ? "bg-transparent" : "bg-amber-500"
+                        }`}
+                      />
+                      <span className="min-w-0">
+                        <span className="block font-semibold text-slate-900">
+                          📢 {item.title}
+                        </span>
+                        <span className="block truncate text-slate-600">{item.body}</span>
+                      </span>
+                    </button>
+                  ))}
+                  {announcements.length === 0 && notifications.length === 0 ? (
                     <p className="px-1 py-6 text-center text-sm text-slate-500">
-                      You&apos;re all caught up. No notifications yet.
+                      You&apos;re all caught up. Nothing new yet.
                     </p>
                   ) : (
                     notifications.slice(0, 12).map((item) => (

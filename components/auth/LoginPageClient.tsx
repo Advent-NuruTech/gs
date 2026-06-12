@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { GraduationCap, Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import Input from "@/components/ui/Input";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -241,7 +242,14 @@ export default function LoginPageClient() {
             )}
           </Button>
 
-         
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs uppercase tracking-wide text-slate-400">or</span>
+            <span className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <GoogleSignInButton redirectPath={redirectPath} />
+
           <p className="text-center text-sm text-slate-600">
             No account?{" "}
             <Link
