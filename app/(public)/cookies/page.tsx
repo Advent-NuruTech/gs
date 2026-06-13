@@ -2,75 +2,80 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Cookies Policy | Advent Skool",
-  description: "Advent Skool's cookies policy — how we use cookies and similar tracking technologies.",
+  description: "Advent Skool's cookies policy — how we use cookies and similar tracking technologies, and how you can manage your preferences.",
 };
 
 const sections = [
   {
-    title: "What Are Cookies",
+    title: "1. Introduction",
     content:
-      "Cookies are small text files stored on your device by your web browser when you visit a website. They help websites remember your preferences, understand how you interact with the site, and improve your overall experience. Cookies may be set by the website you visit ('first-party') or by third-party services we integrate.",
+      "This Cookies Policy explains how Advent Skool ('we', 'us', or 'our') uses cookies and similar tracking technologies on our website, applications, and learning management services (the 'Platform'). It should be read together with our Privacy Policy for a complete understanding of how we handle your data. By using the Platform and, where required, by giving your consent through our cookie banner, you agree to the use of cookies as described in this policy. Our use of cookies is consistent with the EU and UK GDPR and ePrivacy rules, the CCPA/CPRA, and the Kenya Data Protection Act, 2019.",
   },
   {
-    title: "How We Use Cookies",
+    title: "2. What Are Cookies",
     content:
-      "We use cookies and similar tracking technologies to: authenticate your login session, remember your preferences and settings, analyse platform usage to improve our services, deliver personalised learning recommendations, and enable features like course progress tracking. Some cookies are essential for the platform to function.",
+      "Cookies are small text files placed on your device by your web browser when you visit a website. They allow a site to remember your actions and preferences over time. We also use similar technologies such as local storage, pixels, and software development kits, which we refer to collectively as 'cookies' in this policy. Cookies may be set by us ('first-party') or by third-party services we integrate ('third-party').",
   },
   {
-    title: "Types of Cookies We Use",
+    title: "3. How We Use Cookies",
+    content:
+      "We use cookies to: authenticate your login session and keep you signed in; remember your preferences and settings; provide and secure core Platform features such as course enrollment and progress tracking; analyse how the Platform is used so we can improve it; and, where you consent, deliver and measure marketing. Some cookies are strictly necessary for the Platform to function and cannot be switched off.",
+  },
+  {
+    title: "4. Types of Cookies We Use",
     content: "",
     subsections: [
       {
-        title: "Essential Cookies",
+        title: "Strictly Necessary Cookies",
         content:
-          "Required for the platform to function. These enable core features like secure login, account management, and course enrollment. Without these cookies, certain services cannot be provided.",
+          "Required for the Platform to function and cannot be disabled in our systems. They enable core features such as secure login, session management, account management, and course enrollment. These are set on the basis of our legitimate interest in operating a secure and functional service.",
       },
       {
         title: "Functional Cookies",
         content:
-          "Remember your preferences and settings, such as language selection, theme preferences, and course progress. These enhance your experience but are not strictly necessary.",
+          "Remember your preferences and settings, such as language, theme, and course progress, to provide enhanced and personalised features. Disabling these may affect the functionality of certain parts of the Platform.",
       },
       {
-        title: "Analytics Cookies",
+        title: "Analytics & Performance Cookies",
         content:
-          "Help us understand how users interact with Advent Skool by collecting anonymised data on page visits, time spent, and navigation patterns. We use this data to improve platform usability and performance.",
+          "Help us understand how visitors interact with the Platform by collecting information such as pages visited, time spent, and navigation patterns, generally in aggregated or de-identified form. We use this to measure and improve performance and usability. These cookies are set only where permitted or with your consent.",
       },
       {
         title: "Marketing Cookies",
         content:
-          "Used to deliver relevant advertisements and measure the effectiveness of our marketing campaigns. These may be set by third-party advertising partners with your consent.",
+          "Used to deliver relevant content and advertisements and to measure the effectiveness of marketing campaigns. These may be set by us or by third-party advertising partners and are only used with your consent, which you can withdraw at any time.",
       },
     ],
   },
   {
-    title: "Third-Party Cookies",
+    title: "5. Third-Party Cookies",
     content:
-      "Some cookies are placed by trusted third-party services we use, including Paystack (payment processing), Supabase (authentication and database), and analytics providers. These third parties have their own cookie policies. We encourage you to review them.",
+      "Some cookies are placed by trusted third-party services we use to operate the Platform, including our payment processor, our authentication and database provider, Google services (such as sign-in, Calendar, and Meet integrations), and analytics providers. These third parties process data under their own privacy and cookie policies, and we encourage you to review them. We do not control cookies set by third parties.",
   },
   {
-    title: "Managing Cookies",
+    title: "6. Legal Basis for Using Cookies",
     content:
-      "You can control and manage cookies through your browser settings. Most browsers allow you to block or delete cookies. Please note that disabling essential cookies may affect platform functionality. You can also opt out of analytics cookies through our cookie consent banner.",
+      "We rely on your consent to set non-essential cookies, including analytics and marketing cookies, where required by law. Strictly necessary cookies are used on the basis of our legitimate interest in providing a secure and functional service. You can give, refuse, or withdraw consent at any time using our cookie consent banner or your browser settings, without affecting the lawfulness of processing carried out before withdrawal.",
   },
   {
-    title: "Your Consent",
+    title: "7. Managing Your Cookie Preferences",
     content:
-      "When you first visit Advent Skool, you will see a cookie consent banner. By clicking 'Accept' or continuing to use the platform, you consent to the use of cookies as described in this policy. You can change your preferences at any time through your browser settings.",
+      "When you first visit the Platform, you can set your preferences through our cookie consent banner, and you can change them at any time. You can also control or delete cookies through your browser settings; most browsers let you block or remove cookies and notify you when one is set. Please note that disabling strictly necessary cookies may prevent parts of the Platform from working correctly. For more information on managing cookies, refer to your browser's help documentation.",
   },
   {
-    title: "Do Not Track Signals",
+    title: "8. Do Not Track & Global Privacy Control",
     content:
-      "Advent Skool currently does not respond to 'Do Not Track' (DNT) signals. We continue to evaluate emerging standards and may update this practice as industry standards evolve.",
+      "Some browsers offer a 'Do Not Track' (DNT) signal or a Global Privacy Control (GPC) signal. Where required by applicable law, we honour recognised opt-out preference signals such as GPC. Because there is no common industry standard for DNT, we may not respond to all DNT signals, but we continue to evaluate emerging standards and will update our practices accordingly.",
   },
   {
-    title: "Updates to This Policy",
+    title: "9. Updates to This Policy",
     content:
-      "We may update this Cookies Policy periodically. Changes will be posted on this page with an updated 'Last updated' date. Significant changes will be communicated via platform notice or email.",
+      "We may update this Cookies Policy from time to time to reflect changes in technology, law, or our practices. Any changes will be posted on this page with a revised 'Last updated' date, and significant changes will be communicated through a Platform notice or email. Your continued use of the Platform after changes take effect constitutes acceptance of the updated policy.",
   },
   {
-    title: "Contact",
+    title: "10. Contact",
     content:
-      "If you have questions about our use of cookies, please contact us at privacy@adventskool.com.",
+      "If you have questions about our use of cookies, please contact us at adventnurutech@gmail.com.",
   },
 ];
 
@@ -104,7 +109,7 @@ export default function CookiesPage() {
           <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground">
             Cookies Policy
           </h1>
-          <p className="text-sm text-muted-foreground">Last updated: June 12, 2026</p>
+          <p className="text-sm text-muted-foreground">Last updated: June 14, 2026</p>
           <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-primary" />
         </div>
 
