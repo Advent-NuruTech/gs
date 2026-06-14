@@ -13,6 +13,7 @@ export function mapProfile(row: Record<string, unknown>): AppUser {
     phone: String(row.phone ?? ""),
     role: (row.role as AppUser["role"]) ?? "student",
     photoURL: row.photo_url ? String(row.photo_url) : undefined,
+    marketingSubscribed: row.marketing_subscribed === undefined ? undefined : Boolean(row.marketing_subscribed),
     createdAt: row.created_at ? String(row.created_at) : undefined,
     updatedAt: row.updated_at ? String(row.updated_at) : undefined,
   };
@@ -38,6 +39,7 @@ export async function registerUser(input: CreateUserInput): Promise<RegisterResu
         full_name: input.displayName,
         phone: input.phone ?? "",
         role: input.role ?? "student",
+        marketing_subscribed: input.marketingSubscribed ?? true,
       },
     },
   });
@@ -55,6 +57,17 @@ export async function updateUserEmail(email: string): Promise<void> {
 /** Updates the signed-in user's password. */
 export async function updateUserPassword(password: string): Promise<void> {
   const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * Sends a password-reset email. The link lands on `/auth/callback`, which
+ * exchanges the code for a (recovery) session and forwards to `/reset-password`
+ * where the user can set a new password.
+ */
+export async function sendPasswordReset(email: string): Promise<void> {
+  const redirectTo = `${window.location.origin}/auth/callback?next=/reset-password`;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
   if (error) throw new Error(error.message);
 }
 

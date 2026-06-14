@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GraduationCap, Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 
+import AuthShell from "@/components/auth/AuthShell";
 import Button from "@/components/ui/Button";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import Input from "@/components/ui/Input";
@@ -102,10 +103,10 @@ export default function LoginPageClient() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4 py-8">
+    <AuthShell>
       <div className="w-full max-w-md">
         {/* Logo and Branding */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <Link href="/" className="inline-block">
             <div className="flex items-center justify-center gap-2 mb-2">
               <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-xl shadow-lg">
@@ -123,15 +124,15 @@ export default function LoginPageClient() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-2xl bg-white/80 backdrop-blur-sm p-8 shadow-xl border border-slate-200/60 transition-all duration-300 hover:shadow-2xl"
+          className="space-y-6 rounded-3xl bg-white/95 backdrop-blur-md p-6 sm:p-8 shadow-2xl border border-white/60 transition-all duration-300"
         >
           <div className="space-y-1 text-center">
-            <h1 className="text-3xl font-bold text-slate-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
               {getWelcomeMessage()}
             </h1>
             <p className="text-sm text-slate-500">
-              {rememberedUser?.name 
-                ? "Great to see you again! Sign in to continue." 
+              {rememberedUser?.name
+                ? "Great to see you again! Sign in to continue."
                 : "Sign in to continue your learning journey."}
             </p>
             {rememberedUser?.email && (
@@ -139,6 +140,15 @@ export default function LoginPageClient() {
                 Signed in as {rememberedUser.email}
               </p>
             )}
+          </div>
+
+          {/* Google sign-in first */}
+          <GoogleSignInButton redirectPath={redirectPath} />
+
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs uppercase tracking-wide text-slate-400">or sign in with email</span>
+            <span className="h-px flex-1 bg-slate-200" />
           </div>
 
           <div className="space-y-5">
@@ -150,9 +160,9 @@ export default function LoginPageClient() {
               </label>
               <div className="relative">
                 <Input
-                
                   type="email"
                   label="Email Address"
+                  hideLabel
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setFocusedField("email")}
@@ -182,6 +192,7 @@ export default function LoginPageClient() {
                 <Input
                   type={showPassword ? "text" : "password"}
                   label="Password"
+                  hideLabel
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusedField("password")}
@@ -242,14 +253,6 @@ export default function LoginPageClient() {
             )}
           </Button>
 
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs uppercase tracking-wide text-slate-400">or</span>
-            <span className="h-px flex-1 bg-slate-200" />
-          </div>
-
-          <GoogleSignInButton redirectPath={redirectPath} />
-
           <p className="text-center text-sm text-slate-600">
             No account?{" "}
             <Link
@@ -265,17 +268,11 @@ export default function LoginPageClient() {
           </p>
         </form>
 
-        <p className="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-1">
+        <p className="mt-6 text-center text-xs text-slate-500 flex items-center justify-center gap-1">
           <Lock className="w-3 h-3" />
           Secured login
         </p>
-        <p className="mt-2 text-center text-xs text-slate-400">
-          Administrator?{" "}
-          <Link href="/admin/login" className="font-semibold text-indigo-600 hover:underline">
-            Go to Admin Portal
-          </Link>
-        </p>
       </div>
-    </main>
+    </AuthShell>
   );
 }

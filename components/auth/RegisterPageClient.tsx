@@ -5,6 +5,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Mail, User, Lock, GraduationCap, Phone } from "lucide-react";
 
+import AuthShell from "@/components/auth/AuthShell";
 import Button from "@/components/ui/Button";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import Input from "@/components/ui/Input";
@@ -31,6 +32,7 @@ export default function RegisterPageClient() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [marketingSubscribed, setMarketingSubscribed] = useState(true);
 
   const redirectPath = useMemo(() => {
     const redirect = searchParams.get("redirect");
@@ -60,6 +62,7 @@ export default function RegisterPageClient() {
         phone: normalizedPhone,
         password,
         role: "student",
+        marketingSubscribed,
       });
       if (needsConfirmation) {
         pushToast(
@@ -82,10 +85,10 @@ export default function RegisterPageClient() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4 py-8">
+    <AuthShell>
       <div className="w-full max-w-md">
         {/* Logo and Branding */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <Link href="/" className="inline-block">
             <div className="flex items-center justify-center gap-2 mb-2">
               <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-xl shadow-lg">
@@ -103,7 +106,7 @@ export default function RegisterPageClient() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-2xl bg-white/80 backdrop-blur-sm p-8 shadow-xl border border-slate-200/60 transition-all duration-300 hover:shadow-2xl"
+          className="space-y-6 rounded-3xl bg-white/95 backdrop-blur-md p-6 sm:p-8 shadow-2xl border border-white/60 transition-all duration-300"
         >
           <div className="space-y-1 text-center">
             <h1 className="text-2xl font-bold text-slate-900">
@@ -112,6 +115,15 @@ export default function RegisterPageClient() {
             <p className="text-sm text-slate-500">
               Start your structured learning journey today
             </p>
+          </div>
+
+          {/* Google sign-up first */}
+          <GoogleSignInButton redirectPath={redirectPath} label="Sign up with Google" />
+
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs uppercase tracking-wide text-slate-400">or sign up with email</span>
+            <span className="h-px flex-1 bg-slate-200" />
           </div>
 
           <div className="space-y-5">
@@ -123,6 +135,7 @@ export default function RegisterPageClient() {
               </label>
               <Input
                 label="Full Name"
+                hideLabel
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 onFocus={() => setFocusedField("name")}
@@ -148,6 +161,7 @@ export default function RegisterPageClient() {
               </label>
               <Input
                 label="Email Address"
+                hideLabel
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -174,6 +188,7 @@ export default function RegisterPageClient() {
               </label>
               <Input
                 label="Phone Number"
+                hideLabel
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -204,6 +219,7 @@ export default function RegisterPageClient() {
               <div className="relative">
                 <Input
                   label="Password"
+                  hideLabel
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -271,6 +287,20 @@ export default function RegisterPageClient() {
                    </Link>
                 </label>
               </div>
+
+              {/* Learning updates opt-in */}
+              <div className="flex items-start">
+                <input
+                  id="marketing"
+                  type="checkbox"
+                  checked={marketingSubscribed}
+                  onChange={(e) => setMarketingSubscribed(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500"
+                />
+                <label htmlFor="marketing" className="ml-2 text-sm text-gray-600">
+                  Subscribe to learning updates &amp; new courses
+                </label>
+              </div>
           <Button
             type="submit"
             className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
@@ -285,14 +315,6 @@ export default function RegisterPageClient() {
               "Create Account"
             )}
           </Button>
-
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs uppercase tracking-wide text-slate-400">or</span>
-            <span className="h-px flex-1 bg-slate-200" />
-          </div>
-
-          <GoogleSignInButton redirectPath={redirectPath} label="Sign up with Google" />
 
           <p className="text-center text-sm text-slate-600">
             Already have an account?{" "}
@@ -316,13 +338,7 @@ export default function RegisterPageClient() {
             <span className="mx-2">·</span>
             <Link href="/terms" className="hover:text-gray-700">Terms</Link>
           </div>
-
-        
-             
       </div>
-
-
-      
-    </main>
+    </AuthShell>
   );
 }

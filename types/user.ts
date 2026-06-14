@@ -7,6 +7,7 @@ export interface AppUser {
   phone: string;
   role: UserRole;
   photoURL?: string;
+  marketingSubscribed?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -17,4 +18,5 @@ export interface CreateUserInput {
   displayName: string;
   phone?: string;
   role?: UserRole;
+  marketingSubscribed?: boolean;
 }

@@ -43,6 +43,7 @@ const linkMap: Record<UserRole, Array<{ href: string; label: string }>> = {
     { href: "/dashboard/admin/payments", label: "Payments" },
     { href: "/dashboard/admin/analytics", label: "Analytics" },
     { href: "/dashboard/admin/announcements", label: "Announcements" },
+    { href: "/dashboard/admin/email-campaigns", label: "Email Campaigns" },
     { href: "/dashboard/admin/reports", label: "Reports" },
     //{ href: "/dashboard/admin/chat", label: "Chat with AI" },
     { href: "/dashboard/account", label: "Account" },

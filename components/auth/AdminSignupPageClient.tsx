@@ -5,6 +5,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, KeyRound, Lock, Mail, Phone, ShieldCheck, User } from "lucide-react";
 
+import AuthShell from "@/components/auth/AuthShell";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useNotificationContext } from "@/context/NotificationContext";
@@ -73,7 +74,7 @@ export default function AdminSignupPageClient() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-900 px-4 py-10">
+    <AuthShell variant="dark">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-3 inline-flex items-center justify-center rounded-xl bg-slate-800 p-3">
@@ -85,7 +86,7 @@ export default function AdminSignupPageClient() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl border border-slate-700 bg-slate-800/70 p-8 shadow-2xl"
+          className="space-y-5 rounded-3xl border border-slate-700 bg-slate-900/85 p-6 backdrop-blur-md sm:p-8 shadow-2xl"
         >
           <div className="space-y-1.5">
             <label className="flex items-center gap-1 text-sm font-medium text-slate-200">
@@ -189,6 +190,6 @@ export default function AdminSignupPageClient() {
           </p>
         </form>
       </div>
-    </main>
+    </AuthShell>
   );
 }
