@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Upload } from "lucide-react";
 
@@ -9,7 +9,7 @@ import Input from "@/components/ui/Input";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadAsset } from "@/lib/cloudinary/uploadImage";
-import { createDesign, updateDesign } from "@/services/designService";
+import { createDesign, listDesignCategories, updateDesign } from "@/services/designService";
 import { Design, DesignFileType, DESIGN_CATEGORIES } from "@/types/design";
 
 interface Props {
@@ -57,6 +57,7 @@ export default function DesignUploadForm({ design }: Props) {
   const [imageUrl, setImageUrl] = useState(design?.imageUrl ?? "");
   const [fileUrl, setFileUrl] = useState(design?.fileUrl ?? design?.imageUrl ?? "");
   const [fileType, setFileType] = useState<DesignFileType>(design?.fileType ?? "image");
+  const [pageCount, setPageCount] = useState<number | undefined>(design?.pageCount);
   const [dims, setDims] = useState<{ width?: number; height?: number }>({
     width: design?.imageWidth,
     height: design?.imageHeight,
@@ -66,6 +67,27 @@ export default function DesignUploadForm({ design }: Props) {
   const [published, setPublished] = useState(design?.published ?? true);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Pull categories already used by saved designs so manually-added ones persist
+  // across reloads instead of disappearing behind the hardcoded presets.
+  useEffect(() => {
+    let cancelled = false;
+    listDesignCategories()
+      .then((saved) => {
+        if (cancelled || saved.length === 0) return;
+        setCategories((current) => {
+          const merged = [...current];
+          for (const name of saved) {
+            if (!merged.some((c) => c.toLowerCase() === name.toLowerCase())) merged.push(name);
+          }
+          return merged;
+        });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const addCategory = () => {
     const name = newCategory.trim().replace(/\s+/g, " ");
@@ -88,11 +110,13 @@ export default function DesignUploadForm({ design }: Props) {
       setFileUrl(asset.url);
       setFileType(asset.isPdf ? "pdf" : "image");
       if (asset.isPdf) {
-        // PDFs report their page dimensions in the Cloudinary response.
+        // PDFs report their page dimensions + total page count in the response.
         setDims({ width: asset.width || undefined, height: asset.height || undefined });
+        setPageCount(asset.pages || undefined);
       } else {
         const d = await readDimensions(file);
         setDims({ width: d.width || undefined, height: d.height || undefined });
+        setPageCount(undefined);
       }
     } catch {
       pushToast("Upload failed. Try again.", "error");
@@ -123,6 +147,7 @@ export default function DesignUploadForm({ design }: Props) {
         imageHeight: dims.height,
         fileUrl: fileUrl || imageUrl,
         fileType,
+        pageCount: fileType === "pdf" ? pageCount : undefined,
         downloadPrice: Number(downloadPrice || 0),
         customizationPrice: Number(customizationPrice || 0),
         published,

@@ -20,6 +20,8 @@ export interface UploadedAsset {
   height?: number;
   /** True when Cloudinary detected a PDF. */
   isPdf: boolean;
+  /** Total page count for PDFs (used for the quarter-of-pages preview). */
+  pages?: number;
 }
 
 /**
@@ -66,6 +68,7 @@ export async function uploadAsset(file: File, folder: string): Promise<UploadedA
     width: data.width,
     height: data.height,
     isPdf,
+    pages: isPdf ? data.pages : undefined,
   };
 }
 

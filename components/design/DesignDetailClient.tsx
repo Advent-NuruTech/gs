@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import CustomizeModal from "@/components/design/CustomizeModal";
 import DownloadModal from "@/components/design/DownloadModal";
 import DesignCard from "@/components/design/DesignCard";
+import PdfPreview from "@/components/design/PdfPreview";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { toDownloadUrl } from "@/lib/designs/downloadUrl";
 import { recordDesignView } from "@/services/designService";
@@ -44,6 +45,17 @@ export default function DesignDetailClient({
     triggerDownload(toDownloadUrl(design.fileUrl || design.imageUrl, design.title));
   };
 
+  // Paywall on the PDF preview: free designs hand over the file immediately,
+  // paid ones open the same download checkout used by the sidebar button.
+  const handleUnlock = () => {
+    if (downloadFree) {
+      handleFreeDownload();
+    } else {
+      setRevealed("download");
+      setShowDownload(true);
+    }
+  };
+
   // Count a view once per mount (analytics for the gallery + admin).
   useEffect(() => {
     void recordDesignView(design.id);
@@ -56,16 +68,16 @@ export default function DesignDetailClient({
       </Link>
 
       <div className="grid gap-8 md:grid-cols-[1.4fr_1fr] md:items-start">
-        {/* Full image, no cropping. PDFs show the first-page preview. */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={design.imageUrl} alt={design.title} className="h-auto w-full object-contain" />
-          {design.fileType === "pdf" ? (
-            <span className="absolute left-3 top-3 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-              PDF template
-            </span>
-          ) : null}
-        </div>
+        {/* Full image, no cropping. PDFs show a quarter of their pages free and
+            paywall the rest; images render uncropped as before. */}
+        {design.fileType === "pdf" ? (
+          <PdfPreview design={design} onUnlock={handleUnlock} />
+        ) : (
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={design.imageUrl} alt={design.title} className="h-auto w-full object-contain" />
+          </div>
+        )}
 
         <div className="space-y-5 md:sticky md:top-6">
           <div className="space-y-2">

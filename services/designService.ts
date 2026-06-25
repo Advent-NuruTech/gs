@@ -20,6 +20,7 @@ function mapDesign(data: Record<string, unknown>): Design {
     imageHeight: data.image_height != null ? Number(data.image_height) : undefined,
     fileUrl: data.file_url ? String(data.file_url) : undefined,
     fileType: String(data.file_type ?? "image") === "pdf" ? "pdf" : "image",
+    pageCount: data.page_count != null ? Number(data.page_count) : undefined,
     downloadPrice: Number(data.download_price ?? 0),
     customizationPrice: Number(data.customization_price ?? 0),
     published: Boolean(data.published),
@@ -43,6 +44,7 @@ export async function createDesign(input: CreateDesignInput): Promise<string> {
       image_height: input.imageHeight ?? null,
       file_url: input.fileUrl ?? input.imageUrl,
       file_type: input.fileType ?? "image",
+      page_count: input.pageCount ?? null,
       download_price: input.downloadPrice,
       customization_price: input.customizationPrice,
       published: input.published ?? true,
@@ -85,6 +87,25 @@ export async function listDesigns(filters: DesignFilters = {}): Promise<Design[]
   return (data ?? []).map(mapDesign);
 }
 
+/**
+ * Distinct categories already used by saved designs. Lets the admin upload form
+ * surface manually-added categories on reload instead of only the hardcoded presets.
+ */
+export async function listDesignCategories(): Promise<string[]> {
+  const { data, error } = await supabase.from("designs").select("category");
+  if (error) throw new Error(error.message);
+  const seen = new Set<string>();
+  const categories: string[] = [];
+  for (const row of data ?? []) {
+    const category = normalizeCategory(String((row as Record<string, unknown>).category ?? ""));
+    const key = category.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    categories.push(category);
+  }
+  return categories.sort((a, b) => a.localeCompare(b));
+}
+
 export async function updateDesign(
   designId: string,
   updates: Partial<CreateDesignInput>,
@@ -98,6 +119,7 @@ export async function updateDesign(
   if (typeof updates.imageHeight === "number") payload.image_height = updates.imageHeight;
   if (typeof updates.fileUrl === "string") payload.file_url = updates.fileUrl;
   if (typeof updates.fileType === "string") payload.file_type = updates.fileType;
+  if (typeof updates.pageCount === "number") payload.page_count = updates.pageCount;
   if (typeof updates.downloadPrice === "number") payload.download_price = updates.downloadPrice;
   if (typeof updates.customizationPrice === "number") payload.customization_price = updates.customizationPrice;
   if (typeof updates.published === "boolean") payload.published = updates.published;

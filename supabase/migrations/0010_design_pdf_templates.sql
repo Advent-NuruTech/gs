@@ -6,7 +6,10 @@
 -- ============================================================================
 alter table designs
   add column if not exists file_url text,
-  add column if not exists file_type text not null default 'image';
+  add column if not exists file_type text not null default 'image',
+  -- Total page count for PDF templates (from Cloudinary). Drives the free
+  -- "read a quarter of the pages" preview; NULL/0 for flat images.
+  add column if not exists page_count integer;
 
 -- Backfill existing rows: their deliverable is the image itself.
 update designs set file_url = image_url where file_url is null and image_url <> '';
