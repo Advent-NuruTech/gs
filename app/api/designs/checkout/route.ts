@@ -128,17 +128,19 @@ export async function POST(request: NextRequest) {
         .eq("id", designId);
     }
 
-    if (kind === "customization") {
-      await notifyAdminsOfDesignOrder({
-        full_name: fullName,
-        design_title: String(design.title ?? ""),
-        amount: 0,
-        paystack_reference: reference,
-        email,
-        phone,
-        whatsapp: clean(body.whatsapp, 40),
-      }).catch(() => {});
-    }
+    // Notify admins of every free order too so the bell captures all design
+    // activity — downloads and customizations alike. The notifier sends the
+    // "do the work" SMS/email only for customizations.
+    await notifyAdminsOfDesignOrder({
+      kind,
+      full_name: fullName,
+      design_title: String(design.title ?? ""),
+      amount: 0,
+      paystack_reference: reference,
+      email,
+      phone,
+      whatsapp: clean(body.whatsapp, 40),
+    }).catch(() => {});
 
     const deliverable = String(design.file_url ?? "") || String(design.image_url ?? "");
     const downloadUrl =

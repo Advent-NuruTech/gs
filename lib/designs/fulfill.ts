@@ -95,10 +95,10 @@ export async function fulfillDesignOrder(reference: string): Promise<DesignFulfi
     }
   }
 
-  // Only customization orders need the team to do work; downloads are instant.
-  if (kind === "customization") {
-    await notifyAdmins(order);
-  }
+  // Notify admins of every paid design order so the bell captures all design
+  // activity. notifyAdmins tailors the message by kind and only fires the
+  // "do the work" SMS/email for customizations (downloads are self-serve).
+  await notifyAdmins(order);
 
   return {
     ok: true,
@@ -137,10 +137,12 @@ export async function notifyAdminsOfDesignOrder(order: Record<string, unknown>) 
 
 async function notifyAdmins(order: Record<string, unknown>) {
   const supabase = getSupabaseAdminClient();
+  const kind: DesignOrderKind = order.kind === "download" ? "download" : "customization";
   const customer = String(order.full_name ?? "A customer");
   const firstName = customer.split(" ")[0] || customer;
   const designTitle = String(order.design_title ?? "a design");
   const amount = Number(order.amount ?? 0);
+  const link = "/dashboard/admin/designs/orders";
 
   try {
     const { data: admins } = await supabase
@@ -148,20 +150,27 @@ async function notifyAdmins(order: Record<string, unknown>) {
       .select("id, phone, email")
       .eq("role", "admin");
 
-    const smsMsg = `AdventSkool: ${firstName} has ordered ${designTitle}. Log in and do the work.`;
-    const link = "/dashboard/admin/designs/orders";
-
-    // In-app notifications.
+    // In-app bell notification for every design order — downloads and
+    // customizations alike — so admins see all design activity, mirroring the
+    // way course payments surface in the bell.
+    const title = kind === "download" ? "Design Purchased" : "New Design Order";
+    const verb = kind === "download" ? "purchased" : "ordered";
     await Promise.all(
       (admins ?? []).map((adminRow) =>
         supabase.from("notifications").insert({
           user_id: adminRow.id,
-          title: "New Design Order",
-          message: `${firstName} ordered ${designTitle} (${formatKes(amount)}).`,
+          title,
+          message: `${firstName} ${verb} ${designTitle} (${formatKes(amount)}).`,
           link,
         }),
       ),
     );
+
+    // Downloads are self-serve — the customer already has the file and the team
+    // has nothing to do, so skip the "do the work" SMS/email blast.
+    if (kind !== "customization") return;
+
+    const smsMsg = `AdventSkool: ${firstName} has ordered ${designTitle}. Log in and do the work.`;
 
     // SMS to all admins.
     const phones = (admins ?? [])
