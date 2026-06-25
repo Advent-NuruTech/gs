@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import Button from "@/components/ui/Button";
+
+export const metadata: Metadata = {
+  title: "Checkout Successful",
+  description: "Your payment was successful and you are now enrolled in your course. Start learning today!",
+  robots: { index: false, follow: false },
+};
 
 export default function CheckoutSuccessPage() {
   return (

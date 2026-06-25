@@ -133,6 +133,65 @@ export function promotionEmail(p: PromotionPayload = {}): RenderedEmail {
   };
 }
 
+export interface DesignOrderAdminPayload {
+  customerName: string;
+  designTitle: string;
+  amount: string;
+  reference: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+}
+
+/** Sent to the design owner/admin when a paid order comes in. */
+export function designOrderAdminEmail(p: DesignOrderAdminPayload): RenderedEmail {
+  const firstName = (p.customerName || "Someone").split(" ")[0];
+  const body = `
+    <p style="margin:0 0 8px;color:${BRAND_DARK};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">New design order</p>
+    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:${TEXT};">${escapeHtml(firstName)} has ordered ${escapeHtml(p.designTitle)}</h1>
+    <p style="margin:0 0 12px;">Log in to the dashboard and start the work.</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border:1px solid ${BORDER};border-radius:12px;margin:12px 0;">
+      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;">Customer</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;">${escapeHtml(p.customerName)}</td></tr>
+      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">Email</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.email)}</td></tr>
+      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">Phone</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.phone)}</td></tr>
+      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">WhatsApp</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.whatsapp)}</td></tr>
+      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">Amount paid</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.amount)}</td></tr>
+      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">Reference</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.reference)}</td></tr>
+    </table>
+    ${ctaButton("Open Orders Dashboard", `${APP_URL}/dashboard/admin/designs/orders`)}`;
+  return {
+    subject: `New design order: ${p.designTitle}`,
+    html: baseEmail({
+      title: `New design order: ${p.designTitle}`,
+      preheader: `${firstName} ordered ${p.designTitle}`,
+      bodyHtml: body,
+    }),
+  };
+}
+
+export interface DesignOrderCompletedPayload {
+  customerName: string;
+  designTitle: string;
+}
+
+/** Sent to the customer when the admin marks their order completed. */
+export function designOrderCompletedEmail(p: DesignOrderCompletedPayload): RenderedEmail {
+  const firstName = (p.customerName || "there").split(" ")[0];
+  const body = `
+    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:${TEXT};">Your design is ready 🎉</h1>
+    <p style="margin:0 0 12px;">Hi ${escapeHtml(firstName)},</p>
+    <p style="margin:0 0 12px;">Your order for <strong>${escapeHtml(p.designTitle)}</strong> is complete. Please check your email or WhatsApp for the final product.</p>
+    <p style="margin:0;color:${MUTED};font-size:14px;">Thank you for choosing Advent Skool Designs.</p>`;
+  return {
+    subject: `Your order is complete: ${p.designTitle}`,
+    html: baseEmail({
+      title: `Your order is complete`,
+      preheader: `${p.designTitle} is ready — check your email or WhatsApp`,
+      bodyHtml: body,
+    }),
+  };
+}
+
 /** Wraps admin-authored campaign HTML in the branded shell. */
 export function campaignEmail(opts: { subject: string; bodyHtml: string }): RenderedEmail {
   return {

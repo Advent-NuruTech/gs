@@ -1,8 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Advent Skool",
-  description: "Advent Skool's privacy policy — how we collect, use, share, and protect your personal data, in line with GDPR, CCPA, and the Kenya Data Protection Act.",
+  title: "Privacy Policy",
+  description: "AdventSkool's privacy policy — how we collect, use, share, and protect your personal data, in line with GDPR, CCPA, and the Kenya Data Protection Act.",
+  openGraph: {
+    title: "Privacy Policy | AdventSkool",
+    description: "AdventSkool's privacy policy — how we collect, use, share, and protect your personal data, in line with GDPR, CCPA, and the Kenya Data Protection Act.",
+  },
 };
 
 const sections = [

@@ -39,6 +39,8 @@ const linkMap: Record<UserRole, Array<{ href: string; label: string }>> = {
     { href: "/dashboard/admin/users", label: "Users" },
     { href: "/dashboard/admin/courses", label: "Courses" },
     { href: "/dashboard/admin/courses/create", label: "Create Course" },
+    { href: "/dashboard/admin/designs", label: "Designs" },
+    { href: "/dashboard/admin/designs/orders", label: "Design Orders" },
     { href: "/dashboard/admin/live-classes", label: "Live Classes" },
     { href: "/dashboard/admin/payments", label: "Payments" },
     { href: "/dashboard/admin/analytics", label: "Analytics" },

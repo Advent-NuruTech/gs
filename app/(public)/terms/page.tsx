@@ -1,8 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | Advent Skool",
-  description: "Advent Skool's terms and conditions governing the use of our learning management platform.",
+  title: "Terms & Conditions",
+  description: "AdventSkool's terms and conditions governing the use of our learning management platform.",
+  openGraph: {
+    title: "Terms & Conditions | AdventSkool",
+    description: "AdventSkool's terms and conditions governing the use of our learning management platform.",
+  },
 };
 
 const sections = [

@@ -1,8 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Cookies Policy | Advent Skool",
-  description: "Advent Skool's cookies policy — how we use cookies and similar tracking technologies, and how you can manage your preferences.",
+  title: "Cookies Policy",
+  description: "AdventSkool's cookies policy — how we use cookies and similar tracking technologies, and how you can manage your preferences.",
+  openGraph: {
+    title: "Cookies Policy | AdventSkool",
+    description: "AdventSkool's cookies policy — how we use cookies and similar tracking technologies, and how you can manage your preferences.",
+  },
 };
 
 const sections = [

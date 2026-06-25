@@ -4,9 +4,14 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 
 export const metadata: Metadata = {
-  title: "About | AdventSkool",
+  title: "About",
   description:
     "AdventSkool is a mobile-first learning management platform and a product of Advent NuruTech, built to make structured, high-quality education accessible to everyone.",
+  openGraph: {
+    title: "About AdventSkool",
+    description:
+      "AdventSkool is a mobile-first learning management platform and a product of Advent NuruTech, built to make structured, high-quality education accessible to everyone.",
+  },
 };
 
 const values = [

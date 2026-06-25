@@ -5,11 +5,17 @@ import { useEffect, useMemo, useState } from "react";
 
 import CartButton from "@/components/course/CartButton";
 import CourseCard from "@/components/course/CourseCard";
+import DesignCard from "@/components/design/DesignCard";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 import { useCourse } from "@/hooks/useCourse";
+import { listDesigns } from "@/services/designService";
 import { listUserEnrollments } from "@/services/enrollmentService";
 import { listUserPayments } from "@/services/paymentService";
+import { Design } from "@/types/design";
+
+/** Homepage shows at most this many featured courses and featured designs. */
+const FEATURED_LIMIT = 6;
 
 const PLATFORM_HIGHLIGHTS = [
   "Course upload with rich outlines and media.",
@@ -19,8 +25,10 @@ const PLATFORM_HIGHLIGHTS = [
 ];
 
 export default function HomePage() {
-  const { courses, loading } = useCourse(undefined, { published: true, pageSize: 3 });
+  const { courses, loading } = useCourse(undefined, { published: true, pageSize: FEATURED_LIMIT });
   const { profile, loading: authLoading } = useAuth();
+  const [featuredDesigns, setFeaturedDesigns] = useState<Design[]>([]);
+  const [designsLoading, setDesignsLoading] = useState(true);
   const [hiddenCourseIds, setHiddenCourseIds] = useState<Set<string>>(new Set());
   const [typedHighlights, setTypedHighlights] = useState<string[]>(() =>
     PLATFORM_HIGHLIGHTS.map(() => ""),
@@ -67,8 +75,26 @@ export default function HomePage() {
     };
   }, [profile]);
 
+  // Load a handful of featured designs for the homepage gallery strip.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const data = await listDesigns({ published: true, pageSize: FEATURED_LIMIT });
+        if (active) setFeaturedDesigns(data.slice(0, FEATURED_LIMIT));
+      } catch {
+        if (active) setFeaturedDesigns([]);
+      } finally {
+        if (active) setDesignsLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const visibleCourses = useMemo(
-    () => courses.filter((course) => !hiddenCourseIds.has(course.id)),
+    () => courses.filter((course) => !hiddenCourseIds.has(course.id)).slice(0, FEATURED_LIMIT),
     [courses, hiddenCourseIds],
   );
   const activeTypingLineIndex = useMemo(
@@ -160,10 +186,13 @@ export default function HomePage() {
             <Link href="/courses">
               <Button>Browse Courses</Button>
             </Link>
+            <Link href="/designs">
+              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">Design Gallery</Button>
+            </Link>
             {!authLoading ? (
               isStudent ? (
                 <Link href="/dashboard/student" className="ml-auto">
-                  <Button className="bg-emerald-600 text-white hover:bg-emerald-700">Profile</Button>
+                  <Button variant="secondary">Profile</Button>
                 </Link>
               ) : (
                 <Link href="/register" className="ml-auto">
@@ -214,6 +243,50 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <section className="overflow-hidden rounded-2xl border border-indigo-200 bg-indigo-700 p-6 text-white shadow-sm sm:p-8">
+        <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="space-y-3">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200">Design Marketplace</p>
+            <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
+              Thumbnails, posters, flyers &amp; banners — download instantly or get yours customized.
+            </h2>
+            <p className="max-w-2xl text-sm text-indigo-100 sm:text-base">
+              Explore YouTube thumbnails, event &amp; church flyers, social media banners, conference posters,
+              certificates and marketing graphics. Pay once to <span className="font-semibold text-white">download</span> in full
+              quality, or pay a separate fee to <span className="font-semibold text-white">customize</span> it with your text,
+              colors and photos.
+            </p>
+            <Link href="/designs" className="inline-block">
+              <Button className="!bg-white !text-indigo-700 hover:!bg-indigo-50">Explore the Design Gallery</Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {designsLoading || featuredDesigns.length > 0 ? (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-slate-900">Featured Designs</h2>
+            <Link href="/designs" className="text-sm font-semibold text-indigo-700 hover:underline">
+              View all
+            </Link>
+          </div>
+          {designsLoading ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="h-56 animate-pulse rounded-2xl border border-slate-200 bg-slate-100" />
+              ))}
+            </div>
+          ) : (
+            <div className="columns-2 gap-4 lg:columns-3">
+              {featuredDesigns.map((design) => (
+                <DesignCard key={design.id} design={design} hidePrice />
+              ))}
+            </div>
+          )}
+        </section>
+      ) : null}
 
       {shouldRenderFeaturedCourses ? (
         <section className="space-y-4">

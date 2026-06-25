@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Footer from "@/components/layout/Footer";
 import SubscribeBanner from "@/components/marketing/SubscribeBanner";
+
+export const metadata: Metadata = {
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+  },
+};
 
 export default function PublicLayout({
   children,
