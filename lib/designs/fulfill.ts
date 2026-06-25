@@ -5,7 +5,7 @@ import { verifyTransaction } from "@/lib/paystack/api";
 import { sendSmsBulk } from "@/lib/sms/wasms";
 import { sendEmail } from "@/lib/email/resend";
 import { designOrderAdminEmail } from "@/lib/email/templates";
-import { toDownloadUrl } from "@/lib/designs/downloadUrl";
+import { proxyDownloadUrl } from "@/lib/designs/downloadUrl";
 import { DesignOrderKind } from "@/types/designOrder";
 
 export interface DesignFulfillResult {
@@ -111,21 +111,23 @@ export async function fulfillDesignOrder(reference: string): Promise<DesignFulfi
   };
 }
 
-/** Full-quality, force-download URL for the purchased design (download orders). */
+/**
+ * Same-origin, force-download URL for a purchased design. Streamed through our
+ * own API so restricted PDFs don't 401 and the visitor is never redirected to
+ * Cloudinary. Returns undefined when the design has no deliverable on file.
+ */
 async function designDownloadUrl(order: Record<string, unknown>): Promise<string | undefined> {
   const designId = order.design_id ? String(order.design_id) : "";
   if (!designId) return undefined;
   const supabase = getSupabaseAdminClient();
   const { data: design } = await supabase
     .from("designs")
-    .select("*")
+    .select("file_url, image_url")
     .eq("id", designId)
     .maybeSingle();
-  // Deliver the original asset (PDF template or full-quality image); fall back
-  // to the preview image for legacy rows without a stored file_url.
   const deliverable = String(design?.file_url ?? "") || String(design?.image_url ?? "");
   if (!deliverable) return undefined;
-  return toDownloadUrl(deliverable, String(design?.title ?? order.design_title ?? "design"));
+  return proxyDownloadUrl(designId, String(order.paystack_reference ?? ""));
 }
 
 /** Notify admins of a new design order (paid or free). Best-effort. */

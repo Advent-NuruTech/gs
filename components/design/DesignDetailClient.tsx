@@ -10,7 +10,7 @@ import DownloadModal from "@/components/design/DownloadModal";
 import DesignCard from "@/components/design/DesignCard";
 import PdfPreview from "@/components/design/PdfPreview";
 import { formatKsh } from "@/lib/utils/formatCurrency";
-import { toDownloadUrl } from "@/lib/designs/downloadUrl";
+import { proxyDownloadUrl } from "@/lib/designs/downloadUrl";
 import { recordDesignView } from "@/services/designService";
 import { Design } from "@/types/design";
 
@@ -42,7 +42,8 @@ export default function DesignDetailClient({
   const customizeFree = Number(design.customizationPrice || 0) <= 0;
 
   const handleFreeDownload = () => {
-    triggerDownload(toDownloadUrl(design.fileUrl || design.imageUrl, design.title));
+    // Stream through our own API so PDFs don't 401 and nothing redirects off-site.
+    triggerDownload(proxyDownloadUrl(design.id));
   };
 
   // Paywall on the PDF preview: free designs hand over the file immediately,

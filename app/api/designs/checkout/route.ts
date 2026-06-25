@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { initializeTransaction } from "@/lib/paystack/api";
-import { toDownloadUrl } from "@/lib/designs/downloadUrl";
+import { proxyDownloadUrl } from "@/lib/designs/downloadUrl";
 import { notifyAdminsOfDesignOrder } from "@/lib/designs/fulfill";
 
 export const runtime = "nodejs";
@@ -142,9 +142,7 @@ export async function POST(request: NextRequest) {
 
     const deliverable = String(design.file_url ?? "") || String(design.image_url ?? "");
     const downloadUrl =
-      kind === "download" && deliverable
-        ? toDownloadUrl(deliverable, String(design.title ?? "design"))
-        : undefined;
+      kind === "download" && deliverable ? proxyDownloadUrl(designId, reference) : undefined;
 
     return NextResponse.json({ free: true, reference, amount: 0, kind, downloadUrl });
   }
