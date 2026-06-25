@@ -37,6 +37,11 @@ export default function DesignCard({ design, hidePrice = false }: { design: Desi
         <span className="absolute left-3 top-3 rounded-full bg-black/65 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">
           {design.category}
         </span>
+        {design.fileType === "pdf" ? (
+          <span className="absolute right-3 top-3 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+            PDF
+          </span>
+        ) : null}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 transition group-hover:opacity-100">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow">
             <Sparkles className="h-3.5 w-3.5 text-indigo-600" />

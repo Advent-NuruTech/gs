@@ -51,16 +51,23 @@ export default function DownloadModal({ design, open, onClose }: Props) {
     }
     setSubmitting(true);
     try {
-      const { authorizationUrl } = await startDesignOrder({
+      const result = await startDesignOrder({
         designId: design.id,
         kind: "download",
         fullName,
         email,
         phone,
       });
-      window.location.href = authorizationUrl;
+      if (result.free) {
+        // Free download — hand over the file straight away, no payment.
+        if (result.downloadUrl) window.location.href = result.downloadUrl;
+        setSubmitting(false);
+        onClose();
+        return;
+      }
+      window.location.href = result.authorizationUrl!;
     } catch (error) {
-      pushToast(error instanceof Error ? error.message : "Could not start payment.", "error");
+      pushToast(error instanceof Error ? error.message : "Could not start your download.", "error");
       setSubmitting(false);
     }
   };

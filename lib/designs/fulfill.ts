@@ -118,12 +118,19 @@ async function designDownloadUrl(order: Record<string, unknown>): Promise<string
   const supabase = getSupabaseAdminClient();
   const { data: design } = await supabase
     .from("designs")
-    .select("image_url, title")
+    .select("*")
     .eq("id", designId)
     .maybeSingle();
-  const imageUrl = String(design?.image_url ?? "");
-  if (!imageUrl) return undefined;
-  return toDownloadUrl(imageUrl, String(design?.title ?? order.design_title ?? "design"));
+  // Deliver the original asset (PDF template or full-quality image); fall back
+  // to the preview image for legacy rows without a stored file_url.
+  const deliverable = String(design?.file_url ?? "") || String(design?.image_url ?? "");
+  if (!deliverable) return undefined;
+  return toDownloadUrl(deliverable, String(design?.title ?? order.design_title ?? "design"));
+}
+
+/** Notify admins of a new design order (paid or free). Best-effort. */
+export async function notifyAdminsOfDesignOrder(order: Record<string, unknown>) {
+  return notifyAdmins(order);
 }
 
 async function notifyAdmins(order: Record<string, unknown>) {

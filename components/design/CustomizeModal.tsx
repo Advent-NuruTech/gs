@@ -45,6 +45,7 @@ export default function CustomizeModal({ design, open, onClose }: Props) {
   }, [open, profile]);
 
   const fee = Math.max(0, Number(design.customizationPrice || 0));
+  const isFree = fee <= 0;
 
   if (!open) return null;
 
@@ -75,7 +76,7 @@ export default function CustomizeModal({ design, open, onClose }: Props) {
     }
     setSubmitting(true);
     try {
-      const { authorizationUrl } = await startDesignOrder({
+      const result = await startDesignOrder({
         designId: design.id,
         kind: "customization",
         fullName,
@@ -89,9 +90,16 @@ export default function CustomizeModal({ design, open, onClose }: Props) {
         preferredStyle,
         uploadedImages,
       });
-      window.location.href = authorizationUrl;
+      if (result.free) {
+        // No payment required — the request is already in. Confirm and close.
+        pushToast("Your customization request has been submitted! Our team will be in touch.", "success");
+        setSubmitting(false);
+        onClose();
+        return;
+      }
+      window.location.href = result.authorizationUrl!;
     } catch (error) {
-      pushToast(error instanceof Error ? error.message : "Could not start payment.", "error");
+      pushToast(error instanceof Error ? error.message : "Could not submit your request.", "error");
       setSubmitting(false);
     }
   };
@@ -171,17 +179,24 @@ export default function CustomizeModal({ design, open, onClose }: Props) {
         <div className="space-y-3 border-t border-slate-200 px-6 py-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3 text-base">
             <span className="font-semibold text-slate-900">Customization fee</span>
-            <span className="font-bold text-indigo-600">{formatKsh(fee)}</span>
+            <span className="font-bold text-indigo-600">{isFree ? "Free" : formatKsh(fee)}</span>
           </div>
           <Button type="button" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={submitting || uploading} onClick={handleSubmit}>
             <span className="inline-flex items-center justify-center gap-2">
               <Lock className="h-4 w-4" />
-              {submitting ? "Redirecting to Paystack…" : `Pay ${formatKsh(fee)} & Submit`}
+              {submitting
+                ? isFree
+                  ? "Submitting…"
+                  : "Redirecting to Paystack…"
+                : isFree
+                  ? "Submit Request — Free"
+                  : `Pay ${formatKsh(fee)} & Submit`}
             </span>
           </Button>
           <p className="text-center text-xs text-slate-400">
-            This covers customization only — no download fee is added. Payment is processed securely by Paystack and your
-            order is submitted only after payment succeeds.
+            {isFree
+              ? "This customization is free — your request is sent straight to our team, no payment needed."
+              : "This covers customization only — no download fee is added. Payment is processed securely by Paystack and your order is submitted only after payment succeeds."}
           </p>
         </div>
       </div>

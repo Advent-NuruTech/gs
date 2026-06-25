@@ -8,9 +8,9 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useAuth } from "@/hooks/useAuth";
-import { uploadImage } from "@/lib/cloudinary/uploadImage";
+import { uploadAsset } from "@/lib/cloudinary/uploadImage";
 import { createDesign, updateDesign } from "@/services/designService";
-import { Design, DESIGN_CATEGORIES } from "@/types/design";
+import { Design, DesignFileType, DESIGN_CATEGORIES } from "@/types/design";
 
 interface Props {
   /** When provided, the form edits an existing design instead of creating one. */
@@ -43,7 +43,20 @@ export default function DesignUploadForm({ design }: Props) {
   const [title, setTitle] = useState(design?.title ?? "");
   const [description, setDescription] = useState(design?.description ?? "");
   const [category, setCategory] = useState(design?.category ?? DESIGN_CATEGORIES[0]);
+  // Category list starts from the presets; admins can add their own on the fly
+  // and it joins the dropdown immediately (and the public filter once published).
+  const [categories, setCategories] = useState<string[]>(() => {
+    const base = [...DESIGN_CATEGORIES] as string[];
+    if (design?.category && !base.some((c) => c.toLowerCase() === design.category.toLowerCase())) {
+      base.unshift(design.category);
+    }
+    return base;
+  });
+  const [newCategory, setNewCategory] = useState("");
+  const [showNewCategory, setShowNewCategory] = useState(false);
   const [imageUrl, setImageUrl] = useState(design?.imageUrl ?? "");
+  const [fileUrl, setFileUrl] = useState(design?.fileUrl ?? design?.imageUrl ?? "");
+  const [fileType, setFileType] = useState<DesignFileType>(design?.fileType ?? "image");
   const [dims, setDims] = useState<{ width?: number; height?: number }>({
     width: design?.imageWidth,
     height: design?.imageHeight,
@@ -54,16 +67,35 @@ export default function DesignUploadForm({ design }: Props) {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const addCategory = () => {
+    const name = newCategory.trim().replace(/\s+/g, " ");
+    if (!name) return;
+    setCategories((current) =>
+      current.some((c) => c.toLowerCase() === name.toLowerCase()) ? current : [...current, name],
+    );
+    setCategory(name);
+    setNewCategory("");
+    setShowNewCategory(false);
+  };
+
   const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     setUploading(true);
     try {
-      const [url, d] = await Promise.all([uploadImage(file, "adventskool/designs"), readDimensions(file)]);
-      setImageUrl(url);
-      setDims({ width: d.width || undefined, height: d.height || undefined });
+      const asset = await uploadAsset(file, "adventskool/designs");
+      setImageUrl(asset.previewUrl);
+      setFileUrl(asset.url);
+      setFileType(asset.isPdf ? "pdf" : "image");
+      if (asset.isPdf) {
+        // PDFs report their page dimensions in the Cloudinary response.
+        setDims({ width: asset.width || undefined, height: asset.height || undefined });
+      } else {
+        const d = await readDimensions(file);
+        setDims({ width: d.width || undefined, height: d.height || undefined });
+      }
     } catch {
-      pushToast("Image upload failed. Try again.", "error");
+      pushToast("Upload failed. Try again.", "error");
     } finally {
       setUploading(false);
       event.target.value = "";
@@ -77,7 +109,7 @@ export default function DesignUploadForm({ design }: Props) {
       return;
     }
     if (!title.trim() || !imageUrl) {
-      pushToast("Add a title and upload the design image.", "error");
+      pushToast("Add a title and upload the design image or PDF.", "error");
       return;
     }
     setSubmitting(true);
@@ -89,6 +121,8 @@ export default function DesignUploadForm({ design }: Props) {
         imageUrl,
         imageWidth: dims.width,
         imageHeight: dims.height,
+        fileUrl: fileUrl || imageUrl,
+        fileType,
         downloadPrice: Number(downloadPrice || 0),
         customizationPrice: Number(customizationPrice || 0),
         published,
@@ -111,16 +145,27 @@ export default function DesignUploadForm({ design }: Props) {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-slate-700">Design Image</p>
+        <p className="text-sm font-medium text-slate-700">Design Image or PDF Template</p>
         {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt="preview" className="max-h-72 w-auto rounded-lg border border-slate-200" />
+          <div className="relative inline-block">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageUrl} alt="preview" className="max-h-72 w-auto rounded-lg border border-slate-200" />
+            {fileType === "pdf" ? (
+              <span className="absolute left-2 top-2 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
+                PDF template
+              </span>
+            ) : null}
+          </div>
         ) : null}
         <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 px-4 py-6 text-sm font-medium text-slate-600 transition hover:border-indigo-400 hover:text-indigo-600">
           {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-          {uploading ? "Uploading…" : imageUrl ? "Replace image" : "Upload design image"}
-          <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
+          {uploading ? "Uploading…" : imageUrl ? "Replace file" : "Upload design image or PDF"}
+          <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleUpload} disabled={uploading} />
         </label>
+        <p className="text-xs text-slate-500">
+          Upload a flat image (JPG/PNG) or a <span className="font-semibold text-slate-700">PDF template</span>. PDFs show
+          their first page as the gallery preview and the full PDF is delivered on download.
+        </p>
       </div>
 
       <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Bold Tech Review Thumbnail" required />
@@ -136,43 +181,74 @@ export default function DesignUploadForm({ design }: Props) {
         />
       </label>
 
-      <label className="flex w-full flex-col gap-2 text-sm font-medium text-slate-700">
+      <div className="flex w-full flex-col gap-2 text-sm font-medium text-slate-700">
         <span>Category</span>
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none ring-blue-500 transition focus:ring-2"
         >
-          {DESIGN_CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
         </select>
-      </label>
+
+        {showNewCategory ? (
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addCategory();
+                }
+              }}
+              placeholder="New category name"
+              autoFocus
+              className="w-full rounded-md border border-slate-300 px-3 py-2 font-normal outline-none ring-blue-500 transition focus:ring-2"
+            />
+            <Button type="button" variant="secondary" onClick={addCategory}>
+              Add
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => { setShowNewCategory(false); setNewCategory(""); }}>
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowNewCategory(true)}
+            className="self-start text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+          >
+            + Add a new category
+          </button>
+        )}
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Input
-          label="Download Price (Ksh)"
+          label="Download Price (Ksh) — optional"
           type="number"
           min="0"
           value={downloadPrice}
           onChange={(e) => setDownloadPrice(e.target.value)}
-          placeholder="e.g. 200"
         />
         <Input
-          label="Customization Fee (Ksh)"
+          label="Customization Fee (Ksh) — optional"
           type="number"
           min="0"
           value={customizationPrice}
           onChange={(e) => setCustomizationPrice(e.target.value)}
-          placeholder="e.g. 500"
         />
       </div>
       <p className="text-xs text-slate-500">
-        These are billed separately. <span className="font-semibold text-slate-700">Download</span> charges only the
-        download price and delivers the file instantly. <span className="font-semibold text-slate-700">Customization</span>{" "}
-        charges only the customization fee — no download fee is added. Leave a price at 0 to disable that option.
+        Both prices are optional and billed separately. <span className="font-semibold text-slate-700">Leave a field
+        empty to make it free</span> — a free download is delivered instantly with no payment, and a free customization
+        request is submitted without forcing the customer to pay. Set an amount only when you want to charge for it.
       </p>
 
       <label className="flex items-center gap-2 text-sm font-medium text-slate-700">

@@ -9,8 +9,20 @@ import CustomizeModal from "@/components/design/CustomizeModal";
 import DownloadModal from "@/components/design/DownloadModal";
 import DesignCard from "@/components/design/DesignCard";
 import { formatKsh } from "@/lib/utils/formatCurrency";
+import { toDownloadUrl } from "@/lib/designs/downloadUrl";
 import { recordDesignView } from "@/services/designService";
 import { Design } from "@/types/design";
+
+/** Kick off a browser download for the given URL (free, full-quality file). */
+function triggerDownload(url: string) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.rel = "noopener";
+  link.download = "";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
 
 export default function DesignDetailClient({
   design,
@@ -23,8 +35,14 @@ export default function DesignDetailClient({
   const [showCustomize, setShowCustomize] = useState(false);
   const [revealed, setRevealed] = useState<"download" | "customize" | null>(null);
 
-  const canDownload = Number(design.downloadPrice || 0) > 0;
-  const canCustomize = Number(design.customizationPrice || 0) > 0;
+  // A price of 0 means free. Both options are always offered; free downloads
+  // are delivered instantly and free customization requests skip payment.
+  const downloadFree = Number(design.downloadPrice || 0) <= 0;
+  const customizeFree = Number(design.customizationPrice || 0) <= 0;
+
+  const handleFreeDownload = () => {
+    triggerDownload(toDownloadUrl(design.fileUrl || design.imageUrl, design.title));
+  };
 
   // Count a view once per mount (analytics for the gallery + admin).
   useEffect(() => {
@@ -38,10 +56,15 @@ export default function DesignDetailClient({
       </Link>
 
       <div className="grid gap-8 md:grid-cols-[1.4fr_1fr] md:items-start">
-        {/* Full image, no cropping. */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+        {/* Full image, no cropping. PDFs show the first-page preview. */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={design.imageUrl} alt={design.title} className="h-auto w-full object-contain" />
+          {design.fileType === "pdf" ? (
+            <span className="absolute left-3 top-3 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
+              PDF template
+            </span>
+          ) : null}
         </div>
 
         <div className="space-y-5 md:sticky md:top-6">
@@ -56,62 +79,54 @@ export default function DesignDetailClient({
             </p>
           </div>
 
-          {/* Two separate, independently-billed offerings. The price is revealed
-              when the customer engages with each option. */}
+          {/* Two separate, independently-billed offerings. Paid options reveal
+              their price on engagement; free options act immediately. */}
           <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
-            {canDownload ? (
-              <div className="space-y-2 rounded-xl border border-indigo-100 bg-indigo-50/40 p-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                  <Download className="h-4 w-4 text-indigo-600" /> Download this design
-                </div>
-                <p className="text-xs text-slate-500">Get the full-quality file instantly. No customization.</p>
-                {revealed === "download" ? (
-                  <Button
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
-                    onClick={() => setShowDownload(true)}
-                  >
-                    Pay {formatKsh(design.downloadPrice)} &amp; Download
-                  </Button>
-                ) : (
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => setRevealed("download")}
-                  >
-                    Download — see price
-                  </Button>
-                )}
+            <div className="space-y-2 rounded-xl border border-indigo-100 bg-indigo-50/40 p-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <Download className="h-4 w-4 text-indigo-600" /> Download this design
+                {downloadFree ? (
+                  <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Free</span>
+                ) : null}
               </div>
-            ) : null}
+              <p className="text-xs text-slate-500">Get the full-quality file instantly. No customization.</p>
+              {downloadFree ? (
+                <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={handleFreeDownload}>
+                  Download for Free
+                </Button>
+              ) : revealed === "download" ? (
+                <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowDownload(true)}>
+                  Pay {formatKsh(design.downloadPrice)} &amp; Download
+                </Button>
+              ) : (
+                <Button variant="secondary" className="w-full" onClick={() => setRevealed("download")}>
+                  Download — see price
+                </Button>
+              )}
+            </div>
 
-            {canCustomize ? (
-              <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                  <Sparkles className="h-4 w-4 text-indigo-600" /> Customize this design
-                </div>
-                <p className="text-xs text-slate-500">Your text, colors and photos — we make it yours.</p>
-                {revealed === "customize" ? (
-                  <Button
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
-                    onClick={() => setShowCustomize(true)}
-                  >
-                    Customize for {formatKsh(design.customizationPrice)}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => setRevealed("customize")}
-                  >
-                    Customize — see price
-                  </Button>
-                )}
+            <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <Sparkles className="h-4 w-4 text-indigo-600" /> Customize this design
+                {customizeFree ? (
+                  <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Free</span>
+                ) : null}
               </div>
-            ) : null}
-
-            {!canDownload && !canCustomize ? (
-              <p className="text-center text-sm text-slate-500">This design isn’t available for purchase yet.</p>
-            ) : null}
+              <p className="text-xs text-slate-500">Your text, colors and photos — we make it yours.</p>
+              {customizeFree ? (
+                <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowCustomize(true)}>
+                  Request Customization — Free
+                </Button>
+              ) : revealed === "customize" ? (
+                <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowCustomize(true)}>
+                  Customize for {formatKsh(design.customizationPrice)}
+                </Button>
+              ) : (
+                <Button variant="secondary" className="w-full" onClick={() => setRevealed("customize")}>
+                  Customize — see price
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

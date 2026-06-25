@@ -21,6 +21,8 @@ function mapDesign(data: Record<string, unknown>): Design {
     imageUrl: String(data.image_url ?? ""),
     imageWidth: data.image_width != null ? Number(data.image_width) : undefined,
     imageHeight: data.image_height != null ? Number(data.image_height) : undefined,
+    fileUrl: data.file_url ? String(data.file_url) : undefined,
+    fileType: String(data.file_type ?? "image") === "pdf" ? "pdf" : "image",
     downloadPrice: Number(data.download_price ?? 0),
     customizationPrice: Number(data.customization_price ?? 0),
     published: Boolean(data.published),

@@ -36,9 +36,18 @@ function mapOrder(data: Record<string, unknown>): DesignOrder {
  * from the design row, creates the pending order, and returns the Paystack
  * hosted checkout URL. No account required.
  */
-export async function startDesignOrder(
-  draft: DesignOrderDraft,
-): Promise<{ authorizationUrl: string; reference: string; amount: number }> {
+export interface StartDesignOrderResult {
+  /** Present for paid orders — redirect the customer here to pay. */
+  authorizationUrl?: string;
+  /** True when the design was free: the order is already settled, no payment. */
+  free: boolean;
+  /** For free downloads, the file to hand the customer straight away. */
+  downloadUrl?: string;
+  reference: string;
+  amount: number;
+}
+
+export async function startDesignOrder(draft: DesignOrderDraft): Promise<StartDesignOrderResult> {
   const response = await fetch("/api/designs/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -46,15 +55,20 @@ export async function startDesignOrder(
   });
   const payload = (await response.json()) as {
     authorizationUrl?: string;
+    free?: boolean;
+    downloadUrl?: string;
     reference?: string;
     amount?: number;
     error?: string;
   };
-  if (!response.ok || !payload.authorizationUrl) {
-    throw new Error(payload.error ?? "Could not start payment.");
+  // A successful response is either a Paystack URL (paid) or a free settlement.
+  if (!response.ok || (!payload.authorizationUrl && !payload.free)) {
+    throw new Error(payload.error ?? "Could not start your order.");
   }
   return {
     authorizationUrl: payload.authorizationUrl,
+    free: Boolean(payload.free),
+    downloadUrl: payload.downloadUrl,
     reference: payload.reference ?? "",
     amount: payload.amount ?? 0,
   };

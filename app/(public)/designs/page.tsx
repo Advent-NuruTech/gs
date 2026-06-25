@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Search, Sparkles } from "lucide-react";
+import { Eye, Search, Sparkles } from "lucide-react";
 
 import DesignCard from "@/components/design/DesignCard";
 import { listDesigns } from "@/services/designService";
@@ -138,15 +138,34 @@ export default function DesignsPage() {
       {!loading && trending.length > 0 && resolvedCategory === "All" && !search ? (
         <section className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-indigo-700">Most viewed right now</p>
-          <p className="mb-3 text-sm text-slate-600">The designs everyone’s loving.</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="mb-4 text-sm text-slate-600">The designs everyone’s loving.</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {trending.map((d) => (
               <Link
                 key={d.id}
                 href={`/designs/${d.id}`}
-                className="rounded-full border border-indigo-200 bg-white px-3 py-1.5 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
+                className="group flex flex-col overflow-hidden rounded-xl border border-indigo-200 bg-white shadow-sm transition hover:shadow-md"
               >
-                {d.title} · {d.views.toLocaleString("en-KE")} views
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={d.imageUrl}
+                    alt={d.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                  />
+                  {d.fileType === "pdf" ? (
+                    <span className="absolute right-2 top-2 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                      PDF
+                    </span>
+                  ) : null}
+                </div>
+                <div className="flex flex-1 flex-col gap-0.5 px-3 py-2">
+                  <span className="line-clamp-1 text-sm font-semibold text-slate-900">{d.title}</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                    <Eye className="h-3.5 w-3.5" /> {d.views.toLocaleString("en-KE")} views
+                  </span>
+                </div>
               </Link>
             ))}
           </div>

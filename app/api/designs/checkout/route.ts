@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { initializeTransaction } from "@/lib/paystack/api";
+import { toDownloadUrl } from "@/lib/designs/downloadUrl";
+import { notifyAdminsOfDesignOrder } from "@/lib/designs/fulfill";
 
 export const runtime = "nodejs";
 
@@ -52,9 +54,11 @@ export async function POST(request: NextRequest) {
   const admin = getSupabaseAdminClient();
 
   // Trust the design row for pricing — never the client.
+  // Select * so the route keeps working whether or not the file_url column has
+  // been migrated yet (a missing named column would error the whole query).
   const { data: design } = await admin
     .from("designs")
-    .select("id, title, download_price, customization_price, published")
+    .select("*")
     .eq("id", designId)
     .maybeSingle();
 
@@ -64,21 +68,12 @@ export async function POST(request: NextRequest) {
 
   // Each purchase is billed independently — download price OR customization fee,
   // never both. Download never carries a customization charge and vice versa.
+  // An amount of 0 means the admin made it free: no payment is required.
   const amount =
     kind === "download"
       ? Math.max(0, Number(design.download_price ?? 0))
       : Math.max(0, Number(design.customization_price ?? 0));
-  if (amount <= 0) {
-    return NextResponse.json(
-      {
-        error:
-          kind === "download"
-            ? "This design is not available for download."
-            : "This design is not available for customization.",
-      },
-      { status: 400 },
-    );
-  }
+  const isFree = amount <= 0;
 
   // Customization-only details: keep only https Cloudinary URLs the client sent.
   const uploadedImages =
@@ -89,7 +84,7 @@ export async function POST(request: NextRequest) {
           .slice(0, 12)
       : [];
 
-  const reference = `dz_${crypto.randomUUID().replace(/-/g, "")}`;
+  const reference = `${isFree ? "free" : "dz"}_${crypto.randomUUID().replace(/-/g, "")}`;
 
   const { error: insertError } = await admin.from("design_orders").insert({
     design_id: designId,
@@ -108,11 +103,50 @@ export async function POST(request: NextRequest) {
     amount,
     currency: "KES",
     paystack_reference: reference,
-    payment_status: "pending",
-    order_status: "pending",
+    // Free orders need no payment: mark them settled up-front. Downloads are
+    // self-serve (delivered) and customization requests await the team.
+    payment_status: isFree ? "success" : "pending",
+    order_status: isFree && kind === "download" ? "delivered" : "pending",
+    paid_at: isFree ? new Date().toISOString() : null,
   });
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 400 });
+  }
+
+  // Free flow: skip Paystack entirely. Bump the orders counter, notify the team
+  // for customization requests, and hand the file straight back for downloads.
+  if (isFree) {
+    const { data: countRow } = await admin
+      .from("designs")
+      .select("orders_count")
+      .eq("id", designId)
+      .maybeSingle();
+    if (countRow) {
+      await admin
+        .from("designs")
+        .update({ orders_count: Number(countRow.orders_count ?? 0) + 1 })
+        .eq("id", designId);
+    }
+
+    if (kind === "customization") {
+      await notifyAdminsOfDesignOrder({
+        full_name: fullName,
+        design_title: String(design.title ?? ""),
+        amount: 0,
+        paystack_reference: reference,
+        email,
+        phone,
+        whatsapp: clean(body.whatsapp, 40),
+      }).catch(() => {});
+    }
+
+    const deliverable = String(design.file_url ?? "") || String(design.image_url ?? "");
+    const downloadUrl =
+      kind === "download" && deliverable
+        ? toDownloadUrl(deliverable, String(design.title ?? "design"))
+        : undefined;
+
+    return NextResponse.json({ free: true, reference, amount: 0, kind, downloadUrl });
   }
 
   const callbackUrl = `${request.nextUrl.origin}/designs/checkout/success`;

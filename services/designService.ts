@@ -18,6 +18,8 @@ function mapDesign(data: Record<string, unknown>): Design {
     imageUrl: String(data.image_url ?? ""),
     imageWidth: data.image_width != null ? Number(data.image_width) : undefined,
     imageHeight: data.image_height != null ? Number(data.image_height) : undefined,
+    fileUrl: data.file_url ? String(data.file_url) : undefined,
+    fileType: String(data.file_type ?? "image") === "pdf" ? "pdf" : "image",
     downloadPrice: Number(data.download_price ?? 0),
     customizationPrice: Number(data.customization_price ?? 0),
     published: Boolean(data.published),
@@ -39,6 +41,8 @@ export async function createDesign(input: CreateDesignInput): Promise<string> {
       image_url: input.imageUrl,
       image_width: input.imageWidth ?? null,
       image_height: input.imageHeight ?? null,
+      file_url: input.fileUrl ?? input.imageUrl,
+      file_type: input.fileType ?? "image",
       download_price: input.downloadPrice,
       customization_price: input.customizationPrice,
       published: input.published ?? true,
@@ -92,6 +96,8 @@ export async function updateDesign(
   if (typeof updates.imageUrl === "string") payload.image_url = updates.imageUrl;
   if (typeof updates.imageWidth === "number") payload.image_width = updates.imageWidth;
   if (typeof updates.imageHeight === "number") payload.image_height = updates.imageHeight;
+  if (typeof updates.fileUrl === "string") payload.file_url = updates.fileUrl;
+  if (typeof updates.fileType === "string") payload.file_type = updates.fileType;
   if (typeof updates.downloadPrice === "number") payload.download_price = updates.downloadPrice;
   if (typeof updates.customizationPrice === "number") payload.customization_price = updates.customizationPrice;
   if (typeof updates.published === "boolean") payload.published = updates.published;
@@ -104,6 +110,10 @@ export async function deleteDesign(designId: string): Promise<void> {
   const design = await getDesignById(designId);
   if (design?.imageUrl) {
     await deleteCloudinaryImageByUrl(design.imageUrl).catch(() => {});
+  }
+  // PDFs store the original deliverable separately from the preview image.
+  if (design?.fileUrl && design.fileUrl !== design.imageUrl) {
+    await deleteCloudinaryImageByUrl(design.fileUrl).catch(() => {});
   }
   const { error } = await supabase.from("designs").delete().eq("id", designId);
   if (error) throw new Error(error.message);
