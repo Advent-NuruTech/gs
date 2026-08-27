@@ -187,7 +187,7 @@ export default function HomePage() {
               <Button>Browse Courses</Button>
             </Link>
             <Link href="/designs">
-              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">Design Gallery</Button>
+              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">Digital Products</Button>
             </Link>
             {!authLoading ? (
               isStudent ? (
@@ -247,18 +247,17 @@ export default function HomePage() {
       <section className="overflow-hidden rounded-2xl border border-indigo-200 bg-indigo-700 p-6 text-white shadow-sm sm:p-8">
         <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
           <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200">Design Marketplace</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200">Professional Digital Products</p>
             <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
-              Thumbnails, posters, flyers &amp; banners — download instantly or get yours customized.
+              Ebooks, guides, workbooks, templates and professional creative resources.
             </h2>
             <p className="max-w-2xl text-sm text-indigo-100 sm:text-base">
-              Explore YouTube thumbnails, event &amp; church flyers, social media banners, conference posters,
-              certificates and marketing graphics. Pay once to <span className="font-semibold text-white">download</span> in full
-              quality, or pay a separate fee to <span className="font-semibold text-white">customize</span> it with your text,
-              colors and photos.
+              Purchase a product once, then <span className="font-semibold text-white">read it online</span> from your personal
+              dashboard or <span className="font-semibold text-white">download</span> the full file. Creative products can also
+              be professionally customized with your text, colors and photos.
             </p>
             <Link href="/designs" className="inline-block">
-              <Button className="!bg-white !text-indigo-700 hover:!bg-indigo-50">Explore the Design Gallery</Button>
+              <Button className="!bg-white !text-indigo-700 hover:!bg-indigo-50">Explore Digital Products</Button>
             </Link>
           </div>
         </div>
@@ -267,7 +266,7 @@ export default function HomePage() {
       {designsLoading || featuredDesigns.length > 0 ? (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-slate-900">Featured Designs</h2>
+            <h2 className="text-2xl font-bold text-slate-900">Featured Digital Products</h2>
             <Link href="/designs" className="text-sm font-semibold text-indigo-700 hover:underline">
               View all
             </Link>

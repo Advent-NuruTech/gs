@@ -48,6 +48,12 @@ export interface DesignFilters {
 }
 
 export const DESIGN_CATEGORIES = [
+  "Ebooks",
+  "Business Guides",
+  "Study Guides",
+  "Digital Workbooks",
+  "Printable Resources",
+  "Professional Templates",
   "YouTube Thumbnails",
   "Event Posters",
   "Church Flyers",

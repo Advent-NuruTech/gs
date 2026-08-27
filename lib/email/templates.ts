@@ -147,7 +147,7 @@ export interface DesignOrderAdminPayload {
 export function designOrderAdminEmail(p: DesignOrderAdminPayload): RenderedEmail {
   const firstName = (p.customerName || "Someone").split(" ")[0];
   const body = `
-    <p style="margin:0 0 8px;color:${BRAND_DARK};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">New design order</p>
+    <p style="margin:0 0 8px;color:${BRAND_DARK};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">New digital product order</p>
     <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:${TEXT};">${escapeHtml(firstName)} has ordered ${escapeHtml(p.designTitle)}</h1>
     <p style="margin:0 0 12px;">Log in to the dashboard and start the work.</p>
     <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border:1px solid ${BORDER};border-radius:12px;margin:12px 0;">
@@ -160,9 +160,9 @@ export function designOrderAdminEmail(p: DesignOrderAdminPayload): RenderedEmail
     </table>
     ${ctaButton("Open Orders Dashboard", `${APP_URL}/dashboard/admin/designs/orders`)}`;
   return {
-    subject: `New design order: ${p.designTitle}`,
+    subject: `New digital product order: ${p.designTitle}`,
     html: baseEmail({
-      title: `New design order: ${p.designTitle}`,
+      title: `New digital product order: ${p.designTitle}`,
       preheader: `${firstName} ordered ${p.designTitle}`,
       bodyHtml: body,
     }),
@@ -178,10 +178,10 @@ export interface DesignOrderCompletedPayload {
 export function designOrderCompletedEmail(p: DesignOrderCompletedPayload): RenderedEmail {
   const firstName = (p.customerName || "there").split(" ")[0];
   const body = `
-    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:${TEXT};">Your design is ready 🎉</h1>
+    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:${TEXT};">Your customized product is ready 🎉</h1>
     <p style="margin:0 0 12px;">Hi ${escapeHtml(firstName)},</p>
     <p style="margin:0 0 12px;">Your order for <strong>${escapeHtml(p.designTitle)}</strong> is complete. Please check your email or WhatsApp for the final product.</p>
-    <p style="margin:0;color:${MUTED};font-size:14px;">Thank you for choosing Advent Skool Designs.</p>`;
+    <p style="margin:0;color:${MUTED};font-size:14px;">Thank you for choosing AdventSkool Digital Products.</p>`;
   return {
     subject: `Your order is complete: ${p.designTitle}`,
     html: baseEmail({

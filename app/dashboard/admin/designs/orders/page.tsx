@@ -79,7 +79,7 @@ export default function AdminDesignOrdersPage() {
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-2xl font-bold text-slate-900">Design Orders</h2>
+        <h2 className="text-2xl font-bold text-slate-900">Digital Product Orders</h2>
         <p className="rounded-md bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
           {paidOrders.length} paid · {formatKsh(revenue)} revenue
         </p>
@@ -89,7 +89,7 @@ export default function AdminDesignOrdersPage() {
         label="Search Orders"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search by customer, design, phone, reference, status…"
+        placeholder="Search by customer, product, phone, reference, status…"
       />
 
       {loading ? <p>Loading orders…</p> : null}
@@ -109,7 +109,7 @@ export default function AdminDesignOrdersPage() {
                       order.kind === "download" ? "bg-indigo-50 text-indigo-700" : "bg-purple-50 text-purple-700"
                     }`}
                   >
-                    {order.kind === "download" ? "Download" : "Customization"}
+                    {order.kind === "download" ? (order.accessMode === "read_online" ? "Online access" : "Download") : "Customization"}
                   </span>
                 </div>
                 <p className="text-xs text-slate-500">
@@ -133,7 +133,9 @@ export default function AdminDesignOrdersPage() {
 
             {order.kind === "download" ? (
               <p className="rounded-md bg-indigo-50 p-3 text-sm text-indigo-700">
-                Instant download — the customer received the full-quality file automatically. No work needed.
+                {order.accessMode === "read_online"
+                  ? "Online access — the product is available in the customer’s dashboard. No work needed."
+                  : "Instant download — the customer received the full-quality file automatically. No work needed."}
               </p>
             ) : (
               <div className="rounded-md bg-slate-50 p-3 text-sm">

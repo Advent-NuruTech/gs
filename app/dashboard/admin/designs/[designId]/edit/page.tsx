@@ -31,11 +31,11 @@ export default function EditDesignPage() {
   }, [isAllowed, params.designId]);
 
   if (loading || !isAllowed || loadingDesign) return <p>Loading…</p>;
-  if (!design) return <p className="text-slate-600">Design not found.</p>;
+  if (!design) return <p className="text-slate-600">Digital product not found.</p>;
 
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl font-bold text-slate-900">Edit Design</h2>
+      <h2 className="text-2xl font-bold text-slate-900">Edit Digital Product</h2>
       <DesignUploadForm design={design} />
     </section>
   );

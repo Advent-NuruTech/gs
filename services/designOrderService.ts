@@ -1,5 +1,11 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { DesignOrder, DesignOrderDraft, DesignOrderKind, DesignOrderStatus } from "@/types/designOrder";
+import {
+  DesignOrder,
+  DesignOrderDraft,
+  DesignOrderKind,
+  DesignOrderStatus,
+  ProductAccessMode,
+} from "@/types/designOrder";
 import { PaymentStatus } from "@/types/payment";
 
 const supabase = getSupabaseBrowserClient();
@@ -10,6 +16,8 @@ function mapOrder(data: Record<string, unknown>): DesignOrder {
     designId: data.design_id ? String(data.design_id) : undefined,
     designTitle: String(data.design_title ?? ""),
     kind: (data.kind as DesignOrderKind) ?? "customization",
+    accessMode: (data.access_mode as ProductAccessMode) ?? "download",
+    userId: data.user_id ? String(data.user_id) : undefined,
     fullName: String(data.full_name ?? ""),
     email: String(data.email ?? ""),
     phone: String(data.phone ?? ""),
@@ -43,6 +51,8 @@ export interface StartDesignOrderResult {
   free: boolean;
   /** For free downloads, the file to hand the customer straight away. */
   downloadUrl?: string;
+  /** For account-based reading, the purchased product's reader page. */
+  libraryUrl?: string;
   reference: string;
   amount: number;
 }
@@ -57,6 +67,7 @@ export async function startDesignOrder(draft: DesignOrderDraft): Promise<StartDe
     authorizationUrl?: string;
     free?: boolean;
     downloadUrl?: string;
+    libraryUrl?: string;
     reference?: string;
     amount?: number;
     error?: string;
@@ -69,6 +80,7 @@ export async function startDesignOrder(draft: DesignOrderDraft): Promise<StartDe
     authorizationUrl: payload.authorizationUrl,
     free: Boolean(payload.free),
     downloadUrl: payload.downloadUrl,
+    libraryUrl: payload.libraryUrl,
     reference: payload.reference ?? "",
     amount: payload.amount ?? 0,
   };
@@ -82,6 +94,8 @@ export async function verifyDesignOrder(reference: string): Promise<{
   designTitle?: string;
   amount?: number;
   downloadUrl?: string;
+  libraryUrl?: string;
+  accessMode?: ProductAccessMode;
 }> {
   const response = await fetch(`/api/designs/verify?reference=${encodeURIComponent(reference)}`);
   return response.json();

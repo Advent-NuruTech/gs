@@ -39,13 +39,13 @@ export default function AdminDesignsPage() {
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-2xl font-bold text-slate-900">Designs</h2>
+        <h2 className="text-2xl font-bold text-slate-900">Digital Products</h2>
         <div className="flex items-center gap-2">
           <Link href="/dashboard/admin/designs/orders">
             <Button variant="secondary">View Orders</Button>
           </Link>
           <Link href="/dashboard/admin/designs/create">
-            <Button>Add Design</Button>
+            <Button>Add Product</Button>
           </Link>
         </div>
       </div>
@@ -53,7 +53,7 @@ export default function AdminDesignsPage() {
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-lg border border-slate-200 bg-white p-3 text-center">
           <p className="text-xl font-bold text-slate-900">{designs.length}</p>
-          <p className="text-xs text-slate-500">Designs</p>
+          <p className="text-xs text-slate-500">Products</p>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white p-3 text-center">
           <p className="text-xl font-bold text-slate-900">{totalViews.toLocaleString("en-KE")}</p>
@@ -65,9 +65,9 @@ export default function AdminDesignsPage() {
         </div>
       </div>
 
-      {loading ? <p>Loading designs…</p> : null}
+      {loading ? <p>Loading digital products…</p> : null}
       {!loading && designs.length === 0 ? (
-        <p className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">No designs yet. Add your first one.</p>
+        <p className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">No digital products yet. Add your first one.</p>
       ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -126,7 +126,7 @@ export default function AdminDesignsPage() {
                     setBusyId(design.id);
                     try {
                       await deleteDesign(design.id);
-                      pushToast("Design deleted.", "success");
+                      pushToast("Digital product deleted.", "success");
                       await load();
                     } catch (error) {
                       pushToast(error instanceof Error ? error.message : "Delete failed.", "error");

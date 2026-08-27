@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 
 import { fulfillByReference } from "@/lib/paystack/fulfill";
+import { fulfillDesignOrder } from "@/lib/designs/fulfill";
 
 export const runtime = "nodejs";
 
@@ -32,7 +33,11 @@ export async function POST(request: NextRequest) {
   const reference = event.data?.reference;
   if (event.event === "charge.success" && reference) {
     try {
-      await fulfillByReference(reference);
+      if (reference.startsWith("dz_")) {
+        await fulfillDesignOrder(reference);
+      } else {
+        await fulfillByReference(reference);
+      }
     } catch (error) {
       // Acknowledge anyway so Paystack doesn't hammer retries on transient errors;
       // the redirect verify path is a backstop.

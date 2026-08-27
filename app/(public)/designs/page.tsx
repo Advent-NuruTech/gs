@@ -57,12 +57,12 @@ export default function DesignsPage() {
     <main className="mx-auto max-w-7xl space-y-8 px-4 py-10">
       <header className="space-y-3 text-center">
         <p className="mx-auto inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-          <Sparkles className="h-3.5 w-3.5" /> AdventSkool Design Marketplace
+          <Sparkles className="h-3.5 w-3.5" /> AdventSkool Digital Products
         </p>
-        <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">Browse stunning designs, get yours customized</h1>
+        <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">Professional digital products for work, learning and growth</h1>
         <p className="mx-auto max-w-2xl text-slate-600">
-          Thumbnails, posters, flyers, banners, certificates and more. Browsing is free — found one you love? Click{" "}
-          <span className="font-semibold text-slate-800">“Get Customized Like This”</span> and we’ll make it yours.
+          Discover ebooks, guides, workbooks, templates, printables and professional graphics. Purchase once, then choose to
+          <span className="font-semibold text-slate-800"> read online from your dashboard or download the full file.</span>
         </p>
       </header>
 
@@ -70,7 +70,7 @@ export default function DesignsPage() {
         <Search className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
         <input
           type="text"
-          placeholder="Search designs (e.g. church flyer, thumbnail)…"
+          placeholder="Search digital products (e.g. ebook, guide, template)…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-2xl border border-slate-300 bg-white py-3 pl-10 pr-4 shadow-sm outline-none transition focus:ring-2 focus:ring-indigo-500"
@@ -122,8 +122,8 @@ export default function DesignsPage() {
       {!loading && filtered.length === 0 ? (
         <p className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">
           {search || resolvedCategory !== "All"
-            ? "No designs match your search yet."
-            : "No designs published yet. Check back soon!"}
+            ? "No digital products match your search yet."
+            : "No digital products published yet. Check back soon!"}
         </p>
       ) : null}
 
@@ -138,7 +138,7 @@ export default function DesignsPage() {
       {!loading && trending.length > 0 && resolvedCategory === "All" && !search ? (
         <section className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-indigo-700">Most viewed right now</p>
-          <p className="mb-4 text-sm text-slate-600">The designs everyone’s loving.</p>
+          <p className="mb-4 text-sm text-slate-600">The digital products readers are exploring most.</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {trending.map((d) => (
               <Link

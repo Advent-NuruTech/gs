@@ -34,7 +34,7 @@ export default function PdfPreview({ design, onUnlock }: Props) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={design.imageUrl} alt={design.title} className="h-auto w-full object-contain" />
         <span className="absolute left-3 top-3 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-          PDF template
+          PDF product
         </span>
       </div>
     );
@@ -48,7 +48,7 @@ export default function PdfPreview({ design, onUnlock }: Props) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <span className="rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-          PDF template
+          PDF product
         </span>
         <span className="text-xs font-medium text-slate-500">
           Free preview · {freeCount} of {total} page{total === 1 ? "" : "s"}
@@ -95,12 +95,12 @@ export default function PdfPreview({ design, onUnlock }: Props) {
               </p>
               <p className="text-sm text-slate-200">
                 {isFree
-                  ? "Get the full document to keep reading."
-                  : `Pay ${formatKsh(design.downloadPrice)} to read the full document.`}
+                  ? "Add the full product to your library to keep reading."
+                  : `Pay ${formatKsh(design.downloadPrice)} to read the full product.`}
               </p>
             </div>
             <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={onUnlock}>
-              {isFree ? "Unlock full document — Free" : `Unlock for ${formatKsh(design.downloadPrice)}`}
+              {isFree ? "Read the full product — Free" : `Read for ${formatKsh(design.downloadPrice)}`}
             </Button>
           </div>
         </div>

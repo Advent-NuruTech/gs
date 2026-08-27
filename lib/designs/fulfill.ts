@@ -6,7 +6,7 @@ import { sendSmsBulk } from "@/lib/sms/wasms";
 import { sendEmail } from "@/lib/email/resend";
 import { designOrderAdminEmail } from "@/lib/email/templates";
 import { proxyDownloadUrl } from "@/lib/designs/downloadUrl";
-import { DesignOrderKind } from "@/types/designOrder";
+import { DesignOrderKind, ProductAccessMode } from "@/types/designOrder";
 
 export interface DesignFulfillResult {
   ok: boolean;
@@ -16,6 +16,8 @@ export interface DesignFulfillResult {
   designTitle?: string;
   amount?: number;
   downloadUrl?: string;
+  libraryUrl?: string;
+  accessMode?: ProductAccessMode;
   message?: string;
 }
 
@@ -42,6 +44,7 @@ export async function fulfillDesignOrder(reference: string): Promise<DesignFulfi
   }
 
   const kind: DesignOrderKind = order.kind === "download" ? "download" : "customization";
+  const accessMode: ProductAccessMode = order.access_mode === "read_online" ? "read_online" : "download";
 
   if (order.payment_status === "success") {
     return {
@@ -51,7 +54,12 @@ export async function fulfillDesignOrder(reference: string): Promise<DesignFulfi
       kind,
       designTitle: String(order.design_title ?? ""),
       amount: Number(order.amount),
-      downloadUrl: kind === "download" ? await designDownloadUrl(order) : undefined,
+      accessMode,
+      downloadUrl: kind === "download" && accessMode === "download" ? await designDownloadUrl(order) : undefined,
+      libraryUrl:
+        kind === "download" && accessMode === "read_online"
+          ? `/dashboard/products/${String(order.id)}/read`
+          : undefined,
     };
   }
 
@@ -107,7 +115,12 @@ export async function fulfillDesignOrder(reference: string): Promise<DesignFulfi
     kind,
     designTitle: String(order.design_title ?? ""),
     amount: Number(order.amount),
-    downloadUrl: kind === "download" ? await designDownloadUrl(order) : undefined,
+    accessMode,
+    downloadUrl: kind === "download" && accessMode === "download" ? await designDownloadUrl(order) : undefined,
+    libraryUrl:
+      kind === "download" && accessMode === "read_online"
+        ? `/dashboard/products/${String(order.id)}/read`
+        : undefined,
   };
 }
 
@@ -140,7 +153,7 @@ async function notifyAdmins(order: Record<string, unknown>) {
   const kind: DesignOrderKind = order.kind === "download" ? "download" : "customization";
   const customer = String(order.full_name ?? "A customer");
   const firstName = customer.split(" ")[0] || customer;
-  const designTitle = String(order.design_title ?? "a design");
+  const designTitle = String(order.design_title ?? "a digital product");
   const amount = Number(order.amount ?? 0);
   const link = "/dashboard/admin/designs/orders";
 
@@ -153,7 +166,7 @@ async function notifyAdmins(order: Record<string, unknown>) {
     // In-app bell notification for every design order — downloads and
     // customizations alike — so admins see all design activity, mirroring the
     // way course payments surface in the bell.
-    const title = kind === "download" ? "Design Purchased" : "New Design Order";
+    const title = kind === "download" ? "Digital Product Purchased" : "New Product Order";
     const verb = kind === "download" ? "purchased" : "ordered";
     await Promise.all(
       (admins ?? []).map((adminRow) =>

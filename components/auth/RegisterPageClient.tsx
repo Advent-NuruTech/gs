@@ -319,7 +319,7 @@ export default function RegisterPageClient() {
           <p className="text-center text-sm text-slate-600">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href={redirectPath ? `/login?redirect=${encodeURIComponent(redirectPath)}` : "/login"}
               className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline transition-colors"
             >
               Sign in

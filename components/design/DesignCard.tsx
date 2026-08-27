@@ -7,7 +7,7 @@ import { formatKsh } from "@/lib/utils/formatCurrency";
 import { Design } from "@/types/design";
 
 /**
- * A masonry-friendly design tile. The image is shown at its natural aspect
+ * A masonry-friendly digital-product tile. The image is shown at its natural aspect
  * ratio with no cropping (Pinterest-style). The whole tile links to the
  * detail page where the download / customization flows begin.
  */
@@ -45,7 +45,7 @@ export default function DesignCard({ design, hidePrice = false }: { design: Desi
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 transition group-hover:opacity-100">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow">
             <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-            Download or Customize
+            Read, Download or Customize
           </span>
         </div>
       </div>

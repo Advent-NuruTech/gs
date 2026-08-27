@@ -41,7 +41,7 @@ export async function POST(
   if (status === "completed") {
     const customer = String(order.full_name ?? "there");
     const firstName = customer.split(" ")[0] || "there";
-    const designTitle = String(order.design_title ?? "your design");
+    const designTitle = String(order.design_title ?? "your digital product");
 
     const smsMsg = `AdventSkool: Good morning ${firstName}, your order for ${designTitle} is completed. Check your email or WhatsApp for the product.`;
     if (order.phone) await sendSms(String(order.phone), smsMsg);

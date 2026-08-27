@@ -13,14 +13,12 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { designId } = await params;
   const design = await getPublishedDesign(designId);
-  if (!design) {
-    return { title: "Design not found", robots: { index: false, follow: false } };
-  }
+  if (!design) return { title: "Digital product not found", robots: { index: false, follow: false } };
 
   const title = `${design.title} — ${design.category}`;
   const description =
     design.description ||
-    `Get a custom ${design.category.toLowerCase()} designed like "${design.title}" — your text, your colors, your photos. Browse free on AdventSkool Designs.`;
+    `Explore "${design.title}", a professional ${design.category.toLowerCase()} from AdventSkool Digital Products. Purchase once to read online or download.`;
   const url = `${siteUrl}/designs/${design.id}`;
 
   return {

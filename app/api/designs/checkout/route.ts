@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { initializeTransaction } from "@/lib/paystack/api";
 import { proxyDownloadUrl } from "@/lib/designs/downloadUrl";
 import { notifyAdminsOfDesignOrder } from "@/lib/designs/fulfill";
@@ -10,6 +11,7 @@ export const runtime = "nodejs";
 interface CheckoutBody {
   designId?: string;
   kind?: string;
+  accessMode?: string;
   fullName?: string;
   email?: string;
   phone?: string;
@@ -31,6 +33,7 @@ export async function POST(request: NextRequest) {
 
   const designId = clean(body.designId, 64);
   const kind = body.kind === "download" ? "download" : "customization";
+  const accessMode = kind === "download" && body.accessMode === "read_online" ? "read_online" : "download";
   const fullName = clean(body.fullName, 160);
   const email = clean(body.email, 200);
   const phone = clean(body.phone, 40);
@@ -46,11 +49,26 @@ export async function POST(request: NextRequest) {
   // Customization additionally needs the text to put on the design.
   if (kind === "customization" && !titleText) {
     return NextResponse.json(
-      { error: "Please provide the title text for your custom design." },
+      { error: "Please provide the title text for your customized product." },
       { status: 400 },
     );
   }
 
+  const serverClient = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await serverClient.auth.getUser();
+
+  if (accessMode === "read_online" && !user) {
+    return NextResponse.json(
+      { error: "Please sign in or create an account to read this product online." },
+      { status: 401 },
+    );
+  }
+
+  // Online purchases belong to the authenticated account. This prevents a
+  // mistyped checkout email from hiding the product from the buyer's library.
+  const customerEmail = accessMode === "read_online" && user?.email ? user.email : email;
   const admin = getSupabaseAdminClient();
 
   // Trust the design row for pricing — never the client.
@@ -63,7 +81,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (!design || !design.published) {
-    return NextResponse.json({ error: "Design not found." }, { status: 404 });
+    return NextResponse.json({ error: "Digital product not found." }, { status: 404 });
   }
 
   // Each purchase is billed independently — download price OR customization fee,
@@ -91,7 +109,9 @@ export async function POST(request: NextRequest) {
     design_title: String(design.title ?? ""),
     kind,
     full_name: fullName,
-    email,
+    email: customerEmail,
+    user_id: user?.id ?? null,
+    access_mode: accessMode,
     phone,
     whatsapp: clean(body.whatsapp, 40),
     title_text: kind === "customization" ? titleText : "",
@@ -137,27 +157,38 @@ export async function POST(request: NextRequest) {
       design_title: String(design.title ?? ""),
       amount: 0,
       paystack_reference: reference,
-      email,
+      email: customerEmail,
       phone,
       whatsapp: clean(body.whatsapp, 40),
     }).catch(() => {});
 
     const deliverable = String(design.file_url ?? "") || String(design.image_url ?? "");
     const downloadUrl =
-      kind === "download" && deliverable ? proxyDownloadUrl(designId, reference) : undefined;
+      kind === "download" && accessMode === "download" && deliverable
+        ? proxyDownloadUrl(designId, reference)
+        : undefined;
+    const { data: freeOrder } = await admin
+      .from("design_orders")
+      .select("id")
+      .eq("paystack_reference", reference)
+      .maybeSingle();
+    const libraryUrl =
+      kind === "download" && accessMode === "read_online" && freeOrder?.id
+        ? `/dashboard/products/${freeOrder.id}/read`
+        : undefined;
 
-    return NextResponse.json({ free: true, reference, amount: 0, kind, downloadUrl });
+    return NextResponse.json({ free: true, reference, amount: 0, kind, accessMode, downloadUrl, libraryUrl });
   }
 
   const callbackUrl = `${request.nextUrl.origin}/designs/checkout/success`;
 
   try {
     const result = await initializeTransaction({
-      email,
+      email: customerEmail,
       amountKobo: Math.round(amount * 100),
       reference,
       callbackUrl,
-      metadata: { designId, type: "design_order", kind, customer: fullName },
+      metadata: { designId, type: "design_order", kind, accessMode, userId: user?.id, customer: fullName },
     });
 
     await admin

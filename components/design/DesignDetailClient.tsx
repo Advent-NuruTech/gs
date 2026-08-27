@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Download, Eye, Sparkles } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, BookOpen, Download, Eye, Sparkles } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import CustomizeModal from "@/components/design/CustomizeModal";
@@ -13,8 +14,8 @@ import { formatKsh } from "@/lib/utils/formatCurrency";
 import { proxyDownloadUrl } from "@/lib/designs/downloadUrl";
 import { recordDesignView } from "@/services/designService";
 import { Design } from "@/types/design";
+import { ProductAccessMode } from "@/types/designOrder";
 
-/** Kick off a browser download for the given URL (free, full-quality file). */
 function triggerDownload(url: string) {
   const link = document.createElement("a");
   link.href = url;
@@ -32,32 +33,23 @@ export default function DesignDetailClient({
   design: Design;
   related?: Design[];
 }) {
-  const [showDownload, setShowDownload] = useState(false);
+  const searchParams = useSearchParams();
+  const resumeReadPurchase = searchParams.get("purchase") === "read";
+  const [showPurchase, setShowPurchase] = useState(resumeReadPurchase);
   const [showCustomize, setShowCustomize] = useState(false);
-  const [revealed, setRevealed] = useState<"download" | "customize" | null>(null);
+  const [revealed, setRevealed] = useState<"purchase" | "customize" | null>(null);
+  const [accessMode, setAccessMode] = useState<ProductAccessMode>(resumeReadPurchase ? "read_online" : "download");
 
-  // A price of 0 means free. Both options are always offered; free downloads
-  // are delivered instantly and free customization requests skip payment.
-  const downloadFree = Number(design.downloadPrice || 0) <= 0;
+  const productFree = Number(design.downloadPrice || 0) <= 0;
   const customizeFree = Number(design.customizationPrice || 0) <= 0;
 
-  const handleFreeDownload = () => {
-    // Stream through our own API so PDFs don't 401 and nothing redirects off-site.
-    triggerDownload(proxyDownloadUrl(design.id));
+  const openPurchase = (mode: ProductAccessMode) => {
+    setAccessMode(mode);
+    setShowPurchase(true);
   };
 
-  // Paywall on the PDF preview: free designs hand over the file immediately,
-  // paid ones open the same download checkout used by the sidebar button.
-  const handleUnlock = () => {
-    if (downloadFree) {
-      handleFreeDownload();
-    } else {
-      setRevealed("download");
-      setShowDownload(true);
-    }
-  };
+  const handleFreeDownload = () => triggerDownload(proxyDownloadUrl(design.id));
 
-  // Count a view once per mount (analytics for the gallery + admin).
   useEffect(() => {
     void recordDesignView(design.id);
   }, [design.id]);
@@ -65,14 +57,12 @@ export default function DesignDetailClient({
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
       <Link href="/designs" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-indigo-700">
-        <ArrowLeft className="h-4 w-4" /> Back to gallery
+        <ArrowLeft className="h-4 w-4" /> Back to digital products
       </Link>
 
       <div className="grid gap-8 md:grid-cols-[1.4fr_1fr] md:items-start">
-        {/* Full image, no cropping. PDFs show a quarter of their pages free and
-            paywall the rest; images render uncropped as before. */}
         {design.fileType === "pdf" ? (
-          <PdfPreview design={design} onUnlock={handleUnlock} />
+          <PdfPreview design={design} onUnlock={() => openPurchase("read_online")} />
         ) : (
           <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -92,40 +82,45 @@ export default function DesignDetailClient({
             </p>
           </div>
 
-          {/* Two separate, independently-billed offerings. Paid options reveal
-              their price on engagement; free options act immediately. */}
           <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
             <div className="space-y-2 rounded-xl border border-indigo-100 bg-indigo-50/40 p-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <Download className="h-4 w-4 text-indigo-600" /> Download this design
-                {downloadFree ? (
+                <BookOpen className="h-4 w-4 text-indigo-600" /> Buy this digital product
+                {productFree ? (
                   <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Free</span>
                 ) : null}
               </div>
-              <p className="text-xs text-slate-500">Get the full-quality file instantly. No customization.</p>
-              {downloadFree ? (
-                <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={handleFreeDownload}>
-                  Download for Free
-                </Button>
-              ) : revealed === "download" ? (
-                <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowDownload(true)}>
-                  Pay {formatKsh(design.downloadPrice)} &amp; Download
-                </Button>
+              <p className="text-xs text-slate-500">Pay once, then download it or keep it in your dashboard to read online.</p>
+              {productFree || revealed === "purchase" ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => openPurchase("read_online")}>
+                    <span className="inline-flex items-center gap-1.5"><BookOpen className="h-4 w-4" /> Read Online</span>
+                  </Button>
+                  {productFree ? (
+                    <Button variant="secondary" onClick={handleFreeDownload}>
+                      <span className="inline-flex items-center gap-1.5"><Download className="h-4 w-4" /> Download</span>
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" onClick={() => openPurchase("download")}>
+                      <span className="inline-flex items-center gap-1.5"><Download className="h-4 w-4" /> Download</span>
+                    </Button>
+                  )}
+                </div>
               ) : (
-                <Button variant="secondary" className="w-full" onClick={() => setRevealed("download")}>
-                  Download — see price
+                <Button variant="secondary" className="w-full" onClick={() => setRevealed("purchase")}>
+                  See {formatKsh(design.downloadPrice)} access options
                 </Button>
               )}
             </div>
 
             <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <Sparkles className="h-4 w-4 text-indigo-600" /> Customize this design
+                <Sparkles className="h-4 w-4 text-indigo-600" /> Customize this product
                 {customizeFree ? (
                   <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Free</span>
                 ) : null}
               </div>
-              <p className="text-xs text-slate-500">Your text, colors and photos — we make it yours.</p>
+              <p className="text-xs text-slate-500">For editable designs: your text, colors and photos — professionally prepared for you.</p>
               {customizeFree ? (
                 <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowCustomize(true)}>
                   Request Customization — Free
@@ -147,20 +142,22 @@ export default function DesignDetailClient({
       {related.length > 0 ? (
         <section className="space-y-4 border-t border-slate-100 pt-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900">Related designs</h2>
-            <Link href="/designs" className="text-sm font-semibold text-indigo-700 hover:underline">
-              View all
-            </Link>
+            <h2 className="text-xl font-bold text-slate-900">Related digital products</h2>
+            <Link href="/designs" className="text-sm font-semibold text-indigo-700 hover:underline">View all</Link>
           </div>
           <div className="columns-2 gap-4 sm:columns-3 lg:columns-4">
-            {related.map((item) => (
-              <DesignCard key={item.id} design={item} />
-            ))}
+            {related.map((item) => <DesignCard key={item.id} design={item} />)}
           </div>
         </section>
       ) : null}
 
-      <DownloadModal design={design} open={showDownload} onClose={() => setShowDownload(false)} />
+      <DownloadModal
+        key={`${showPurchase}-${accessMode}`}
+        design={design}
+        open={showPurchase}
+        onClose={() => setShowPurchase(false)}
+        initialAccessMode={accessMode}
+      />
       <CustomizeModal design={design} open={showCustomize} onClose={() => setShowCustomize(false)} />
     </main>
   );

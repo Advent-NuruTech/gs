@@ -129,11 +129,11 @@ export default function DesignUploadForm({ design }: Props) {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!profile || profile.role !== "admin") {
-      pushToast("Only admins can manage designs.", "error");
+      pushToast("Only admins can manage digital products.", "error");
       return;
     }
     if (!title.trim() || !imageUrl) {
-      pushToast("Add a title and upload the design image or PDF.", "error");
+      pushToast("Add a title and upload the product image or PDF.", "error");
       return;
     }
     setSubmitting(true);
@@ -154,14 +154,14 @@ export default function DesignUploadForm({ design }: Props) {
       };
       if (editing && design) {
         await updateDesign(design.id, payload);
-        pushToast("Design updated.", "success");
+        pushToast("Digital product updated.", "success");
       } else {
         await createDesign({ ...payload, createdBy: profile.id });
-        pushToast("Design published.", "success");
+        pushToast("Digital product published.", "success");
       }
       router.push("/dashboard/admin/designs");
     } catch (error) {
-      pushToast(error instanceof Error ? error.message : "Could not save design.", "error");
+      pushToast(error instanceof Error ? error.message : "Could not save digital product.", "error");
     } finally {
       setSubmitting(false);
     }
@@ -170,26 +170,26 @@ export default function DesignUploadForm({ design }: Props) {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-slate-700">Design Image or PDF Template</p>
+        <p className="text-sm font-medium text-slate-700">Digital Product Image or PDF</p>
         {imageUrl ? (
           <div className="relative inline-block">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={imageUrl} alt="preview" className="max-h-72 w-auto rounded-lg border border-slate-200" />
             {fileType === "pdf" ? (
               <span className="absolute left-2 top-2 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-                PDF template
+                PDF product
               </span>
             ) : null}
           </div>
         ) : null}
         <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 px-4 py-6 text-sm font-medium text-slate-600 transition hover:border-indigo-400 hover:text-indigo-600">
           {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-          {uploading ? "Uploading…" : imageUrl ? "Replace file" : "Upload design image or PDF"}
+          {uploading ? "Uploading…" : imageUrl ? "Replace file" : "Upload product image or PDF"}
           <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleUpload} disabled={uploading} />
         </label>
         <p className="text-xs text-slate-500">
-          Upload a flat image (JPG/PNG) or a <span className="font-semibold text-slate-700">PDF template</span>. PDFs show
-          their first page as the gallery preview and the full PDF is delivered on download.
+          Upload a cover/image (JPG/PNG) or a <span className="font-semibold text-slate-700">PDF product</span>, including
+          an ebook, guide or workbook. PDFs show their first page as the preview and support online reading and download.
         </p>
       </div>
 
@@ -201,7 +201,7 @@ export default function DesignUploadForm({ design }: Props) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          placeholder="Short description shown on the design page (good for SEO)."
+          placeholder="Short description shown on the product page (good for SEO)."
           className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none ring-blue-500 transition focus:ring-2"
         />
       </label>
@@ -256,7 +256,7 @@ export default function DesignUploadForm({ design }: Props) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Input
-          label="Download Price (Ksh) — optional"
+          label="Product Price (Ksh) — optional"
           type="number"
           min="0"
           value={downloadPrice}
@@ -272,17 +272,17 @@ export default function DesignUploadForm({ design }: Props) {
       </div>
       <p className="text-xs text-slate-500">
         Both prices are optional and billed separately. <span className="font-semibold text-slate-700">Leave a field
-        empty to make it free</span> — a free download is delivered instantly with no payment, and a free customization
+        empty to make it free</span> — a free product can be read online or downloaded with no payment, and a free customization
         request is submitted without forcing the customer to pay. Set an amount only when you want to charge for it.
       </p>
 
       <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
         <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="h-4 w-4 accent-indigo-600" />
-        Publish to the public gallery
+        Publish to the digital products marketplace
       </label>
 
       <Button type="submit" disabled={submitting || uploading}>
-        {submitting ? "Saving…" : editing ? "Save Changes" : "Publish Design"}
+        {submitting ? "Saving…" : editing ? "Save Changes" : "Publish Product"}
       </Button>
     </form>
   );

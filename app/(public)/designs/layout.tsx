@@ -1,27 +1,25 @@
 import type { Metadata } from "next";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://skills.adventnurutech.xyz";
-const title = "Design Marketplace — Thumbnails, Posters, Flyers & Banners";
+const title = "Professional Digital Products — Ebooks, Guides & Templates";
 const description =
-  "Browse high-quality YouTube thumbnails, event posters, church & business flyers, social media banners, conference posters, certificates, and marketing graphics. Free to browse — get any design customized for you.";
+  "Browse professional digital products including ebooks, guides, workbooks, templates, graphics and printable resources. Purchase once to read online or download.";
 
 export const metadata: Metadata = {
   title,
   description,
   keywords: [
-    "design marketplace",
-    "YouTube thumbnails",
-    "event posters",
-    "church flyers",
-    "business flyers",
-    "social media banners",
-    "conference posters",
-    "certificates",
-    "marketing graphics",
+    "digital products",
+    "ebooks",
+    "professional digital products",
+    "online reading",
+    "business guides",
+    "study guides",
+    "digital workbooks",
+    "printable resources",
+    "professional templates",
     "graphic design Kenya",
-    "custom flyer design",
-    "poster design",
-    "AdventSkool designs",
+    "AdventSkool digital products",
   ],
   alternates: { canonical: `${siteUrl}/designs` },
   openGraph: {
@@ -31,11 +29,7 @@ export const metadata: Metadata = {
     description,
     siteName: "AdventSkool",
   },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-  },
+  twitter: { card: "summary_large_image", title, description },
   robots: { index: true, follow: true },
 };
 

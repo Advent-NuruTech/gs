@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   const designId = request.nextUrl.searchParams.get("designId")?.trim() ?? "";
   const reference = request.nextUrl.searchParams.get("reference")?.trim() ?? "";
   if (!designId) {
-    return NextResponse.json({ error: "Missing design." }, { status: 400 });
+    return NextResponse.json({ error: "Missing digital product." }, { status: 400 });
   }
 
   const admin = getSupabaseAdminClient();
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     .maybeSingle();
 
   if (!design || !design.published) {
-    return NextResponse.json({ error: "Design not found." }, { status: 404 });
+    return NextResponse.json({ error: "Digital product not found." }, { status: 404 });
   }
 
   // Free designs are open; paid ones require a settled download order. Never
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
       order.kind === "download" &&
       order.payment_status === "success";
     if (!paid) {
-      return NextResponse.json({ error: "Payment not verified for this design." }, { status: 403 });
+      return NextResponse.json({ error: "Payment not verified for this digital product." }, { status: 403 });
     }
   }
 
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
   // the preview image for legacy rows without a stored file_url.
   const deliverable = String(design.file_url ?? "") || String(design.image_url ?? "");
   if (!deliverable) {
-    return NextResponse.json({ error: "No file is available for this design." }, { status: 404 });
+    return NextResponse.json({ error: "No file is available for this digital product." }, { status: 404 });
   }
 
   const title = String(design.title ?? "design");

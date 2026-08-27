@@ -9,11 +9,16 @@ export type DesignOrderStatus = "pending" | "in_progress" | "completed" | "deliv
  */
 export type DesignOrderKind = "download" | "customization";
 
+/** How the customer wants to open a purchased digital product first. */
+export type ProductAccessMode = "download" | "read_online";
+
 export interface DesignOrder {
   id: string;
   designId?: string;
   designTitle: string;
   kind: DesignOrderKind;
+  accessMode: ProductAccessMode;
+  userId?: string;
 
   fullName: string;
   email: string;
@@ -47,6 +52,7 @@ export interface DesignOrder {
 export interface DesignOrderDraft {
   designId: string;
   kind: DesignOrderKind;
+  accessMode?: ProductAccessMode;
   fullName: string;
   email: string;
   phone: string;
