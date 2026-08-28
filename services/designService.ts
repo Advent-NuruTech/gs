@@ -22,6 +22,7 @@ function mapDesign(data: Record<string, unknown>): Design {
     fileType: String(data.file_type ?? "image") === "pdf" ? "pdf" : "image",
     pageCount: data.page_count != null ? Number(data.page_count) : undefined,
     downloadPrice: Number(data.download_price ?? 0),
+    customizationEnabled: data.customization_enabled == null ? true : Boolean(data.customization_enabled),
     customizationPrice: Number(data.customization_price ?? 0),
     published: Boolean(data.published),
     views: Number(data.views ?? 0),
@@ -46,6 +47,7 @@ export async function createDesign(input: CreateDesignInput): Promise<string> {
       file_type: input.fileType ?? "image",
       page_count: input.pageCount ?? null,
       download_price: input.downloadPrice,
+      customization_enabled: input.customizationEnabled,
       customization_price: input.customizationPrice,
       published: input.published ?? true,
       created_by: input.createdBy,
@@ -121,6 +123,7 @@ export async function updateDesign(
   if (typeof updates.fileType === "string") payload.file_type = updates.fileType;
   if (typeof updates.pageCount === "number") payload.page_count = updates.pageCount;
   if (typeof updates.downloadPrice === "number") payload.download_price = updates.downloadPrice;
+  if (typeof updates.customizationEnabled === "boolean") payload.customization_enabled = updates.customizationEnabled;
   if (typeof updates.customizationPrice === "number") payload.customization_price = updates.customizationPrice;
   if (typeof updates.published === "boolean") payload.published = updates.published;
 

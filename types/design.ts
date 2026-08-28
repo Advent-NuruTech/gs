@@ -16,6 +16,8 @@ export interface Design {
   /** Total pages for a PDF template — drives the free quarter-of-pages preview. */
   pageCount?: number;
   downloadPrice: number;
+  /** Whether customers should see and use the customization option. */
+  customizationEnabled: boolean;
   customizationPrice: number;
   published: boolean;
   views: number;
@@ -36,6 +38,7 @@ export interface CreateDesignInput {
   fileType?: DesignFileType;
   pageCount?: number;
   downloadPrice: number;
+  customizationEnabled: boolean;
   customizationPrice: number;
   published?: boolean;
   createdBy: string;

@@ -90,7 +90,9 @@ export default function AdminDesignsPage() {
               <p className="text-xs font-semibold text-slate-700">
                 <span className="text-indigo-600">Download {formatKsh(design.downloadPrice)}</span>
                 {" · "}
-                <span className="text-slate-600">Customize {formatKsh(design.customizationPrice)}</span>
+                <span className="text-slate-600">
+                  {design.customizationEnabled ? `Customize ${formatKsh(design.customizationPrice)}` : "Customization off"}
+                </span>
               </p>
               <div className="flex items-center gap-3 text-xs text-slate-400">
                 <span className="inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" />{design.views}</span>

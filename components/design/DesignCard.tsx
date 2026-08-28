@@ -13,7 +13,7 @@ import { Design } from "@/types/design";
  */
 export default function DesignCard({ design, hidePrice = false }: { design: Design; hidePrice?: boolean }) {
   const canDownload = !hidePrice && Number(design.downloadPrice || 0) > 0;
-  const canCustomize = !hidePrice && Number(design.customizationPrice || 0) > 0;
+  const canCustomize = design.customizationEnabled && !hidePrice && Number(design.customizationPrice || 0) > 0;
   const ratio =
     design.imageWidth && design.imageHeight
       ? `${design.imageWidth} / ${design.imageHeight}`
@@ -45,7 +45,7 @@ export default function DesignCard({ design, hidePrice = false }: { design: Desi
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 transition group-hover:opacity-100">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow">
             <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-            Read, Download or Customize
+            {design.customizationEnabled ? "Read, Download or Customize" : "Read or Download"}
           </span>
         </div>
       </div>

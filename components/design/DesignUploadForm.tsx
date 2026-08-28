@@ -63,6 +63,7 @@ export default function DesignUploadForm({ design }: Props) {
     height: design?.imageHeight,
   });
   const [downloadPrice, setDownloadPrice] = useState(String(design?.downloadPrice ?? ""));
+  const [customizationEnabled, setCustomizationEnabled] = useState(design?.customizationEnabled ?? true);
   const [customizationPrice, setCustomizationPrice] = useState(String(design?.customizationPrice ?? ""));
   const [published, setPublished] = useState(design?.published ?? true);
   const [uploading, setUploading] = useState(false);
@@ -149,6 +150,7 @@ export default function DesignUploadForm({ design }: Props) {
         fileType,
         pageCount: fileType === "pdf" ? pageCount : undefined,
         downloadPrice: Number(downloadPrice || 0),
+        customizationEnabled,
         customizationPrice: Number(customizationPrice || 0),
         published,
       };
@@ -262,18 +264,37 @@ export default function DesignUploadForm({ design }: Props) {
           value={downloadPrice}
           onChange={(e) => setDownloadPrice(e.target.value)}
         />
-        <Input
-          label="Customization Fee (Ksh) — optional"
-          type="number"
-          min="0"
-          value={customizationPrice}
-          onChange={(e) => setCustomizationPrice(e.target.value)}
-        />
+        <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-3">
+          <label className="flex cursor-pointer items-center justify-between gap-3 text-sm font-medium text-slate-700">
+            <span>
+              <span className="block">Offer customization</span>
+              <span className="block text-xs font-normal text-slate-500">
+                Turn off to hide customization from customers.
+              </span>
+            </span>
+            <input
+              type="checkbox"
+              checked={customizationEnabled}
+              onChange={(e) => setCustomizationEnabled(e.target.checked)}
+              className="h-5 w-5 shrink-0 accent-indigo-600"
+            />
+          </label>
+          {customizationEnabled ? (
+            <Input
+              label="Customization Fee (Ksh) — optional"
+              type="number"
+              min="0"
+              value={customizationPrice}
+              onChange={(e) => setCustomizationPrice(e.target.value)}
+            />
+          ) : null}
+        </div>
       </div>
       <p className="text-xs text-slate-500">
-        Both prices are optional and billed separately. <span className="font-semibold text-slate-700">Leave a field
-        empty to make it free</span> — a free product can be read online or downloaded with no payment, and a free customization
-        request is submitted without forcing the customer to pay. Set an amount only when you want to charge for it.
+        The product price is optional. <span className="font-semibold text-slate-700">Leave it empty to make the product free.</span>
+        {customizationEnabled
+          ? " The customization fee is billed separately; leave it empty to accept free customization requests."
+          : " Customization is off and will not appear anywhere on the public product pages."}
       </p>
 
       <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
