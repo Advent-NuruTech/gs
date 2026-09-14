@@ -9,6 +9,15 @@
   --brand: #2563eb;
 }
 
+html.dark {
+  --background: #07111f;
+  --surface: #0f1b2d;
+  --foreground: #e5edf8;
+  --muted: #9aaac0;
+  --border: #26364d;
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -21,9 +30,37 @@ body {
 }
 
 body {
-  background: radial-gradient(circle at top right, #dbeafe 0%, var(--background) 40%);
+  background: var(--background);
   color: var(--foreground);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.public-shell {
+  color: var(--foreground);
+}
+
+.dark .public-shell .text-slate-900,
+.dark .public-shell .text-slate-800 {
+  color: #e5edf8;
+}
+
+.dark .public-shell .text-slate-700,
+.dark .public-shell .text-slate-600 {
+  color: #b4c0d1;
+}
+
+.dark .public-shell .border-slate-200,
+.dark .public-shell .border-slate-300 {
+  border-color: #26364d;
+}
+
+.dark .public-shell .bg-white {
+  background-color: var(--surface);
+}
+
+.dark .public-shell .bg-slate-50\/95,
+.dark .public-shell .bg-slate-50 {
+  background-color: color-mix(in srgb, var(--background) 95%, transparent);
 }
 
 a {

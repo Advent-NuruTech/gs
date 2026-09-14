@@ -18,7 +18,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-16 border-t border-slate-200 bg-white">
+    <footer className="mt-16 border-t border-slate-200 bg-transparent dark:border-slate-800">
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid gap-10 md:grid-cols-4">
           {/* Brand */}
@@ -26,10 +26,10 @@ export default function Footer() {
             <p className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
               AdventSkool LMS
             </p>
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-600">
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-600 dark:text-slate-300">
               AdventSkool is a guided, mobile-first learning platform — structured lessons, progress
               tracking, and role-based dashboards for students, teachers, and admins. AdventSkool is
-              a product of <span className="font-semibold text-slate-800">Advent NuruTech</span>.
+              a product of <span className="font-semibold text-slate-800 dark:text-slate-100">Advent NuruTech</span>.
             </p>
             <a
               href="mailto:adventnurutech@gmail.com"
@@ -41,7 +41,7 @@ export default function Footer() {
 
           {/* Quick links */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-900">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-900 dark:text-slate-100">
               Explore
             </h3>
             <ul className="mt-4 space-y-2">
@@ -49,7 +49,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-slate-600 transition hover:text-blue-700"
+                    className="text-sm text-slate-600 transition hover:text-blue-700 dark:text-slate-300 dark:hover:text-blue-400"
                   >
                     {link.label}
                   </Link>
@@ -60,7 +60,7 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-900">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-900 dark:text-slate-100">
               Legal
             </h3>
             <ul className="mt-4 space-y-2">
@@ -68,7 +68,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-slate-600 transition hover:text-blue-700"
+                    className="text-sm text-slate-600 transition hover:text-blue-700 dark:text-slate-300 dark:hover:text-blue-400"
                   >
                     {link.label}
                   </Link>
@@ -79,7 +79,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-6 sm:flex-row">
+        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-6 dark:border-slate-800 sm:flex-row">
           <p className="text-xs text-slate-500">
             © {year} Advent NuruTech. All rights reserved.
           </p>
