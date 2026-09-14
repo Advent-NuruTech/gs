@@ -122,7 +122,6 @@ export default function ResetPasswordPageClient() {
                     hideLabel
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
                     required
                     className="pl-10 pr-12"
                   />
@@ -154,7 +153,6 @@ export default function ResetPasswordPageClient() {
                     hideLabel
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
-                    placeholder="••••••••"
                     required
                     className="pl-10"
                   />

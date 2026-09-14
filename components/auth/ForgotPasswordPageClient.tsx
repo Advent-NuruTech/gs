@@ -110,7 +110,6 @@ export default function ForgotPasswordPageClient() {
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
-                    placeholder="you@example.com"
                     required
                     className={`pl-10 transition-all duration-200 ${
                       focused ? "ring-2 ring-indigo-200 border-indigo-400" : ""

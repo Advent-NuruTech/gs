@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://skills.adventnurutech.xyz";
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://skills.adventnurutech.xyz").replace(/\/$/, "");
 const title = "Professional Digital Products — Ebooks, Guides & Templates";
 const description =
   "Browse professional digital products including ebooks, guides, workbooks, templates, graphics and printable resources. Purchase once to read online or download.";

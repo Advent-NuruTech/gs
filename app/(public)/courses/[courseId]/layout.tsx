@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+
+import { truncateText } from "@/lib/utils/plainText";
+
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://skills.adventnurutech.xyz").replace(/\/$/, "");
 
 async function getCourseForMetadata(
   courseId: string,
 ): Promise<{ title: string; description: string; thumbnailUrl: string } | null> {
-  const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return [];
         },
         setAll() {
         },
@@ -24,6 +26,7 @@ async function getCourseForMetadata(
     .from("courses")
     .select("title, outline, thumbnail_url")
     .eq("id", courseId)
+    .eq("published", true)
     .maybeSingle();
 
   if (!data) return null;
@@ -50,24 +53,32 @@ export async function generateMetadata({
     };
   }
 
-  const truncated =
-    course.description.length > 200
-      ? course.description.slice(0, 197) + "..."
-      : course.description;
+  const description = truncateText(course.description, 200) || `Explore ${course.title} on AdventSkool.`;
+  const url = `${siteUrl}/courses/${encodeURIComponent(courseId)}`;
+  const images = course.thumbnailUrl
+    ? [{ url: course.thumbnailUrl, alt: course.title }]
+    : undefined;
 
   return {
     title: course.title,
-    description: truncated,
+    description,
+    alternates: { canonical: url },
     openGraph: {
+      type: "article",
+      url,
       title: course.title,
-      description: truncated,
-      images: course.thumbnailUrl ? [{ url: course.thumbnailUrl, width: 1200, height: 630 }] : [],
+      description,
+      siteName: "AdventSkool",
+      images,
     },
     twitter: {
       card: "summary_large_image",
       title: course.title,
-      description: truncated,
+      description,
       images: course.thumbnailUrl ? [course.thumbnailUrl] : [],
+    },
+    other: {
+      "product:retailer_item_id": courseId,
     },
     robots: { index: true, follow: true },
   };

@@ -91,7 +91,6 @@ export default function AdminLoginPageClient() {
               label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@adventskool.com"
               required
               className="bg-slate-900 text-white placeholder:text-slate-500"
             />
@@ -107,7 +106,6 @@ export default function AdminLoginPageClient() {
                 label="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
                 required
                 className="bg-slate-900 pr-12 text-white placeholder:text-slate-500"
               />

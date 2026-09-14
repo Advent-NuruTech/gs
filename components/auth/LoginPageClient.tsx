@@ -11,6 +11,7 @@ import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import Input from "@/components/ui/Input";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthMethodSettings } from "@/hooks/useAuthMethodSettings";
 import { getUserProfile, loginUser } from "@/services/authService";
 
 export default function LoginPageClient() {
@@ -18,6 +19,7 @@ export default function LoginPageClient() {
   const searchParams = useSearchParams();
   const { profile, loading: authLoading } = useAuth();
   const { pushToast } = useNotificationContext();
+  const authMethods = useAuthMethodSettings();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,7 +62,7 @@ export default function LoginPageClient() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!isValid) return;
+    if (!isValid || !authMethods?.emailEnabled) return;
 
     setLoading(true);
     try {
@@ -142,15 +144,18 @@ export default function LoginPageClient() {
             )}
           </div>
 
-          {/* Google sign-in first */}
-          <GoogleSignInButton redirectPath={redirectPath} />
+          {authMethods?.googleEnabled ? <GoogleSignInButton redirectPath={redirectPath} /> : null}
 
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs uppercase tracking-wide text-slate-400">or sign in with email</span>
-            <span className="h-px flex-1 bg-slate-200" />
-          </div>
+          {authMethods?.googleEnabled && authMethods.emailEnabled ? (
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 bg-slate-200" />
+              <span className="text-xs uppercase tracking-wide text-slate-400">or sign in with email</span>
+              <span className="h-px flex-1 bg-slate-200" />
+            </div>
+          ) : null}
 
+          {authMethods?.emailEnabled ? (
+            <>
           <div className="space-y-5">
             {/* Email Input */}
             <div className="space-y-1.5">
@@ -167,7 +172,6 @@ export default function LoginPageClient() {
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setFocusedField("email")}
                   onBlur={() => setFocusedField(null)}
-                  placeholder="you@example.com"
                   required
                   className={`pl-10 transition-all duration-200 ${
                     focusedField === "email" ? "ring-2 ring-indigo-200 border-indigo-400" : ""
@@ -197,7 +201,6 @@ export default function LoginPageClient() {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField(null)}
-                  placeholder="••••••••"
                   required
                   className={`pl-10 pr-12 transition-all duration-200 ${
                     focusedField === "password" ? "ring-2 ring-indigo-200 border-indigo-400" : ""
@@ -252,6 +255,16 @@ export default function LoginPageClient() {
               </span>
             )}
           </Button>
+            </>
+          ) : null}
+
+          {authMethods && !authMethods.googleEnabled && !authMethods.emailEnabled ? (
+            <p role="status" className="rounded-md border border-amber-200 bg-amber-50 p-3 text-center text-sm text-amber-800">
+              Sign in is temporarily unavailable. Please try again later.
+            </p>
+          ) : null}
+
+          {!authMethods ? <p className="text-center text-sm text-slate-500">Loading sign-in options...</p> : null}
 
           <p className="text-center text-sm text-slate-600">
             No account?{" "}

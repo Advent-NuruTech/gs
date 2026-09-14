@@ -96,7 +96,6 @@ export default function AdminSignupPageClient() {
               label="Full Name"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Jane Admin"
               required
               className="bg-slate-900 text-white placeholder:text-slate-500"
             />
@@ -111,7 +110,6 @@ export default function AdminSignupPageClient() {
               label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@adventskool.com"
               required
               className="bg-slate-900 text-white placeholder:text-slate-500"
             />
@@ -126,7 +124,6 @@ export default function AdminSignupPageClient() {
               label="Phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="0712345678"
               required
               className="bg-slate-900 text-white placeholder:text-slate-500"
             />
@@ -145,7 +142,6 @@ export default function AdminSignupPageClient() {
                 label="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
                 required
                 className="bg-slate-900 pr-12 text-white placeholder:text-slate-500"
               />
@@ -168,7 +164,6 @@ export default function AdminSignupPageClient() {
               label="Admin Signup Code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="Provided by your organisation"
               required
               className="bg-slate-900 text-white placeholder:text-slate-500"
             />

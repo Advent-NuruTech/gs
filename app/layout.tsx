@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import AppProviders from "@/context/AppProviders";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.com";
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://skills.adventnurutech.xyz").replace(/\/$/, "");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

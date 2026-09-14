@@ -15,6 +15,7 @@ import { proxyDownloadUrl } from "@/lib/designs/downloadUrl";
 import { recordDesignView } from "@/services/designService";
 import { Design } from "@/types/design";
 import { ProductAccessMode } from "@/types/designOrder";
+import ShareButton from "@/components/share/ShareButton";
 
 function triggerDownload(url: string) {
   const link = document.createElement("a");
@@ -83,6 +84,15 @@ export default function DesignDetailClient({
             <p className="inline-flex items-center gap-1.5 text-xs text-slate-400">
               <Eye className="h-3.5 w-3.5" /> {design.views.toLocaleString("en-KE")} views
             </p>
+            <div>
+              <ShareButton
+                title={design.title}
+                description={design.description}
+                entityId={design.id}
+                entityLabel="Product"
+                path={`/designs/${design.id}`}
+              />
+            </div>
           </div>
 
           <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">

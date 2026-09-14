@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/ui/Button";
+import ShareButton from "@/components/share/ShareButton";
 import { useAuth } from "@/hooks/useAuth";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { formatContent } from "@/lib/utils/formatContent";
@@ -104,6 +105,13 @@ export default function CoursePreviewPage() {
             <Button type="button" onClick={handleEnroll}>
               Choose Payment Plan
             </Button>
+            <ShareButton
+              title={course.title}
+              description={course.outline}
+              entityId={course.id}
+              entityLabel="Course"
+              path={`/courses/${course.id}`}
+            />
           </div>
         </div>
       </section>
