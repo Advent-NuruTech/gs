@@ -59,8 +59,18 @@ export default function StudentDashboardPage() {
         setCoursesById(resolvedCourses);
 
         const excludedIds = new Set([...uniqueCourseIds]);
+        const relevantCategories = new Set(
+          allCoursesResult.courses
+            .filter((course) => excludedIds.has(course.id))
+            .map((course) => course.category),
+        );
         setRecommendedCourses(
-          allCoursesResult.courses.filter((course) => !excludedIds.has(course.id)).slice(0, 4),
+          allCoursesResult.courses
+            .filter(
+              (course) =>
+                !excludedIds.has(course.id) && relevantCategories.has(course.category),
+            )
+            .slice(0, 4),
         );
       } finally {
         setLoading(false);
@@ -164,7 +174,7 @@ export default function StudentDashboardPage() {
 
       {recommendedCourses.length > 0 ? (
         <section className="space-y-3">
-          <h3 className="text-xl font-bold text-slate-900">Other Courses You May Like</h3>
+          <h3 className="text-xl font-bold text-slate-900">Courses You May Also Like</h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {recommendedCourses.map((course) => (
               <CourseCard key={course.id} course={course} />

@@ -11,6 +11,12 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
+const publicLinks = [
+  { href: "/", label: "Public Home" },
+  { href: "/courses", label: "Browse Courses" },
+  { href: "/designs", label: "Browse Digital Products" },
+];
+
 const linkMap: Record<UserRole, Array<{ href: string; label: string }>> = {
   student: [
     { href: "/dashboard/student", label: "Overview" },
@@ -23,6 +29,7 @@ const linkMap: Record<UserRole, Array<{ href: string; label: string }>> = {
      { href: "/tools", label: "useful tools" },
     { href: "/dashboard/student/report", label: "Report a Problem" },
     { href: "/dashboard/account", label: "Account" },
+    ...publicLinks,
   ],
   teacher: [
     { href: "/dashboard/teacher", label: "Overview" },
@@ -35,6 +42,7 @@ const linkMap: Record<UserRole, Array<{ href: string; label: string }>> = {
    // { href: "/dashboard/teacher/chat", label: "Chat with AI" },
     { href: "/dashboard/teacher/report", label: "Report a Problem" },
     { href: "/dashboard/account", label: "Account" },
+    ...publicLinks,
   ],
   admin: [
     { href: "/dashboard/admin", label: "Overview" },
@@ -52,6 +60,7 @@ const linkMap: Record<UserRole, Array<{ href: string; label: string }>> = {
     { href: "/dashboard/admin/reports", label: "Reports" },
     //{ href: "/dashboard/admin/chat", label: "Chat with AI" },
     { href: "/dashboard/account", label: "Account" },
+    ...publicLinks,
   ],
 };
 
@@ -65,7 +74,7 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
         <h2 className="mb-6 text-xl font-semibold text-slate-900">AdventSkool</h2>
         <nav className="space-y-2">
           {links.map((link) => {
-            const active = pathname.startsWith(link.href);
+            const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}
@@ -98,7 +107,7 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
             </div>
             <nav className="space-y-2">
               {links.map((link) => {
-                const active = pathname.startsWith(link.href);
+                const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
                 return (
                   <Link
                     key={link.href}

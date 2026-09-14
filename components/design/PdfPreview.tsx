@@ -2,6 +2,7 @@
 
 import { Lock } from "lucide-react";
 
+import PdfPageStack from "@/components/design/PdfPageStack";
 import Button from "@/components/ui/Button";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { freePreviewPageCount, pdfPageImageUrl } from "@/lib/designs/pdfPreview";
@@ -56,22 +57,7 @@ export default function PdfPreview({ design, onUnlock }: Props) {
       </div>
 
       {/* Free pages, stacked top-to-bottom like a document reader. */}
-      <div className="space-y-3">
-        {Array.from({ length: freeCount }, (_, i) => i + 1).map((page) => (
-          <div key={page} className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={pdfPageImageUrl(source, page)}
-              alt={`${design.title} — page ${page}`}
-              loading={page === 1 ? undefined : "lazy"}
-              className="h-auto w-full object-contain"
-            />
-            <span className="absolute bottom-2 right-2 rounded bg-black/55 px-2 py-0.5 text-[11px] font-semibold text-white">
-              Page {page} / {total}
-            </span>
-          </div>
-        ))}
-      </div>
+      <PdfPageStack source={source} title={design.title} pageCount={freeCount} />
 
       {/* Paywall: blurred teaser of the next page + unlock CTA. */}
       {lockedCount > 0 ? (

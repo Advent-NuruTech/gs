@@ -89,6 +89,34 @@ export async function listRelatedDesigns(
   return related.slice(0, limit);
 }
 
+/**
+ * Dashboard suggestions are intentionally stricter than public related items:
+ * only published products in categories the customer already owns are shown.
+ */
+export async function listRecommendedDesigns(
+  categories: string[],
+  excludedDesignIds: string[],
+  limit = 6,
+): Promise<Design[]> {
+  const relevantCategories = [...new Set(categories.map((category) => category.trim()).filter(Boolean))];
+  if (relevantCategories.length === 0) return [];
+
+  const supabase = await anonClient();
+  const { data } = await supabase
+    .from("designs")
+    .select("*")
+    .eq("published", true)
+    .in("category", relevantCategories)
+    .order("created_at", { ascending: false })
+    .limit(Math.max(limit + excludedDesignIds.length, limit));
+
+  const excluded = new Set(excludedDesignIds);
+  return (data ?? [])
+    .map(mapDesign)
+    .filter((design) => !excluded.has(design.id))
+    .slice(0, limit);
+}
+
 export async function listPublishedDesignsForSitemap(): Promise<Array<{ id: string; updatedAt?: string }>> {
   const supabase = await anonClient();
   const { data } = await supabase.from("designs").select("id, updated_at").eq("published", true);

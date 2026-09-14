@@ -13,6 +13,7 @@ export interface OwnedDigitalProduct {
   imageUrl: string;
   fileUrl: string;
   fileType: "image" | "pdf";
+  pageCount?: number;
   category: string;
 }
 
@@ -46,6 +47,7 @@ async function hydrateOrder(order: Record<string, unknown>): Promise<OwnedDigita
     imageUrl: String(design.image_url ?? ""),
     fileUrl: String(design.file_url ?? "") || String(design.image_url ?? ""),
     fileType: design.file_type === "pdf" ? "pdf" : "image",
+    pageCount: design.page_count != null ? Number(design.page_count) : undefined,
     category: String(design.category ?? "Digital Product"),
   };
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import CourseCard from "@/components/course/CourseCard";
 import PaymentDrafts from "@/components/dashboard/PaymentDrafts";
 import { useAuth } from "@/hooks/useAuth";
 import { listCourses } from "@/services/courseService";
@@ -72,6 +73,30 @@ export default function MyCoursesPage() {
       ),
     [courseLookup],
   );
+
+  const recommendedCourses = useMemo(() => {
+    const excludedIds = new Set([
+      ...enrollments.map((enrollment) => enrollment.courseId),
+      ...payments.map((payment) => payment.courseId),
+    ]);
+    const relevantCategories = new Set(
+      enrollments
+        .map((enrollment) => courseLookup[enrollment.courseId]?.category)
+        .filter((category): category is string => Boolean(category)),
+    );
+
+    return Object.values(courseLookup)
+      .filter(
+        (course): course is Course =>
+          Boolean(
+            course &&
+              course.published &&
+              !excludedIds.has(course.id) &&
+              relevantCategories.has(course.category),
+          ),
+      )
+      .slice(0, 4);
+  }, [courseLookup, enrollments, payments]);
 
   if (loading) {
     return <div className="rounded-md border border-slate-200 bg-white p-4">Loading your courses...</div>;
@@ -148,6 +173,22 @@ export default function MyCoursesPage() {
             ))}
           </div>
         </div>
+      ) : null}
+
+      {recommendedCourses.length > 0 ? (
+        <section className="space-y-3 border-t border-slate-200 pt-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-xl font-bold text-slate-900">Courses You May Also Like</h3>
+            <Link href="/courses" className="text-sm font-semibold text-blue-700 hover:underline">
+              Browse all
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {recommendedCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        </section>
       ) : null}
     </section>
   );

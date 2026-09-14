@@ -2,6 +2,8 @@ import Link from "next/link";
 import { BookOpen, Download, Library } from "lucide-react";
 import { redirect } from "next/navigation";
 
+import DesignCard from "@/components/design/DesignCard";
+import { listRecommendedDesigns } from "@/lib/designs/server";
 import { listOwnedDigitalProducts } from "@/lib/products/access";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { formatKsh } from "@/lib/utils/formatCurrency";
@@ -14,6 +16,11 @@ export default async function MyProductsPage() {
   if (!user) redirect("/login?redirect=/dashboard/products");
 
   const products = await listOwnedDigitalProducts(user);
+  const recommendations = await listRecommendedDesigns(
+    products.map((product) => product.category),
+    products.map((product) => product.designId),
+    6,
+  );
 
   return (
     <section className="space-y-6">
@@ -61,6 +68,25 @@ export default async function MyProductsPage() {
           ))}
         </div>
       )}
+
+      {recommendations.length > 0 ? (
+        <section className="space-y-4 border-t border-slate-200 pt-6">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">You May Also Like</h2>
+              <p className="mt-1 text-sm text-slate-600">More digital products related to your library.</p>
+            </div>
+            <Link href="/designs" className="text-sm font-semibold text-indigo-700 hover:underline">
+              Browse all
+            </Link>
+          </div>
+          <div className="columns-2 gap-4 lg:columns-3">
+            {recommendations.map((design) => (
+              <DesignCard key={design.id} design={design} />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </section>
   );
 }

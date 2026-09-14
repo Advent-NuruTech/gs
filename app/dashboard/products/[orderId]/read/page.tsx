@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Download } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
+import PdfPageStack from "@/components/design/PdfPageStack";
 import { getOwnedDigitalProduct } from "@/lib/products/access";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -17,6 +18,7 @@ export default async function ProductReaderPage({ params }: { params: Promise<{ 
   if (!product) notFound();
   const readerUrl = `/api/products/${product.orderId}/read`;
   const downloadUrl = `/api/designs/download?designId=${encodeURIComponent(product.designId)}&reference=${encodeURIComponent(product.reference)}`;
+  const totalPages = Math.max(0, Math.floor(product.pageCount ?? 0));
 
   return (
     <section className="space-y-4">
@@ -32,16 +34,33 @@ export default async function ProductReaderPage({ params }: { params: Promise<{ 
         </a>
       </div>
 
-      <div className="min-h-[70vh] overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm">
-        {product.fileType === "pdf" ? (
-          <iframe src={readerUrl} title={product.title} className="h-[78vh] w-full bg-white" />
-        ) : (
-          <div className="flex min-h-[70vh] items-center justify-center p-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={readerUrl} alt={product.title} className="max-h-[75vh] max-w-full object-contain" />
+      {product.fileType === "pdf" && totalPages > 0 ? (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
+              PDF product
+            </span>
+            <span className="text-xs font-medium text-slate-500">
+              Full product · {totalPages} page{totalPages === 1 ? "" : "s"}
+            </span>
           </div>
-        )}
-      </div>
+          <PdfPageStack source={product.fileUrl} title={product.title} pageCount={totalPages} />
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={product.fileType === "image" ? readerUrl : product.imageUrl}
+            alt={product.title}
+            className="h-auto w-full object-contain"
+          />
+          {product.fileType === "pdf" ? (
+            <p className="border-t border-slate-200 bg-white p-4 text-center text-sm text-slate-600">
+              This older PDF does not have page information yet. Use Download to access the complete file.
+            </p>
+          ) : null}
+        </div>
+      )}
     </section>
   );
 }
