@@ -4,12 +4,9 @@ import { Check, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useNotificationContext } from "@/context/NotificationContext";
-import { truncateText } from "@/lib/utils/plainText";
 
 interface ShareButtonProps {
   title: string;
-  description?: string;
-  entityId: string;
   entityLabel: "Course" | "Product";
   path: string;
   className?: string;
@@ -30,8 +27,6 @@ function legacyCopy(text: string): boolean {
 
 export default function ShareButton({
   title,
-  description = "",
-  entityId,
   entityLabel,
   path,
   className = "",
@@ -66,19 +61,17 @@ export default function ShareButton({
 
   const handleShare = async () => {
     const url = new URL(path, window.location.origin).toString();
-    const summary = truncateText(description, 220);
-    const shareText = [summary, `${entityLabel} ID: ${entityId}`].filter(Boolean).join("\n");
 
     if (typeof navigator.share === "function") {
       try {
-        await navigator.share({ title, text: shareText, url });
+        await navigator.share({ url });
         return;
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return;
       }
     }
 
-    await copyShareDetails([title, shareText, url].filter(Boolean).join("\n"));
+    await copyShareDetails(url);
   };
 
   return (

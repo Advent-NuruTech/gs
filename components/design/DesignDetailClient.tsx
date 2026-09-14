@@ -87,8 +87,6 @@ export default function DesignDetailClient({
             <div>
               <ShareButton
                 title={design.title}
-                description={design.description}
-                entityId={design.id}
                 entityLabel="Product"
                 path={`/designs/${design.id}`}
               />

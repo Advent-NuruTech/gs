@@ -107,8 +107,6 @@ export default function CoursePreviewPage() {
             </Button>
             <ShareButton
               title={course.title}
-              description={course.outline}
-              entityId={course.id}
               entityLabel="Course"
               path={`/courses/${course.id}`}
             />
