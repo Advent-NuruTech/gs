@@ -59,10 +59,10 @@ export default function CourseCard({ course, enableCart = true }: CourseCardProp
           ) : null}
         </div>
 
-        <div className="mt-auto grid gap-2 sm:grid-cols-2">
+        <div className="mt-auto grid gap-2">
           <Link
             href={`/courses/${course.id}`}
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-sm font-bold text-white shadow-md transition hover:bg-blue-700 hover:shadow-lg sm:text-base"
+            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-sm font-bold !text-white shadow-md transition hover:bg-blue-700 hover:shadow-lg sm:text-base"
           >
             View Course
           </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Check, ChevronDown, Search } from "lucide-react";
 
 import CartButton from "@/components/course/CartButton";
 import CourseCard from "@/components/course/CourseCard";
@@ -14,6 +15,9 @@ export default function CoursesPage() {
   const { profile } = useAuth();
   const [hiddenCourseIds, setHiddenCourseIds] = useState<Set<string>>(new Set());
   const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [courseSearch, setCourseSearch] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -75,47 +79,105 @@ export default function CoursesPage() {
       : "All";
 
   const filteredCourses = useMemo(() => {
-    if (resolvedCategory === "All") return visibleCourses;
-    return visibleCourses.filter((course) => (course.category || "General") === resolvedCategory);
-  }, [resolvedCategory, visibleCourses]);
+    const query = courseSearch.trim().toLocaleLowerCase();
+    return visibleCourses.filter((course) => {
+      const matchesCategory =
+        resolvedCategory === "All" || (course.category || "General") === resolvedCategory;
+      const matchesSearch =
+        !query ||
+        course.title.toLocaleLowerCase().includes(query) ||
+        (course.category || "General").toLocaleLowerCase().includes(query);
+      return matchesCategory && matchesSearch;
+    });
+  }, [courseSearch, resolvedCategory, visibleCourses]);
+
+  const categoryOptions = useMemo(() => {
+    const query = categorySearch.trim().toLocaleLowerCase();
+    return ["All", ...availableCategories].filter((category) =>
+      category.toLocaleLowerCase().includes(query),
+    );
+  }, [availableCategories, categorySearch]);
+
+  const selectCategory = (category: string) => {
+    setActiveCategory(category);
+    setCategorySearch("");
+    setCategoryPickerOpen(false);
+  };
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6 px-4 py-10">
+    <main className="mx-auto max-w-5xl space-y-6 px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl font-bold text-slate-900">All Courses</h1>
         <CartButton />
       </div>
-      {availableCategories.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="sticky top-0 z-30 -mx-4 border-y border-slate-200 bg-slate-50/95 px-4 py-3 shadow-sm backdrop-blur">
+        <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row">
+          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-3 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+            <Search className="h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
+            <input type="search" value={courseSearch} onChange={(event) => setCourseSearch(event.target.value)} placeholder="Search courses" className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400" />
+          </label>
+          {availableCategories.length > 0 ? (
+            <div className="relative sm:w-80">
           <button
             type="button"
-            onClick={() => setActiveCategory("All")}
-            className={`rounded-full border px-3 py-1 text-sm font-medium transition ${
-              resolvedCategory === "All"
-                ? "border-blue-600 bg-blue-600 text-white"
-                : "border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:text-blue-700"
-            }`}
+            aria-expanded={categoryPickerOpen}
+            aria-haspopup="listbox"
+            onClick={() => setCategoryPickerOpen((open) => !open)}
+            className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            All
+            <span>Category: {resolvedCategory}</span>
+            <ChevronDown
+              className={`h-5 w-5 text-slate-500 transition-transform ${categoryPickerOpen ? "rotate-180" : ""}`}
+              aria-hidden="true"
+            />
           </button>
-          {availableCategories.map((category) => (
-            <button
-              key={category}
-              type="button"
-              onClick={() => setActiveCategory(category)}
-              className={`rounded-full border px-3 py-1 text-sm font-medium transition ${
-                resolvedCategory === category
-                  ? "border-blue-600 bg-blue-600 text-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:text-blue-700"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+          {categoryPickerOpen ? (
+            <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+              <label className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                <input
+                  autoFocus
+                  type="search"
+                  value={categorySearch}
+                  onChange={(event) => setCategorySearch(event.target.value)}
+                  placeholder="Search categories"
+                  className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                />
+              </label>
+              <div role="listbox" aria-label="Course categories" className="mt-2 max-h-56 overflow-y-auto">
+                {categoryOptions.length > 0 ? (
+                  categoryOptions.map((category) => {
+                    const selected = resolvedCategory === category;
+                    return (
+                      <button
+                        key={category}
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        onClick={() => selectCategory(category)}
+                        className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-medium transition ${
+                          selected
+                            ? "bg-blue-600 text-white"
+                            : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+                        }`}
+                      >
+                        {category}
+                        {selected ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p className="px-3 py-4 text-sm text-slate-500">No matching categories.</p>
+                )}
+              </div>
+            </div>
+          ) : null}
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      </div>
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
@@ -126,7 +188,7 @@ export default function CoursesPage() {
       ) : null}
       {!loading && filteredCourses.length === 0 ? (
         <p className="rounded-md border border-slate-200 bg-white p-6 text-slate-600">
-          {resolvedCategory !== "All"
+          {courseSearch || resolvedCategory !== "All"
             ? `No published courses found in ${resolvedCategory}.`
             : profile?.role === "student"
               ? "No new courses available right now. Check back later."
@@ -134,7 +196,7 @@ export default function CoursesPage() {
         </p>
       ) : null}
       {!loading && filteredCourses.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2">
           {filteredCourses.map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}
