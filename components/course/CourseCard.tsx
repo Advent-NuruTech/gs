@@ -25,7 +25,7 @@ export default function CourseCard({ course, enableCart = true }: CourseCardProp
   const inCart = hasCourse(course.id);
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
       <div className="relative aspect-video w-full bg-slate-100">
         <Image
           src={course.thumbnailUrl}
@@ -42,8 +42,8 @@ export default function CourseCard({ course, enableCart = true }: CourseCardProp
       </div>
 
       <div className="flex flex-1 flex-col space-y-3 p-4">
-        <span className="inline-flex w-fit rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
-          {course.category}
+        <span className="inline-flex max-w-full rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+          <span className="truncate">{course.category}</span>
         </span>
         <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 sm:text-base">{course.title}</h3>
 

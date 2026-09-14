@@ -173,9 +173,7 @@ export default function HomePage() {
       </div>
       <section className="grid gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 md:grid-cols-2 md:items-center">
         <div className="space-y-4">
-          <p className="mx-auto inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-            AdventSkool LMS
-          </p>
+          
           <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
             Learn with a guided, mobile-first classroom experience.
           </h1>

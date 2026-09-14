@@ -39,7 +39,7 @@ export default function DesignCard({ design, hidePrice = false }: { design: Desi
 
   return (
     <article
-      className="group mb-4 block break-inside-avoid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-xl"
+      className="group mb-4 block break-inside-avoid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
     >
       <Link href={`/designs/${design.id}`} className="block">
         <div className="relative w-full overflow-hidden bg-slate-100">
@@ -66,8 +66,8 @@ export default function DesignCard({ design, hidePrice = false }: { design: Desi
         </div>
       </Link>
       <div className="space-y-2 p-3">
-        <span className="inline-flex w-fit rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
-          {design.category}
+        <span className="inline-flex max-w-full rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+          <span className="truncate">{design.category}</span>
         </span>
         <Link href={`/designs/${design.id}`} className="block hover:text-indigo-700">
           <h3 className="line-clamp-1 text-sm font-semibold text-slate-900">{design.title}</h3>

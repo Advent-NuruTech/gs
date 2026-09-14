@@ -110,11 +110,11 @@ export default function CoursesPage() {
         <h1 className="text-3xl font-bold text-slate-900">All Courses</h1>
         <CartButton />
       </div>
-      <div className="sticky top-0 z-30 -mx-4 border-y border-slate-200 bg-slate-50/95 px-4 py-3 shadow-sm backdrop-blur">
+      <div className="sticky top-[105px] z-30 -mx-4 border-y border-slate-200 bg-slate-50/95 px-4 py-3 shadow-sm backdrop-blur md:top-16">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row">
           <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-3 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
             <Search className="h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
-            <input type="search" value={courseSearch} onChange={(event) => setCourseSearch(event.target.value)} placeholder="Search courses" className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400" />
+            <input type="search" value={courseSearch} onChange={(event) => setCourseSearch(event.target.value)} placeholder="Search courses" className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100" />
           </label>
           {availableCategories.length > 0 ? (
             <div className="relative sm:w-80">
@@ -125,7 +125,7 @@ export default function CoursesPage() {
             onClick={() => setCategoryPickerOpen((open) => !open)}
             className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            <span>Category: {resolvedCategory}</span>
+            <span className="min-w-0 truncate">Category: {resolvedCategory}</span>
             <ChevronDown
               className={`h-5 w-5 text-slate-500 transition-transform ${categoryPickerOpen ? "rotate-180" : ""}`}
               aria-hidden="true"
@@ -141,7 +141,7 @@ export default function CoursesPage() {
                   value={categorySearch}
                   onChange={(event) => setCategorySearch(event.target.value)}
                   placeholder="Search categories"
-                  className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                  className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100"
                 />
               </label>
               <div role="listbox" aria-label="Course categories" className="mt-2 max-h-56 overflow-y-auto">
@@ -161,7 +161,7 @@ export default function CoursesPage() {
                             : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"
                         }`}
                       >
-                        {category}
+                        <span className="min-w-0 truncate">{category}</span>
                         {selected ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
                       </button>
                     );

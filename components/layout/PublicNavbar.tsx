@@ -143,6 +143,9 @@ export default function PublicNavbar() {
           <Link href="/login" className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 dark:text-slate-200 md:block">Log in</Link>
           <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu" className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm md:ml-0 lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-white"><Menu className="h-5 w-5" /></button>
         </div>
+        <div className="border-t border-slate-200 px-4 py-3 dark:border-slate-800 md:hidden">
+          <div className="mx-auto max-w-7xl">{searchBox}</div>
+        </div>
       </header>
 
       {menuOpen ? <div className="fixed inset-0 z-50 bg-slate-950/45" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
@@ -151,7 +154,6 @@ export default function PublicNavbar() {
           <Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-black tracking-tight text-slate-950 dark:text-white">Advent<span className="text-blue-600">Skool</span></Link>
           <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu" className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-900"><X className="h-5 w-5" /></button>
         </div>
-        <div className="mt-5 md:hidden">{searchBox}</div>
         <nav className="mt-5 flex flex-col gap-1" aria-label="Mobile navigation">
           {navLinks.map((link) => <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-base font-semibold text-slate-700 hover:bg-white hover:text-blue-700 dark:text-slate-200 dark:hover:bg-slate-900">{link.label}</Link>)}
           <Link href="/login" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-base font-semibold text-blue-700 dark:text-blue-400">Log in</Link>
