@@ -1,6 +1,6 @@
 # Google Calendar + Meet Integration — Setup Guide
 
-Production domain: **https://skills.adventnurutech.xyz**
+Production domain: **https://adventskool.co.ke**
 Supabase project ref: **vngpizdxwrvbpdjlgiag**
 
 Two separate Google flows are used (one OAuth client serves both):
@@ -25,11 +25,11 @@ GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxxxxx
 
 # Absolute URL of the app (used to build the OAuth redirect URI)
 # Production:
-NEXT_PUBLIC_SITE_URL=https://skills.adventnurutech.xyz
+NEXT_PUBLIC_SITE_URL=https://adventskool.co.ke
 # Development: NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # Optional — only set these if you want to override the defaults
-# GOOGLE_OAUTH_REDIRECT_URI=https://skills.adventnurutech.xyz/api/google/oauth/callback
+# GOOGLE_OAUTH_REDIRECT_URI=https://adventskool.co.ke/api/google/oauth/callback
 # GOOGLE_OAUTH_STATE_SECRET=<any long random string>   # defaults to the service-role key
 ```
 
@@ -53,7 +53,7 @@ https://console.cloud.google.com — create (or reuse) a project, e.g. *AdventSk
 
 - User type: **External**
 - App name: `AdventSkool`, support email: `adventnurutech@gmail.com`
-- **Authorized domain**: `adventnurutech.xyz`
+- **Authorized domain**: `adventskool.co.ke`
 - Scopes — add these non-sensitive + sensitive scopes:
   - `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile`
   - `https://www.googleapis.com/auth/calendar.events`
@@ -71,7 +71,7 @@ https://console.cloud.google.com — create (or reuse) a project, e.g. *AdventSk
 **Authorized JavaScript origins** — add all of:
 
 ```
-https://skills.adventnurutech.xyz
+https://adventskool.co.ke
 https://vngpizdxwrvbpdjlgiag.supabase.co
 http://localhost:3000
 ```
@@ -79,7 +79,7 @@ http://localhost:3000
 **Authorized redirect URIs** — add all of:
 
 ```
-https://skills.adventnurutech.xyz/api/google/oauth/callback
+https://adventskool.co.ke/api/google/oauth/callback
 https://vngpizdxwrvbpdjlgiag.supabase.co/auth/v1/callback
 http://localhost:3000/api/google/oauth/callback
 ```
@@ -105,11 +105,11 @@ https://supabase.com/dashboard/project/vngpizdxwrvbpdjlgiag
 
 ### 3b. URL configuration (Authentication → URL Configuration)
 
-- **Site URL**: `https://skills.adventnurutech.xyz`
+- **Site URL**: `https://adventskool.co.ke`
 - **Additional redirect URLs**:
 
 ```
-https://skills.adventnurutech.xyz/auth/callback
+https://adventskool.co.ke/auth/callback
 http://localhost:3000/auth/callback
 ```
 
@@ -142,7 +142,7 @@ To re-apply on a fresh database: `node scripts/run-sql.mjs supabase/migrations/0
 
 ## 5. Production checklist
 
-- [ ] `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_SITE_URL=https://skills.adventnurutech.xyz` set in the production environment
+- [ ] `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_SITE_URL=https://adventskool.co.ke` set in the production environment
 - [ ] OAuth consent screen published **In production**
 - [ ] All 3 redirect URIs + 3 origins added to the OAuth client
 - [ ] Google provider enabled in Supabase with the same client credentials

@@ -5,7 +5,7 @@
  */
 
 export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://skills.adventnurutech.xyz";
+  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://adventskool.co.ke";
 
 const BRAND = "#0EA5E9";
 const BRAND_DARK = "#0284C7";

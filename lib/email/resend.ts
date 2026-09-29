@@ -11,7 +11,7 @@ import "server-only";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const API_KEY = process.env.RESEND_API_KEY || "";
-const FROM = process.env.EMAIL_FROM || "Advent Skool <noreply@adventnurutech.xyz>";
+const FROM = process.env.EMAIL_FROM || "Advent Skool <noreply@adventskool.co.ke>";
 
 export interface SendEmailInput {
   to: string;
