@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, Search } from "lucide-react";
 
+import CatalogFilterBar from "@/components/catalog/CatalogFilterBar";
 import CartButton from "@/components/course/CartButton";
 import CourseCard from "@/components/course/CourseCard";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,9 +15,7 @@ export default function CoursesPage() {
   const { profile } = useAuth();
   const [hiddenCourseIds, setHiddenCourseIds] = useState<Set<string>>(new Set());
   const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
-  const [categorySearch, setCategorySearch] = useState("");
-  const [courseSearch, setCourseSearch] = useState("");
+  const [courseSearch, setCourseSearch] = useState<string>("");
 
   useEffect(() => {
     let active = true;
@@ -91,91 +89,25 @@ export default function CoursesPage() {
     });
   }, [courseSearch, resolvedCategory, visibleCourses]);
 
-  const categoryOptions = useMemo(() => {
-    const query = categorySearch.trim().toLocaleLowerCase();
-    return ["All", ...availableCategories].filter((category) =>
-      category.toLocaleLowerCase().includes(query),
-    );
-  }, [availableCategories, categorySearch]);
-
-  const selectCategory = (category: string) => {
-    setActiveCategory(category);
-    setCategorySearch("");
-    setCategoryPickerOpen(false);
-  };
-
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl font-bold text-slate-900">All Courses</h1>
         <CartButton />
       </div>
-      <div className="sticky top-[105px] z-30 -mx-4 border-y border-slate-200 bg-slate-50/95 px-4 py-3 shadow-sm backdrop-blur md:top-16">
-        <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row">
-          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-3 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-            <Search className="h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
-            <input type="search" value={courseSearch} onChange={(event) => setCourseSearch(event.target.value)} placeholder="Search courses" className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100" />
-          </label>
-          {availableCategories.length > 0 ? (
-            <div className="relative sm:w-80">
-          <button
-            type="button"
-            aria-expanded={categoryPickerOpen}
-            aria-haspopup="listbox"
-            onClick={() => setCategoryPickerOpen((open) => !open)}
-            className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            <span className="min-w-0 truncate">Category: {resolvedCategory}</span>
-            <ChevronDown
-              className={`h-5 w-5 text-slate-500 transition-transform ${categoryPickerOpen ? "rotate-180" : ""}`}
-              aria-hidden="true"
-            />
-          </button>
-          {categoryPickerOpen ? (
-            <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
-              <label className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-                <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
-                <input
-                  autoFocus
-                  type="search"
-                  value={categorySearch}
-                  onChange={(event) => setCategorySearch(event.target.value)}
-                  placeholder="Search categories"
-                  className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100"
-                />
-              </label>
-              <div role="listbox" aria-label="Course categories" className="mt-2 max-h-56 overflow-y-auto">
-                {categoryOptions.length > 0 ? (
-                  categoryOptions.map((category) => {
-                    const selected = resolvedCategory === category;
-                    return (
-                      <button
-                        key={category}
-                        type="button"
-                        role="option"
-                        aria-selected={selected}
-                        onClick={() => selectCategory(category)}
-                        className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-medium transition ${
-                          selected
-                            ? "bg-blue-600 text-white"
-                            : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"
-                        }`}
-                      >
-                        <span className="min-w-0 truncate">{category}</span>
-                        {selected ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
-                      </button>
-                    );
-                  })
-                ) : (
-                  <p className="px-3 py-4 text-sm text-slate-500">No matching categories.</p>
-                )}
-              </div>
-            </div>
-          ) : null}
-            </div>
-          ) : null}
-        </div>
-      </div>
+      <CatalogFilterBar
+        query={courseSearch}
+        onQueryChange={setCourseSearch}
+        searchPlaceholder="Search courses"
+        searchLabel="Search courses"
+        categories={availableCategories}
+        activeCategory={resolvedCategory}
+        onCategoryChange={setActiveCategory}
+        resultCount={filteredCourses.length}
+        totalCount={visibleCourses.length}
+        itemLabel={filteredCourses.length === 1 ? "course" : "courses"}
+        innerMaxWidth="max-w-5xl"
+      />
       {loading ? (
         <div className="grid gap-5 sm:grid-cols-2">
           {Array.from({ length: 6 }).map((_, index) => (

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Menu, Moon, Package, Search, Sun, X } from "lucide-react";
 
@@ -16,7 +17,12 @@ const navLinks = [
   { href: "/about", label: "About" },
 ];
 
+/** Catalogue pages own their own filter bar, so the global search is hidden there. */
+const CATALOGUE_ROUTES = ["/courses", "/designs"];
+
 export default function PublicNavbar() {
+  const pathname = usePathname();
+  const showSearch = !CATALOGUE_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
   const { courses } = useCourse(undefined, { published: true, pageSize: 100 });
   const [designs, setDesigns] = useState<Design[]>([]);
   const [query, setQuery] = useState("");
@@ -32,6 +38,7 @@ export default function PublicNavbar() {
   }, []);
 
   useEffect(() => {
+    if (!showSearch) return;
     let active = true;
     void listDesigns({ published: true, pageSize: 100 })
       .then((items) => active && setDesigns(items))
@@ -39,7 +46,7 @@ export default function PublicNavbar() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [showSearch]);
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -139,13 +146,17 @@ export default function PublicNavbar() {
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
             {navLinks.map((link) => <Link key={link.href} href={link.href} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-white hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-blue-400">{link.label}</Link>)}
           </nav>
-          <div className="ml-auto hidden w-full max-w-sm md:block">{searchBox}</div>
-          <Link href="/login" className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 dark:text-slate-200 md:block">Log in</Link>
+          {showSearch ? (
+            <div className="ml-auto hidden w-full max-w-sm md:block">{searchBox}</div>
+          ) : null}
+          <Link href="/login" className={`${showSearch ? "" : "ml-auto "}hidden rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 dark:text-slate-200 md:block`}>Log in</Link>
           <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu" className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm md:ml-0 lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-white"><Menu className="h-5 w-5" /></button>
         </div>
-        <div className="border-t border-slate-200 px-4 py-3 dark:border-slate-800 md:hidden">
-          <div className="mx-auto max-w-7xl">{searchBox}</div>
-        </div>
+        {showSearch ? (
+          <div className="border-t border-slate-200 px-4 py-3 dark:border-slate-800 md:hidden">
+            <div className="mx-auto max-w-7xl">{searchBox}</div>
+          </div>
+        ) : null}
       </header>
 
       {menuOpen ? <div className="fixed inset-0 z-50 bg-slate-950/45" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
