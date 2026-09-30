@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 
 import { truncateText } from "@/lib/utils/plainText";
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://skills.adventnurutech.xyz").replace(/\/$/, "");
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke").replace(/\/$/, "");
 
 async function getCourseForMetadata(
   courseId: string,
@@ -84,10 +84,35 @@ export async function generateMetadata({
   };
 }
 
-export default function CourseLayout({
+export default async function CourseLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ courseId: string }>;
 }) {
-  return <>{children}</>;
+  const { courseId } = await params;
+  const course = await getCourseForMetadata(courseId);
+  if (!course) return <>{children}</>;
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: course.title,
+    description: truncateText(course.description, 500),
+    provider: { "@type": "Organization", name: "AdventSkool", sameAs: siteUrl },
+    url: `${siteUrl}/courses/${encodeURIComponent(courseId)}`,
+    image: course.thumbnailUrl || undefined,
+    inLanguage: "en",
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
+      />
+      {children}
+    </>
+  );
 }

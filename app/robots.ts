@@ -16,6 +16,11 @@ export default function robots(): MetadataRoute.Robots {
           "/checkout/",
         ],
       },
+      ...["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot"].map((userAgent) => ({
+        userAgent,
+        allow: "/",
+        disallow: ["/dashboard/", "/api/", "/auth/", "/invite/", "/checkout/"],
+      })),
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
   };

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import DesignDetailClient from "@/components/design/DesignDetailClient";
 import { getPublishedDesign, listRelatedDesigns } from "@/lib/designs/server";
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://skills.adventnurutech.xyz").replace(/\/$/, "");
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke").replace(/\/$/, "");
 
 interface Props {
   params: Promise<{ designId: string }>;
@@ -52,5 +52,31 @@ export default async function DesignDetailPage({ params }: Props) {
   const design = await getPublishedDesign(designId);
   if (!design) notFound();
   const related = await listRelatedDesigns(design.id, design.category, 6);
-  return <DesignDetailClient design={design} related={related} />;
+  const productStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: design.title,
+    description: design.description,
+    category: design.category,
+    image: design.imageUrl || undefined,
+    url: `${siteUrl}/designs/${encodeURIComponent(design.id)}`,
+    brand: { "@type": "Brand", name: "AdventSkool" },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "KES",
+      price: design.downloadPrice,
+      availability: "https://schema.org/InStock",
+      url: `${siteUrl}/designs/${encodeURIComponent(design.id)}`,
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData).replace(/</g, "\\u003c") }}
+      />
+      <DesignDetailClient design={design} related={related} />
+    </>
+  );
 }

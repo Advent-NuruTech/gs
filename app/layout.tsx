@@ -7,16 +7,16 @@ const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke"
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "AdventSkool — Mobile-First Learning Management Platform",
+    default: "AdventSkool | Online Courses and Digital Products in Kenya",
     template: "%s | AdventSkool",
   },
   description:
-    "AdventSkool is a mobile-first learning management platform offering structured courses, progress tracking, quizzes, and role-based dashboards for students, teachers, and admins.",
+    "Discover practical online courses, ebooks, guides, workbooks, templates, and digital products from AdventSkool. Learn at your pace with mobile-friendly lessons.",
   keywords: [
-    "LMS",
-    "learning management system",
-    "online courses",
-    "mobile learning",
+    "online courses Kenya",
+    "digital products Kenya",
+    "ebooks and learning resources",
+    "online learning",
     "AdventSkool",
     "education platform",
     "e-learning",
@@ -26,14 +26,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "AdventSkool",
-    title: "AdventSkool — Mobile-First Learning Management Platform",
+    title: "AdventSkool | Online Courses and Digital Products in Kenya",
     description:
-      "AdventSkool is a mobile-first learning management platform offering structured courses, progress tracking, quizzes, and role-based dashboards for students, teachers, and admins.",
+      "Discover practical online courses, ebooks, guides, workbooks, templates, and digital products from AdventSkool.",
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "AdventSkool — Mobile-First Learning Management Platform",
+    title: "AdventSkool | Online Courses and Digital Products in Kenya",
     description:
       "AdventSkool is a mobile-first learning management platform offering structured courses, progress tracking, quizzes, and role-based dashboards.",
   },
