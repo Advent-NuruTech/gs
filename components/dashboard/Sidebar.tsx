@@ -34,6 +34,7 @@ const linkMap: Record<UserRole, Array<{ href: string; label: string }>> = {
   teacher: [
     { href: "/dashboard/teacher", label: "Overview" },
     { href: "/dashboard/teacher/courses", label: "Courses" },
+    { href: "/dashboard/teacher/payouts", label: "Payout Details" },
     { href: "/dashboard/teacher/courses/create", label: "Create Course" },
     { href: "/dashboard/products", label: "My Digital Products" },
     { href: "/dashboard/teacher/live-classes", label: "Live Classes" },
@@ -54,6 +55,7 @@ const linkMap: Record<UserRole, Array<{ href: string; label: string }>> = {
     { href: "/dashboard/products", label: "My Digital Products" },
     { href: "/dashboard/admin/live-classes", label: "Live Classes" },
     { href: "/dashboard/admin/payments", label: "Payments" },
+    { href: "/dashboard/admin/creator-payouts", label: "Creator Payouts" },
     { href: "/dashboard/admin/analytics", label: "Analytics" },
     { href: "/dashboard/admin/announcements", label: "Announcements" },
     { href: "/dashboard/admin/email-campaigns", label: "Email Campaigns" },
