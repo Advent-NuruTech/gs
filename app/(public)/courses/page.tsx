@@ -93,7 +93,7 @@ export default function CoursesPage() {
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl font-bold text-slate-900">All Courses</h1>
-        <CartButton />
+        <CartButton className="hidden lg:inline-flex" />
       </div>
       <CatalogFilterBar
         query={courseSearch}

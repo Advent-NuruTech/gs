@@ -26,6 +26,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCourse } from "@/hooks/useCourse";
 import { listDesigns } from "@/services/designService";
 import { Design } from "@/types/design";
+import CartButton from "@/components/course/CartButton";
 
 const navLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
   { href: "/", label: "Home", icon: House },
@@ -219,7 +220,10 @@ export default function PublicNavbar() {
               Log in
             </Link>
           )}
-          <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu" className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm md:ml-0 lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-white"><Menu className="h-5 w-5" /></button>
+          <div className="ml-auto flex items-center gap-2 lg:hidden">
+            <CartButton className="h-11 w-11 justify-center rounded-xl px-0 py-0" />
+            <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu" className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"><Menu className="h-5 w-5" /></button>
+          </div>
         </div>
         {showSearch ? (
           <div className="border-t border-slate-200 px-4 py-3 dark:border-slate-800 md:hidden">
