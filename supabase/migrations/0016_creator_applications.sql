@@ -13,10 +13,13 @@ update profiles set creator_status = 'approved' where role = 'teacher' and creat
 create or replace function handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.profiles (id, email, full_name, phone, role)
+  insert into public.profiles (id, email, full_name, phone, role, creator_status, whatsapp)
   values (new.id, coalesce(new.email, ''),
     coalesce(new.raw_user_meta_data->>'full_name', ''),
-    coalesce(new.raw_user_meta_data->>'phone', ''), 'student')
+    coalesce(new.raw_user_meta_data->>'phone', ''),
+    case when coalesce((new.raw_user_meta_data->>'creator_application')::boolean, false) then 'teacher'::user_role else 'student'::user_role end,
+    case when coalesce((new.raw_user_meta_data->>'creator_application')::boolean, false) then 'pending' else 'none' end,
+    case when coalesce((new.raw_user_meta_data->>'creator_application')::boolean, false) then coalesce(new.raw_user_meta_data->>'whatsapp', '') else '' end)
   on conflict (id) do nothing;
   return new;
 end; $$;
@@ -41,7 +44,7 @@ returns boolean language sql stable security definer set search_path = public as
   select exists (
     select 1 from public.profiles p
     where p.id = auth.uid()
-      and (p.role = 'admin' or (p.role = 'teacher' and p.creator_status = 'approved'
+      and (p.role = 'admin' or (p.role = 'teacher' and p.creator_status in ('pending','approved')
         and (p.suspended_until is null or p.suspended_until <= now())))
   );
 $$;
@@ -56,3 +59,14 @@ create policy "courses owner update" on courses for update to authenticated
 drop policy if exists "courses owner delete" on courses;
 create policy "courses owner delete" on courses for delete to authenticated
   using ((instructor_id = auth.uid() and can_manage_creator_content()) or is_admin());
+
+drop policy if exists "designs owner insert" on designs;
+create policy "designs owner insert" on designs for insert to authenticated
+  with check ((created_by = auth.uid() and can_manage_creator_content()) or is_admin());
+drop policy if exists "designs owner update" on designs;
+create policy "designs owner update" on designs for update to authenticated
+  using ((created_by = auth.uid() and can_manage_creator_content()) or is_admin())
+  with check ((created_by = auth.uid() and can_manage_creator_content()) or is_admin());
+drop policy if exists "designs owner delete" on designs;
+create policy "designs owner delete" on designs for delete to authenticated
+  using ((created_by = auth.uid() and can_manage_creator_content()) or is_admin());

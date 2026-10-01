@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   const db = getSupabaseAdminClient();
   const { data: profile } = await db.from("profiles").select("creator_status").eq("id", user.id).maybeSingle();
   if (profile?.creator_status === "pending") return NextResponse.json({ error: "Your creator application is already in review." }, { status: 409 });
-  const { error } = await db.from("profiles").update({ creator_status: "pending", whatsapp: `+${digits}` }).eq("id", user.id);
+  const { error } = await db.from("profiles").update({ role: "teacher", creator_status: "pending", whatsapp: `+${digits}` }).eq("id", user.id);
   if (error) return NextResponse.json({ error: "Could not submit your application." }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

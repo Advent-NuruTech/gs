@@ -22,4 +22,6 @@ export interface CreateUserInput {
   phone?: string;
   role?: UserRole;
   marketingSubscribed?: boolean;
+  creatorApplication?: boolean;
+  whatsapp?: string;
 }

@@ -49,6 +49,8 @@ export async function registerUser(input: CreateUserInput): Promise<RegisterResu
         phone: input.phone ?? "",
         role: input.role ?? "student",
         marketing_subscribed: input.marketingSubscribed ?? true,
+        creator_application: input.creatorApplication === true,
+        whatsapp: input.whatsapp ?? "",
       },
     },
   });

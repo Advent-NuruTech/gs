@@ -21,7 +21,7 @@ function normalizePhone(raw: string): string {
   return digits;
 }
 
-export default function RegisterPageClient() {
+export default function RegisterPageClient({ creatorMode = false }: { creatorMode?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { pushToast } = useNotificationContext();
@@ -30,6 +30,7 @@ export default function RegisterPageClient() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -45,11 +46,14 @@ export default function RegisterPageClient() {
 
   const normalizedPhone = useMemo(() => normalizePhone(phone), [phone]);
   const validPhone = /^254\d{9}$/.test(normalizedPhone);
+  const normalizedWhatsapp = useMemo(() => normalizePhone(whatsapp), [whatsapp]);
+  const validWhatsapp = /^254\d{9}$/.test(normalizedWhatsapp);
 
   const isValid =
     displayName.trim().length > 2 &&
     email.includes("@") &&
     validPhone &&
+    (!creatorMode || validWhatsapp) &&
     password.length >= 6;
 
   const handleSubmit = async (event: FormEvent) => {
@@ -65,17 +69,20 @@ export default function RegisterPageClient() {
         password,
         role: "student",
         marketingSubscribed,
+        creatorApplication: creatorMode,
+        whatsapp: creatorMode ? normalizedWhatsapp : undefined,
       });
       if (needsConfirmation) {
         pushToast(
           `Account created. We sent a confirmation link to ${email}. Confirm it, then log in.`,
           "success",
         );
-        router.push(`/login${redirectPath ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`);
+        const afterLogin = redirectPath ?? (creatorMode ? "/dashboard/teacher" : null);
+        router.push(`/login${afterLogin ? `?redirect=${encodeURIComponent(afterLogin)}` : ""}`);
         return;
       }
       pushToast("Welcome! Your account has been created.", "success");
-      router.push(redirectPath ?? "/dashboard/student");
+      router.push(redirectPath ?? (creatorMode ? "/dashboard/teacher" : "/dashboard/student"));
     } catch (error) {
       pushToast(
         error instanceof Error ? error.message : "Registration failed.",
@@ -111,11 +118,11 @@ export default function RegisterPageClient() {
           className="space-y-6 rounded-3xl bg-white/95 backdrop-blur-md p-6 sm:p-8 shadow-2xl border border-white/60 transition-all duration-300"
         >
           <div className="space-y-1 text-center">
-            <h1 className="text-2xl font-bold text-slate-900">
-              Create Student Account
+              <h1 className="text-2xl font-bold text-slate-900">
+              {creatorMode ? "Create Creator Account" : "Create Student Account"}
             </h1>
             <p className="text-sm text-slate-500">
-              Start your structured learning journey today
+              {creatorMode ? "Create and publish courses and products while your account is reviewed" : "Start your structured learning journey today"}
             </p>
           </div>
 
@@ -205,7 +212,7 @@ export default function RegisterPageClient() {
                 }`}
               />
               <p className="text-xs text-slate-500 mt-1">
-                Used for payment receipts &amp; alerts. Saved as {normalizedPhone || "254…"}.
+                Used for payment receipts &amp; alerts.  {normalizedPhone || "254…"}.
               </p>
               {phone && !validPhone && (
                 <p className="text-xs text-amber-600 mt-1">
@@ -213,6 +220,13 @@ export default function RegisterPageClient() {
                 </p>
               )}
             </div>
+
+            {creatorMode ? <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700 flex items-center gap-1"><Phone className="w-4 h-4 text-indigo-500" />Working WhatsApp Number</label>
+              <Input label="Working WhatsApp Number" hideLabel type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} required placeholder="0712345678" />
+              <p className="text-xs text-slate-500">Use a WhatsApp number we can reach you on. You can add payout details now or later.</p>
+              {whatsapp && !validWhatsapp ? <p className="text-xs text-amber-600">Enter a valid Kenyan number.</p> : null}
+            </div> : null}
 
             {/* Password Input */}
             <div className="space-y-1.5">
@@ -315,7 +329,7 @@ export default function RegisterPageClient() {
                 Creating account...
               </span>
             ) : (
-              "Create Account"
+            {creatorMode ? "Create Creator Account" : "Create Account"}
             )}
           </Button>
             </>

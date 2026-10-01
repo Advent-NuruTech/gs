@@ -92,10 +92,11 @@ export async function POST(request: NextRequest) {
   let payoutSplit: { subaccount: string; transactionChargeKobo: number; feeBearer: "account" | "subaccount" } | undefined;
   let creatorPayoutSnapshot: Record<string, unknown> | undefined;
   if (sellerId) {
-    const [{ data: platformSettings }, { data: creatorSettings }, { data: payoutProfile }] = await Promise.all([
+    const [{ data: platformSettings }, { data: creatorSettings }, { data: payoutProfile }, { data: creatorProfile }] = await Promise.all([
       admin.from("platform_payment_settings").select("default_commission_percent,default_fee_mode").eq("id", true).maybeSingle(),
       admin.from("creator_commission_settings").select("commission_percent,fee_mode").eq("creator_id", sellerId).maybeSingle(),
       admin.from("creator_payout_profiles").select("paystack_subaccount_code,verification_status,payout_status").eq("creator_id", sellerId).maybeSingle(),
+      admin.from("profiles").select("creator_status,suspended_until").eq("id", sellerId).maybeSingle(),
     ]);
     const commissionPercent = Number(creatorSettings?.commission_percent ?? platformSettings?.default_commission_percent ?? 10);
     const feeMode = String(creatorSettings?.fee_mode ?? platformSettings?.default_fee_mode ?? "inclusive");
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Creator commission configuration is invalid. Contact AdventSkool support." }, { status: 503 });
     }
     const platformAmount = Math.round(amount * commissionPercent) / 100;
-    const subaccount = payoutProfile?.verification_status === "verified" && payoutProfile.payout_status === "ready"
+    const subaccount = creatorProfile?.creator_status === "approved" && (!creatorProfile.suspended_until || new Date(creatorProfile.suspended_until).getTime() <= Date.now()) && payoutProfile?.verification_status === "verified" && payoutProfile.payout_status === "ready"
       ? String(payoutProfile.paystack_subaccount_code ?? "")
       : "";
     const settlementMode = subaccount ? "paystack_split" : "platform_only";
