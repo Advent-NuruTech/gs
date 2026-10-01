@@ -296,7 +296,7 @@ export default function PublicNavbar() {
             { href: profile ? dashboardHref : "/login", label: profile ? "Profile" : "Log in", icon: CircleUser },
           ].map((item) => {
             const active = isNavActive(pathname, item.href);
-            return <Link key={item.label} href={item.href} aria-current={active ? "page" : undefined} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[11px] font-semibold transition ${active ? "text-emerald-800 dark:text-emerald-300" : "text-slate-500 dark:text-slate-400"}`}><span className={`grid h-8 w-12 place-items-center rounded-full ${active ? "bg-emerald-100 dark:bg-emerald-900/60" : ""}`}><item.icon className="h-5 w-5" aria-hidden="true" /></span><span className="max-w-full truncate">{item.label}</span></Link>;
+            return <Link key={item.label} href={item.href} aria-current={active ? "page" : undefined} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[11px] font-semibold transition ${active ? "text-blue-800 dark:text-blue-300" : "text-slate-500 dark:text-slate-400"}`}><span className={`grid h-8 w-12 place-items-center rounded-full ${active ? "bg-blue-100 dark:bg-blue-900/60" : ""}`}><item.icon className="h-5 w-5" aria-hidden="true" /></span><span className="max-w-full truncate">{item.label}</span></Link>;
           })}
         </div>
       </nav>
