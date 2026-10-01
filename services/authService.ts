@@ -40,6 +40,9 @@ export async function registerUser(input: CreateUserInput): Promise<RegisterResu
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || disposableDomains.has(domain)) {
     throw new Error("Use a valid, non-temporary email address you can access.");
   }
+  if (input.creatorApplication && !/^254\d{9}$/.test(String(input.whatsapp ?? "").replace(/\D/g, ""))) {
+    throw new Error("Enter one valid Kenyan WhatsApp number, including country code.");
+  }
   const { data, error } = await supabase.auth.signUp({
     email,
     password: input.password,

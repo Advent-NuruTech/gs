@@ -52,7 +52,7 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
   const isValid =
     displayName.trim().length > 2 &&
     email.includes("@") &&
-    validPhone &&
+    (creatorMode ? validWhatsapp : validPhone) &&
     (!creatorMode || validWhatsapp) &&
     password.length >= 6;
 
@@ -65,7 +65,9 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
       const { needsConfirmation } = await registerUser({
         displayName,
         email,
-        phone: normalizedPhone,
+        // Creator onboarding collects one contact number; use it as both the
+        // account phone and WhatsApp contact instead of asking twice.
+        phone: creatorMode ? normalizedWhatsapp : normalizedPhone,
         password,
         role: "student",
         marketingSubscribed,
@@ -192,8 +194,8 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
               )}
             </div>
 
-            {/* Phone Input */}
-            <div className="space-y-1.5">
+            {/* Creator applicants provide one required WhatsApp contact number. */}
+            {!creatorMode ? <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-700 flex items-center gap-1">
                 <Phone className="w-4 h-4 text-indigo-500" />
                 Phone Number
@@ -219,12 +221,12 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
                   Enter a valid Kenyan number (e.g. 0712345678).
                 </p>
               )}
-            </div>
+            </div> : null}
 
             {creatorMode ? <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 flex items-center gap-1"><Phone className="w-4 h-4 text-indigo-500" />Working WhatsApp Number</label>
+              <label className="text-sm font-medium text-slate-700 flex items-center gap-1"><Phone className="w-4 h-4 text-indigo-500" />WhatsApp Number (required)</label>
               <Input label="Working WhatsApp Number" hideLabel type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} required placeholder="0712345678" />
-              <p className="text-xs text-slate-500">Use a WhatsApp number we can reach you on. You can add payout details now or later.</p>
+              <p className="text-xs text-slate-500">Enter one Kenyan number where we can reach you on WhatsApp. Include a number you actively use.</p>
               {whatsapp && !validWhatsapp ? <p className="text-xs text-amber-600">Enter a valid Kenyan number.</p> : null}
             </div> : null}
 
