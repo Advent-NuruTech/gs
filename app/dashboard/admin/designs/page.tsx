@@ -50,7 +50,7 @@ export default function AdminDesignsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <div className="rounded-lg border border-slate-200 bg-white p-3 text-center">
           <p className="text-xl font-bold text-slate-900">{designs.length}</p>
           <p className="text-xs text-slate-500">Products</p>
@@ -70,9 +70,9 @@ export default function AdminDesignsPage() {
         <p className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">No digital products yet. Add your first one.</p>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2">
         {designs.map((design) => (
-          <article key={design.id} className="flex gap-3 rounded-lg border border-slate-200 bg-white p-3">
+          <article key={design.id} className="flex min-w-0 flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3 min-[420px]:flex-row">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={design.imageUrl} alt={design.title} className="h-24 w-24 shrink-0 rounded-md border border-slate-100 object-cover" />
             <div className="min-w-0 flex-1 space-y-1">
@@ -87,7 +87,7 @@ export default function AdminDesignsPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-500">{design.category}</p>
-              <p className="text-xs font-semibold text-slate-700">
+              <p className="break-words text-xs font-semibold text-slate-700">
                 <span className="text-indigo-600">Download {formatKsh(design.downloadPrice)}</span>
                 {" · "}
                 <span className="text-slate-600">

@@ -37,6 +37,11 @@ npm run lint
 - **Data fetching pattern.** Prefer `useAsyncData` for page loads (always exposes `isLoading`, `errorMessage`, `reload`). Prefer `apiRequest<T>` for browser fetches — it parses JSON and throws the server's `error` message so failures are never silent.
 - **Put these rules in memory.** Every new page must have a loading state (skeleton or status card), and every action that waits on the network must block repeats and display success/error in a distinct `StatusCard`. Apply these conventions to existing pages when you touch them.
 
+## Mobile layout and overflow
+
+- Every dashboard page and shared header control must fit narrow phone viewports without horizontal page scrolling or clipping. Use `min-w-0` on flex/grid children that contain text, allow long labels and prices to wrap, and stack cards/actions when side-by-side content no longer fits.
+- Search results and notification panels must stay within the viewport, scroll internally when their content is long, and wrap long notification text. Check responsive behavior at a narrow mobile width whenever changing dashboard listings or header controls.
+
 ## Project memory maintenance
 
 - Whenever a material change is made to product behavior, payments, authentication, data schema, third-party configuration, deployment, or operational setup, update this `AGENTS.md` in the same change with the current state, required configuration, and any rollout or safety notes.

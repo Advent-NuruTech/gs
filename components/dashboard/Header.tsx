@@ -150,8 +150,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
-      <div className="flex items-center gap-3">
+    <header className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
+      <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
@@ -169,21 +169,21 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </button>
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-500">{profile?.role ?? "guest"}</p>
-          <h1 className="text-lg font-semibold text-slate-900">{profile?.displayName ?? "Dashboard"}</h1>
+          <h1 className="max-w-[60vw] truncate text-lg font-semibold text-slate-900 sm:max-w-none">{profile?.displayName ?? "Dashboard"}</h1>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 sm:w-auto sm:flex-nowrap">
         {profile?.role === "admin" ? (
-          <div className="relative">
+          <div className="relative order-first w-full min-w-0 sm:order-none sm:w-auto">
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Global search..."
-              className="w-44 rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 sm:w-64"
+              className="w-full min-w-0 rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 sm:w-44 md:w-64"
             />
             {searchQuery.trim() ? (
-              <div className="absolute right-0 top-11 z-20 w-72 max-w-[85vw] space-y-1 rounded-md border border-slate-200 bg-white p-2 shadow-lg">
+              <div className="absolute left-0 right-0 top-11 z-20 max-h-[60vh] w-full min-w-0 space-y-1 overflow-y-auto rounded-md border border-slate-200 bg-white p-2 shadow-lg sm:left-auto sm:w-72">
                 {filteredAdminLinks.length === 0 ? (
                   <p className="px-2 py-1 text-sm text-slate-600">No result found.</p>
                 ) : (
@@ -238,7 +238,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 className="fixed inset-0 z-10 cursor-default"
                 onClick={() => setIsNotificationOpen(false)}
               />
-              <div className="absolute right-0 top-11 z-20 w-80 max-w-[88vw] rounded-md border border-slate-200 bg-white shadow-lg">
+              <div className="fixed left-3 right-3 top-28 z-20 max-h-[70vh] overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg sm:absolute sm:left-auto sm:right-0 sm:top-11 sm:w-80">
                 <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
                   <p className="text-sm font-semibold text-slate-900">
                     Notifications{unreadCount > 0 ? ` (${unreadCount})` : ""}
@@ -303,7 +303,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                         />
                         <span className="min-w-0">
                           <span className="block font-semibold text-slate-900">{item.title}</span>
-                          <span className="block text-slate-600">{item.message}</span>
+                          <span className="block break-words text-slate-600">{item.message}</span>
                         </span>
                       </button>
                     ))
