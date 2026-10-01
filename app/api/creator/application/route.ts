@@ -15,5 +15,13 @@ export async function POST(request: NextRequest) {
   if (profile?.creator_status === "pending") return NextResponse.json({ error: "Your creator application is already in review." }, { status: 409 });
   const { error } = await db.from("profiles").update({ role: "teacher", creator_status: "pending", whatsapp: `+${digits}` }).eq("id", user.id);
   if (error) return NextResponse.json({ error: "Could not submit your application." }, { status: 500 });
+  // Notify administrators through the same in-app notification feed used by the dashboard bell.
+  const { data: admins } = await db.from("profiles").select("id").eq("role", "admin");
+  if (admins?.length) await db.from("notifications").insert(admins.map((admin) => ({
+    user_id: admin.id,
+    title: "New creator application",
+    message: `${user.fullName || "A student"} submitted a creator application for review.`,
+    link: "/dashboard/admin/creator-applications",
+  })));
   return NextResponse.json({ ok: true });
 }

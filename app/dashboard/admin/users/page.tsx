@@ -19,6 +19,8 @@ import {
 } from "@/services/userService";
 import { TeacherInvite } from "@/types/teacherInvite";
 import { AppUser } from "@/types/user";
+import Link from "next/link";
+import StatusCard from "@/components/ui/StatusCard";
 
 export default function AdminUsersPage() {
   const { profile } = useAuth();
@@ -39,6 +41,8 @@ export default function AdminUsersPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [creatorActionId, setCreatorActionId] = useState<string | null>(null);
+  const [category, setCategory] = useState<"all" | AppUser["role"]>("all");
+  const [search, setSearch] = useState("");
 
   const creatorAction = async (id: string, action: string, hours?: number) => {
     setCreatorActionId(id);
@@ -76,9 +80,16 @@ export default function AdminUsersPage() {
     setInvites(myInvites);
   };
 
+  const visibleUsers = users.filter((user) =>
+    (category === "all" || user.role === category) &&
+    `${user.displayName} ${user.email}`.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl font-bold text-slate-900">Users</h2>
+      <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-sm font-semibold uppercase tracking-wide text-blue-700">People</p><h1 className="text-3xl font-bold text-slate-950">User accounts</h1><p className="mt-1 text-sm text-slate-600">Search, filter, and manage account access.</p></div><Link href="/dashboard/admin/creator-applications" className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800">Review creator applications</Link></div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{[{ label: "All accounts", value: users.length }, { label: "Students", value: users.filter((u) => u.role === "student").length }, { label: "Teachers / creators", value: users.filter((u) => u.role === "teacher").length }, { label: "Admins", value: users.filter((u) => u.role === "admin").length }].map((stat) => <article key={stat.label} className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-sm text-slate-600">{stat.label}</p><p className="mt-1 text-2xl font-bold text-slate-950">{stat.value}</p></article>)}</div>
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row"><Input label="Search users" placeholder="Name or email" value={search} onChange={(event) => setSearch(event.target.value)} /><label className="flex min-w-0 flex-col gap-2 text-sm font-medium text-slate-700">Account category<select className="rounded-lg border border-slate-300 bg-white px-3 py-2.5" value={category} onChange={(event) => setCategory(event.target.value as typeof category)}><option value="all">All categories ({users.length})</option><option value="student">Students ({users.filter((u) => u.role === "student").length})</option><option value="teacher">Teachers / creators ({users.filter((u) => u.role === "teacher").length})</option><option value="admin">Admins ({users.filter((u) => u.role === "admin").length})</option></select></label></div>
 
       <article className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
         <h3 className="text-lg font-semibold text-slate-900">Create User</h3>
@@ -216,7 +227,7 @@ export default function AdminUsersPage() {
       </article>
 
       <div className="space-y-3">
-        {users.map((user) => (
+        {visibleUsers.map((user) => (
           <article key={user.id} className="rounded-lg border border-slate-200 bg-white p-4">
             <div className="grid gap-3 md:grid-cols-3">
               <Input
@@ -303,6 +314,7 @@ export default function AdminUsersPage() {
             </div>
           </article>
         ))}
+        {visibleUsers.length === 0 ? <StatusCard kind="info" title="No matching accounts" description="Try another search or account category." /> : null}
       </div>
     </section>
   );

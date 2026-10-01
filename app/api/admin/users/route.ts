@@ -111,5 +111,16 @@ export async function PATCH(request: NextRequest) {
     result = await db.from("profiles").update({ suspended_until: new Date(Date.now() + hours * 3600000).toISOString(), suspension_reason: String(body?.reason ?? "Account suspended by administrator.").slice(0, 500) }).eq("id", userId);
   }
   if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (action === "approve_creator" || action === "reject_creator") {
+    const { data: target } = await db.from("profiles").select("id").eq("id", userId).maybeSingle();
+    if (target) await db.from("notifications").insert({
+      user_id: userId,
+      title: action === "approve_creator" ? "Creator application approved" : "Creator application update",
+      message: action === "approve_creator"
+        ? "Your creator application has been approved. You can now publish as a creator."
+        : "Your creator application was not approved. Contact support if you have questions.",
+      link: "/dashboard/account",
+    });
+  }
   return NextResponse.json({ ok: true });
 }

@@ -6,6 +6,7 @@ import {
   BarChart3,
   BookOpen,
   CircleUser,
+  ClipboardCheck,
   CreditCard,
   FileText,
   Flag,
@@ -78,6 +79,7 @@ const linkMap: Record<UserRole, NavLink[]> = {
   admin: [
     { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/admin/users", label: "Users", icon: CircleUser },
+    { href: "/dashboard/admin/creator-applications", label: "Creator Applications", icon: ClipboardCheck },
     { href: "/dashboard/admin/courses", label: "Courses", icon: BookOpen },
     { href: "/dashboard/admin/courses/create", label: "Create Course", icon: PlusCircle },
     { href: "/dashboard/admin/designs", label: "Digital Products", icon: Package },
