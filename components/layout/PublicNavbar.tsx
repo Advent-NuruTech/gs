@@ -6,8 +6,10 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   CircleUser,
-  GraduationCap,
+  Compass,
   House,
+  Library,
+  GraduationCap,
   Info,
   LogIn,
   Menu,
@@ -114,6 +116,10 @@ export default function PublicNavbar() {
     document.documentElement.classList.toggle("dark", next);
     window.localStorage.setItem("adventskool-theme", next ? "dark" : "light");
   };
+
+  const libraryHref = profile
+    ? "/dashboard/products"
+    : "/login?redirect=%2Fdashboard%2Fproducts";
 
   const closeSearch = () => {
     setSearchOpen(false);
@@ -280,6 +286,20 @@ export default function PublicNavbar() {
           </button>
         </div>
       </aside>
+
+      <nav aria-label="Quick navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-950/95">
+        <div className="mx-auto grid max-w-lg grid-cols-4 gap-1">
+          {[
+            { href: "/", label: "Home", icon: House },
+            { href: "/courses", label: "Resources", icon: Compass },
+            { href: libraryHref, label: "My Library", icon: Library },
+            { href: profile ? dashboardHref : "/login", label: profile ? "Profile" : "Log in", icon: CircleUser },
+          ].map((item) => {
+            const active = isNavActive(pathname, item.href);
+            return <Link key={item.label} href={item.href} aria-current={active ? "page" : undefined} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[11px] font-semibold transition ${active ? "text-emerald-800 dark:text-emerald-300" : "text-slate-500 dark:text-slate-400"}`}><span className={`grid h-8 w-12 place-items-center rounded-full ${active ? "bg-emerald-100 dark:bg-emerald-900/60" : ""}`}><item.icon className="h-5 w-5" aria-hidden="true" /></span><span className="max-w-full truncate">{item.label}</span></Link>;
+          })}
+        </div>
+      </nav>
     </>
   );
 }

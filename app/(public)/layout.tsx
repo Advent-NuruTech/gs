@@ -19,7 +19,7 @@ export default function PublicLayout({
     <div className="public-shell flex min-h-screen flex-col bg-[var(--background)]">
       <SubscribeBanner />
       <PublicNavbar />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 pb-20 md:pb-0">{children}</div>
       <Footer />
     </div>
   );
