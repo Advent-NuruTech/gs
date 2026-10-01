@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const db = getSupabaseAdminClient();
   const [{ data: teachers }, { data: payouts }, { data: rates }, { data: earnings }, { data: settings }] = await Promise.all([
     db.from("profiles").select("id,full_name,email").eq("role", "teacher").order("full_name"),
-    db.from("creator_payout_profiles").select("*"),
+    db.from("creator_payout_profiles").select("creator_id,account_holder_name,bank_name,account_last4,phone_number,verification_status,payout_status,updated_at"),
     db.from("creator_commission_settings").select("*"),
     db.from("creator_earnings").select("*").order("created_at", { ascending: false }).limit(500),
     db.from("platform_payment_settings").select("*").eq("id", true).maybeSingle(),
@@ -36,9 +36,13 @@ export async function PUT(request: NextRequest) {
     if (!creatorId || !Number.isFinite(rate) || rate < 0 || rate > 100 || !["inclusive", "exclusive"].includes(body.feeMode)) {
       return NextResponse.json({ error: "Invalid creator commission." }, { status: 400 });
     }
+    const { data: creator } = await db.from("profiles").select("role").eq("id", creatorId).maybeSingle();
+    if (creator?.role !== "teacher") return NextResponse.json({ error: "Commissions can only be assigned to existing teachers." }, { status: 400 });
     ({ error } = await db.from("creator_commission_settings").upsert({ creator_id: creatorId, commission_percent: rate, fee_mode: body.feeMode }, { onConflict: "creator_id" }));
   } else if (body?.kind === "verification") {
     if (!body.creatorId || !["pending", "verified", "rejected"].includes(body.status)) return NextResponse.json({ error: "Invalid verification status." }, { status: 400 });
+    const { data: payout } = await db.from("creator_payout_profiles").select("paystack_subaccount_code").eq("creator_id", body.creatorId).maybeSingle();
+    if (body.status === "verified" && !payout?.paystack_subaccount_code) return NextResponse.json({ error: "The teacher must register a Paystack payout subaccount before verification." }, { status: 400 });
     ({ error } = await db.from("creator_payout_profiles").update({ verification_status: body.status, payout_status: body.status === "verified" ? "ready" : body.status === "rejected" ? "paused" : "pending_verification" }).eq("creator_id", body.creatorId));
   } else {
     return NextResponse.json({ error: "Invalid update." }, { status: 400 });

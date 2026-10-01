@@ -88,6 +88,42 @@ export async function POST(request: NextRequest) {
   const email = String(profile?.email ?? user.email ?? "");
   const reference = `as_${crypto.randomUUID().replace(/-/g, "")}`;
 
+  const sellerId = courseRow.instructor_id ? String(courseRow.instructor_id) : null;
+  let payoutSplit: { subaccount: string; transactionChargeKobo: number; feeBearer: "account" | "subaccount" } | undefined;
+  let creatorPayoutSnapshot: Record<string, unknown> | undefined;
+  if (sellerId) {
+    const [{ data: platformSettings }, { data: creatorSettings }, { data: payoutProfile }] = await Promise.all([
+      admin.from("platform_payment_settings").select("default_commission_percent,default_fee_mode").eq("id", true).maybeSingle(),
+      admin.from("creator_commission_settings").select("commission_percent,fee_mode").eq("creator_id", sellerId).maybeSingle(),
+      admin.from("creator_payout_profiles").select("paystack_subaccount_code,verification_status,payout_status").eq("creator_id", sellerId).maybeSingle(),
+    ]);
+    const commissionPercent = Number(creatorSettings?.commission_percent ?? platformSettings?.default_commission_percent ?? 10);
+    const feeMode = String(creatorSettings?.fee_mode ?? platformSettings?.default_fee_mode ?? "inclusive");
+    if (!Number.isFinite(commissionPercent) || commissionPercent < 0 || commissionPercent > 100 || !["inclusive", "exclusive"].includes(feeMode)) {
+      return NextResponse.json({ error: "Creator commission configuration is invalid. Contact AdventSkool support." }, { status: 503 });
+    }
+    const platformAmount = Math.round(amount * commissionPercent) / 100;
+    const subaccount = payoutProfile?.verification_status === "verified" && payoutProfile.payout_status === "ready"
+      ? String(payoutProfile.paystack_subaccount_code ?? "")
+      : "";
+    const settlementMode = subaccount ? "paystack_split" : "platform_only";
+    creatorPayoutSnapshot = {
+      creator_id: sellerId,
+      commission_percent: commissionPercent,
+      fee_mode: feeMode,
+      platform_amount: platformAmount,
+      settlement_mode: settlementMode,
+    };
+    if (subaccount) {
+      payoutSplit = {
+        subaccount,
+        transactionChargeKobo: Math.round(platformAmount * 100),
+        feeBearer: feeMode === "exclusive" ? "subaccount" : "account",
+      };
+    }
+  }
+  const paymentMetadata = creatorPayoutSnapshot ? { creator_payout: creatorPayoutSnapshot } : {};
+
   // Create the pending payment record (service role; clients cannot write payments).
   const { error: insertError } = await admin.from("payments").insert({
     user_id: user.id,
@@ -102,6 +138,7 @@ export async function POST(request: NextRequest) {
     phone: String(profile?.phone ?? ""),
     full_name: String(profile?.full_name ?? ""),
     course_title: String(courseRow.title ?? ""),
+    metadata: paymentMetadata,
   });
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 400 });
@@ -120,7 +157,9 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         planType: body.planType,
         lessonIds: payableLessonIds,
+        ...(creatorPayoutSnapshot ? { creatorPayout: creatorPayoutSnapshot } : {}),
       },
+      ...payoutSplit,
     });
 
     await admin

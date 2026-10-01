@@ -64,7 +64,7 @@ export async function fulfillByReference(reference: string): Promise<FulfillResu
   const lessonIds = (payment.lesson_ids as string[]) ?? [];
 
   // 1) Mark the payment successful.
-  await supabase
+  const { error: paymentUpdateError } = await supabase
     .from("payments")
     .update({
       status: "success",
@@ -72,6 +72,14 @@ export async function fulfillByReference(reference: string): Promise<FulfillResu
       metadata: { ...(payment.metadata as object), paystack: verification.raw },
     })
     .eq("id", payment.id);
+  if (paymentUpdateError) throw new Error(`Could not record confirmed payment: ${paymentUpdateError.message}`);
+
+  if (verification.feesKobo !== null) {
+    const { error: feeUpdateError } = await supabase.from("creator_earnings")
+      .update({ provider_fee: verification.feesKobo / 100 })
+      .eq("payment_id", payment.id);
+    if (feeUpdateError) throw new Error(`Could not record Paystack fee: ${feeUpdateError.message}`);
+  }
 
   // 2) Record per-lesson unlocks (idempotent on user_id + lesson_id).
   if (lessonIds.length > 0) {
