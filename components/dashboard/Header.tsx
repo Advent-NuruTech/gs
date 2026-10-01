@@ -150,12 +150,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
-      <div className="flex min-w-0 items-center gap-3">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
+      {/* The bell stays on the same line as the menu button: the identity block
+          truncates and the admin search drops to its own row below md. */}
+      <div className="flex min-w-0 flex-wrap items-center gap-2 px-4 py-3 sm:gap-3 sm:px-6">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
-          className="inline-flex items-center rounded-md border border-slate-300 px-2 py-1.5 text-sm font-semibold text-slate-700 lg:hidden"
+          className="inline-flex shrink-0 items-center rounded-md border border-slate-300 px-2 py-1.5 text-sm font-semibold text-slate-700 lg:hidden"
           aria-label="Open menu"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
@@ -167,23 +170,21 @@ export default function Header({ onMenuClick }: HeaderProps) {
             />
           </svg>
         </button>
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500">{profile?.role ?? "guest"}</p>
-          <h1 className="max-w-[60vw] truncate text-lg font-semibold text-slate-900 sm:max-w-none">{profile?.displayName ?? "Dashboard"}</h1>
+        <div className="min-w-0">
+          <p className="truncate text-xs uppercase tracking-wide text-slate-500">{profile?.role ?? "guest"}</p>
+          <h1 className="truncate text-lg font-semibold text-slate-900">{profile?.displayName ?? "Dashboard"}</h1>
         </div>
       </div>
-
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 sm:w-auto sm:flex-nowrap">
         {profile?.role === "admin" ? (
-          <div className="relative order-first w-full min-w-0 sm:order-none sm:w-auto">
+          <div className="relative order-last w-full min-w-0 md:order-none md:w-40 lg:w-64">
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Global search..."
-              className="w-full min-w-0 rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 sm:w-44 md:w-64"
+              className="w-full min-w-0 rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
             {searchQuery.trim() ? (
-              <div className="absolute left-0 right-0 top-11 z-20 max-h-[60vh] w-full min-w-0 space-y-1 overflow-y-auto rounded-md border border-slate-200 bg-white p-2 shadow-lg sm:left-auto sm:w-72">
+              <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-[60vh] w-full min-w-0 space-y-1 overflow-y-auto rounded-md border border-slate-200 bg-white p-2 shadow-lg md:left-auto md:w-72">
                 {filteredAdminLinks.length === 0 ? (
                   <p className="px-2 py-1 text-sm text-slate-600">No result found.</p>
                 ) : (
@@ -206,12 +207,25 @@ export default function Header({ onMenuClick }: HeaderProps) {
           </div>
         ) : null}
 
-        <div className="relative">
+        <div className="shrink-0">
+          <Button
+            type="button"
+            variant="secondary"
+            loading={signOut.isLoading}
+            loadingText="Signing out…"
+            onClick={() => void signOut.run()}
+          >
+            Logout
+          </Button>
+        </div>
+
+        <div className="relative shrink-0">
           <button
             type="button"
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-2 text-sm font-semibold text-slate-700"
             onClick={toggleNotifications}
             aria-label={unreadCount > 0 ? `Notifications with ${unreadCount} unread` : "Notifications"}
+            aria-expanded={isNotificationOpen}
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4 text-slate-700" fill="none" aria-hidden="true">
               <path
@@ -238,8 +252,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 className="fixed inset-0 z-10 cursor-default"
                 onClick={() => setIsNotificationOpen(false)}
               />
-              <div className="fixed left-3 right-3 top-28 z-20 max-h-[70vh] overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg sm:absolute sm:left-auto sm:right-0 sm:top-11 sm:w-80">
-                <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
+              <div className="absolute right-0 top-full z-20 mt-2 max-h-[70vh] w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg">
+                <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2">
                   <p className="text-sm font-semibold text-slate-900">
                     Notifications{unreadCount > 0 ? ` (${unreadCount})` : ""}
                   </p>
@@ -247,13 +261,13 @@ export default function Header({ onMenuClick }: HeaderProps) {
                     <button
                       type="button"
                       onClick={markAllRead}
-                      className="text-xs font-semibold text-blue-600 hover:underline"
+                      className="shrink-0 text-xs font-semibold text-blue-600 hover:underline"
                     >
                       Mark all as read
                     </button>
                   ) : null}
                 </div>
-                <div className="max-h-96 space-y-2 overflow-y-auto p-3">
+                <div className="max-h-[min(24rem,55vh)] space-y-2 overflow-y-auto p-3">
                   {announcements.slice(0, 8).map((item) => (
                     <button
                       key={`ann_${item.id}`}
@@ -313,16 +327,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
             </>
           ) : null}
         </div>
-
-        <Button
-          type="button"
-          variant="secondary"
-          loading={signOut.isLoading}
-          loadingText="Signing out…"
-          onClick={() => void signOut.run()}
-        >
-          Logout
-        </Button>
       </div>
     </header>
   );
