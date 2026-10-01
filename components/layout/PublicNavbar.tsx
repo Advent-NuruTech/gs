@@ -3,26 +3,49 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Menu, Moon, Package, Search, Sun, X } from "lucide-react";
+import {
+  BookOpen,
+  CircleUser,
+  GraduationCap,
+  House,
+  Info,
+  LogIn,
+  Menu,
+  Moon,
+  Package,
+  Search,
+  Sun,
+  Wrench,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 
+import { useAuth } from "@/hooks/useAuth";
 import { useCourse } from "@/hooks/useCourse";
 import { listDesigns } from "@/services/designService";
 import { Design } from "@/types/design";
 
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/courses", label: "Courses" },
-  { href: "/designs", label: "Digital Products" },
-  { href: "/tools", label: "Tools" },
-  { href: "/about", label: "About" },
-  { href: "/become-a-creator", label: "Teach & sell" },
+const navLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
+  { href: "/", label: "Home", icon: House },
+  { href: "/courses", label: "Courses", icon: BookOpen },
+  { href: "/designs", label: "Digital Products", icon: Package },
+  { href: "/tools", label: "Tools", icon: Wrench },
+  { href: "/about", label: "About", icon: Info },
+  { href: "/become-a-creator", label: "Teach & sell", icon: GraduationCap },
 ];
 
 /** Catalogue pages own their own filter bar, so the global search is hidden there. */
 const CATALOGUE_ROUTES = ["/courses", "/designs"];
 
+function isNavActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function PublicNavbar() {
   const pathname = usePathname();
+  const { profile, loading: authLoading } = useAuth();
+  const dashboardHref = profile ? `/dashboard/${profile.role}` : "/dashboard";
   const showSearch = !CATALOGUE_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
   const { courses } = useCourse(undefined, { published: true, pageSize: 100 });
   const [designs, setDesigns] = useState<Design[]>([]);
@@ -145,12 +168,51 @@ export default function PublicNavbar() {
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4">
           <Link href="/" className="shrink-0 text-lg font-black tracking-tight text-slate-950 dark:text-white">Advent<span className="text-blue-600">Skool</span></Link>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-            {navLinks.map((link) => <Link key={link.href} href={link.href} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-white hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-blue-400">{link.label}</Link>)}
+            {navLinks.map((link) => {
+              const active = isNavActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                    active
+                      ? "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                      : "text-slate-600 hover:bg-white hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-blue-400"
+                  }`}
+                >
+                  <link.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="whitespace-nowrap">{link.label}</span>
+                </Link>
+              );
+            })}
           </nav>
           {showSearch ? (
             <div className="ml-auto hidden w-full max-w-sm md:block">{searchBox}</div>
           ) : null}
-          <Link href="/login" className={`${showSearch ? "" : "ml-auto "}hidden rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 dark:text-slate-200 md:block`}>Log in</Link>
+          {authLoading ? (
+            <span
+              className={`${showSearch ? "" : "ml-auto "}hidden h-10 w-10 shrink-0 animate-pulse rounded-full bg-slate-200 md:block dark:bg-slate-800`}
+              aria-hidden="true"
+            />
+          ) : profile ? (
+            <Link
+              href={dashboardHref}
+              aria-label={`Go to your ${profile.role} dashboard`}
+              title={`${profile.displayName} — dashboard`}
+              className={`${showSearch ? "" : "ml-auto "}hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-blue-700 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-800 md:inline-flex dark:border-slate-700 dark:bg-slate-900 dark:text-blue-300 dark:hover:bg-slate-800`}
+            >
+              <CircleUser className="h-6 w-6" aria-hidden="true" />
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className={`${showSearch ? "" : "ml-auto "}hidden shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 dark:text-slate-200 dark:hover:text-blue-400 md:inline-flex`}
+            >
+              <LogIn className="h-4 w-4" aria-hidden="true" />
+              Log in
+            </Link>
+          )}
           <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu" className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm md:ml-0 lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-white"><Menu className="h-5 w-5" /></button>
         </div>
         {showSearch ? (
@@ -167,8 +229,49 @@ export default function PublicNavbar() {
           <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu" className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-900"><X className="h-5 w-5" /></button>
         </div>
         <nav className="mt-5 flex flex-col gap-1" aria-label="Mobile navigation">
-          {navLinks.map((link) => <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-base font-semibold text-slate-700 hover:bg-white hover:text-blue-700 dark:text-slate-200 dark:hover:bg-slate-900">{link.label}</Link>)}
-          <Link href="/login" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-base font-semibold text-blue-700 dark:text-blue-400">Log in</Link>
+          {navLinks.map((link) => {
+            const active = isNavActive(pathname, link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                aria-current={active ? "page" : undefined}
+                className={`flex min-w-0 items-center gap-3 rounded-xl px-3 py-3 text-base font-semibold ${
+                  active
+                    ? "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                    : "text-slate-700 hover:bg-white hover:text-blue-700 dark:text-slate-200 dark:hover:bg-slate-900"
+                }`}
+              >
+                <link.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                <span className="min-w-0 truncate">{link.label}</span>
+              </Link>
+            );
+          })}
+          {authLoading ? (
+            <span className="flex min-w-0 items-center gap-3 rounded-xl px-3 py-3 text-base font-semibold text-slate-400" aria-hidden="true">
+              <CircleUser className="h-5 w-5 shrink-0 animate-pulse" />
+              <span className="min-w-0 truncate">Checking session…</span>
+            </span>
+          ) : profile ? (
+            <Link
+              href={dashboardHref}
+              onClick={() => setMenuOpen(false)}
+              className="flex min-w-0 items-center gap-3 rounded-xl bg-blue-50 px-3 py-3 text-base font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+            >
+              <CircleUser className="h-5 w-5 shrink-0" aria-hidden="true" />
+              <span className="min-w-0 truncate">My dashboard</span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+              className="flex min-w-0 items-center gap-3 rounded-xl px-3 py-3 text-base font-semibold text-blue-700 dark:text-blue-400"
+            >
+              <LogIn className="h-5 w-5 shrink-0" aria-hidden="true" />
+              <span className="min-w-0 truncate">Log in</span>
+            </Link>
+          )}
         </nav>
         <div className="mt-auto border-t border-slate-200 pt-4 dark:border-slate-800">
           <button type="button" onClick={toggleTheme} className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">

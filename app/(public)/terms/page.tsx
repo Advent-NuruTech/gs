@@ -23,7 +23,7 @@ const sections = [
   {
     title: "3. Account Registration & Security",
     content:
-      "To access certain features you must create an account, including through third-party sign-in providers such as Google. You agree to provide accurate, complete, and up-to-date information and to keep it current. You are responsible for safeguarding your login credentials and for all activity that occurs under your account. You must notify us immediately at adventnurutech@gmail.com of any unauthorised access or suspected breach of security. We are not liable for any loss arising from your failure to protect your credentials.",
+      "To access certain features you must create an account, including through third-party sign-in providers such as Google. You agree to provide accurate, complete, and up-to-date information and to keep it current. You are responsible for safeguarding your login credentials and for all activity that occurs under your account. You must notify us immediately at adventskool@gmail.com of any unauthorised access or suspected breach of security. We are not liable for any loss arising from your failure to protect your credentials.",
   },
   {
     title: "4. Acceptable Use",
@@ -98,7 +98,7 @@ const sections = [
   {
     title: "18. Contact",
     content:
-      "For questions about these Terms & Conditions, please contact us at adventnurutech@gmail.com.",
+      "For questions about these Terms & Conditions, please contact us at adventskool@gmail.com.",
   },
 ];
 

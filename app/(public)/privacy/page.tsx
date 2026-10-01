@@ -18,7 +18,7 @@ const sections = [
   {
     title: "2. Data Controller",
     content:
-      "Advent Skool is the data controller responsible for your personal data processed through the Platform. If you have any questions or wish to exercise your rights, you can reach our Data Protection team at adventnurutech@gmail.com.",
+      "Advent Skool is the data controller responsible for your personal data processed through the Platform. If you have any questions or wish to exercise your rights, you can reach our Data Protection team at adventskool@gmail.com.",
   },
   {
     title: "3. Information We Collect",
@@ -63,7 +63,7 @@ const sections = [
   {
     title: "11. Your Privacy Rights",
     content:
-      "Depending on your jurisdiction, you may have the right to: access the personal data we hold about you; correct inaccurate data; request deletion ('right to be forgotten'); restrict or object to processing; data portability; and withdraw consent at any time. If you are in California, you have the right to know what personal information we collect, to request deletion, to correct it, and to opt out of any 'sale' or 'sharing' of personal information — we do not sell your data. We will not discriminate against you for exercising your rights. To exercise any right, update your information in your account settings or contact us at adventnurutech@gmail.com. You also have the right to lodge a complaint with your local supervisory authority, including the Office of the Data Protection Commissioner in Kenya.",
+      "Depending on your jurisdiction, you may have the right to: access the personal data we hold about you; correct inaccurate data; request deletion ('right to be forgotten'); restrict or object to processing; data portability; and withdraw consent at any time. If you are in California, you have the right to know what personal information we collect, to request deletion, to correct it, and to opt out of any 'sale' or 'sharing' of personal information — we do not sell your data. We will not discriminate against you for exercising your rights. To exercise any right, update your information in your account settings or contact us at adventskool@gmail.com. You also have the right to lodge a complaint with your local supervisory authority, including the Office of the Data Protection Commissioner in Kenya.",
   },
   {
     title: "12. Security",
@@ -93,7 +93,7 @@ const sections = [
   {
     title: "17. Contact Us",
     content:
-      "If you have questions about this Privacy Policy or wish to exercise your data protection rights, please contact our Data Protection team at adventnurutech@gmail.com.",
+      "If you have questions about this Privacy Policy or wish to exercise your data protection rights, please contact our Data Protection team at adventskool@gmail.com.",
   },
 ];
 

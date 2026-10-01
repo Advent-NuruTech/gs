@@ -6,7 +6,7 @@
 - **Old/retired domain: `skills.adventnurutech.xyz` / `adventnurutech.xyz`** — do not reintroduce it anywhere (code, docs, metadata, OAuth redirect URIs, email `From:` domain).
 - Canonical site URL comes from `NEXT_PUBLIC_SITE_URL`, with `https://adventskool.co.ke` as the hardcoded fallback (used in `app/layout.tsx`, `app/robots.ts`, `app/sitemap.ts`, `app/(public)/designs/layout.tsx`, `lib/email/templates.ts`).
 - Transactional email sender domain: `noreply@adventskool.co.ke` (`EMAIL_FROM` in `lib/email/resend.ts`).
-- `adventnurutech@gmail.com` is the public contact/support address — it is an email, not the domain; leave it unless told otherwise.
+- `adventskool@gmail.com` is the public contact/support address — it is an email, not the domain; leave it unless told otherwise. The older `adventnurutech@gmail.com` address is retired and must not be reintroduced.
 - Auth-related domain config: Google OAuth authorized domain + origins/redirect URIs and Supabase Site URL / redirect URLs all use `adventskool.co.ke`. See `docs/GOOGLE_SETUP.md`.
 - Domain change checklist when it changes again: app metadata fallbacks, email templates/sender, Google OAuth client (authorized JS origins + redirect URIs + authorized domain), Supabase Auth URL configuration, docs.
 
@@ -36,6 +36,8 @@ npm run lint
 - **Block double submits.** Use `useAsyncAction` for any user-initiated request (forms, clicks). It ignores extra clicks while in flight. When you need manual state, set an explicit `isLoading` boolean and disable the trigger.
 - **Route transitions are visible.** Mount `<RouteProgress>` in the root layout so all client-side navigations show the top progress bar (handled for `<Link>` clicks and for `useAppRouter`'s `push/replace`).
 - **Consistent UI primitives.** Use shared components: `Card`, `CardHeader`, `CardBody`, `StatCard`, `Badge`, `Field`, `Input`, `Select`, `Button`, `Spinner`, `Skeleton`, `PageSkeleton`, `StatusCard`.
+- **Icons: `lucide-react` only.** It is the house icon set and the only icon dependency. Do not add `react-icons`, Heroicons, Radix icons, or Font Awesome. Navigation link definitions (`PublicNavbar.navLinks`, `dashboard/Sidebar.linkMap`) each carry an `icon: LucideIcon` field that both the desktop and mobile/drawer renders draw from, so icons stay in sync automatically. Do not hand-inline raw `<svg>` markup; convert any that exist to lucide components.
+- **Public nav account control.** `PublicNavbar` is the single public header (mounted in `app/(public)/layout.tsx`, so it covers every public route). It reads `useAuth()` and renders a three-way account control: a pulse placeholder while `authLoading`, a `CircleUser` profile button linking to `/dashboard/${profile.role}` when a profile exists, and the `Log in` link otherwise. Never render an unconditional `Log in` link here — a signed-in user must never see it. Both the desktop header and the mobile drawer implement this, plus `aria-current="page"` active states via `isNavActive`.
 - **Data fetching pattern.** Prefer `useAsyncData` for page loads (always exposes `isLoading`, `errorMessage`, `reload`). Prefer `apiRequest<T>` for browser fetches — it parses JSON and throws the server's `error` message so failures are never silent.
 - **Put these rules in memory.** Every new page must have a loading state (skeleton or status card), and every action that waits on the network must block repeats and display success/error in a distinct `StatusCard`. Apply these conventions to existing pages when you touch them.
 

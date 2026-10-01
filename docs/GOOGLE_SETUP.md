@@ -52,7 +52,7 @@ https://console.cloud.google.com — create (or reuse) a project, e.g. *AdventSk
 ### 2b. OAuth consent screen (APIs & Services → OAuth consent screen)
 
 - User type: **External**
-- App name: `AdventSkool`, support email: `adventnurutech@gmail.com`
+- App name: `AdventSkool`, support email: `adventskool@gmail.com`
 - **Authorized domain**: `adventskool.co.ke`
 - Scopes — add these non-sensitive + sensitive scopes:
   - `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile`

@@ -79,7 +79,7 @@ const sections = [
   {
     title: "10. Contact",
     content:
-      "If you have questions about our use of cookies, please contact us at adventnurutech@gmail.com.",
+      "If you have questions about our use of cookies, please contact us at adventskool@gmail.com.",
   },
 ];
 

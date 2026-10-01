@@ -180,10 +180,10 @@ export default function AboutPage() {
           serves communities and learners everywhere.
         </p>
         <a
-          href="mailto:adventnurutech@gmail.com"
+          href="mailto:adventskool@gmail.com"
           className="mt-6 inline-block text-sm font-semibold text-blue-400 hover:underline"
         >
-          adventnurutech@gmail.com
+          adventskool@gmail.com
         </a>
       </section>
 

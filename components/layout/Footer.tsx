@@ -33,10 +33,10 @@ export default function Footer() {
               a product of <span className="font-semibold text-slate-800 dark:text-slate-100">Advent NuruTech</span>.
             </p>
             <a
-              href="mailto:adventnurutech@gmail.com"
+              href="mailto:adventskool@gmail.com"
               className="mt-4 inline-block text-sm font-medium text-blue-700 hover:underline dark:text-blue-400"
             >
-              adventnurutech@gmail.com
+              adventskool@gmail.com
             </a>
           </div>
 
