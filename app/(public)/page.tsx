@@ -91,7 +91,7 @@ export default function HomePage() {
       <div className="max-w-3xl">
         <h1 className="mt-5 text-4xl font-black leading-[1.04] tracking-tight sm:text-6xl">Learn something.<br /><span className="bg-gradient-to-r from-blue-200 to-indigo-100 bg-clip-text text-transparent">Make something.</span></h1>
         <TypewriterCopy />
-        <div className="mt-7 flex flex-wrap gap-3"><Link href="/courses" className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-3 font-bold text-white shadow-lg shadow-indigo-950/30 transition hover:bg-blue-400"><BookOpen className="h-5 w-5" />Explore resources</Link><Link href="/designs" className="inline-flex items-center gap-2 rounded-xl border border-white bg-white px-5 py-3 font-bold text-blue-700 transition hover:bg-blue-50 dark:border-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"><Layers3 className="h-5 w-5" />Shop digital products</Link></div>
+        <div className="mt-7 flex flex-wrap gap-3"><Link href="/courses" className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-3 font-bold text-white shadow-lg shadow-indigo-950/30 transition hover:bg-blue-400"><BookOpen className="h-5 w-5" />Explore resources</Link><Link href="/designs" className="inline-flex items-center gap-2 rounded-xl border !border-white !bg-white px-5 py-3 font-bold !text-blue-700 transition hover:!bg-blue-50"><Layers3 className="h-5 w-5" />Shop digital products</Link></div>
         <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-300"><span>✓ Learn at your pace</span><span>✓ Instant digital access</span><span>✓ Made for real progress</span></div>
       </div>
     </section>
