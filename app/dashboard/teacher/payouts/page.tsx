@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { apiRequest } from "@/lib/api/client";
 import { formatKsh } from "@/lib/utils/formatCurrency";
+import Link from "next/link";
 
 type PayoutProfile = {
   account_holder_name: string;
@@ -125,7 +126,7 @@ export default function TeacherPayoutsPage() {
     .filter((row) => row.payout_status === "routed")
     .reduce((sum, row) => sum + Number(row.creator_amount), 0);
   const commissionPercent = data?.commission?.commission_percent ?? 10;
-  const creatorBearsFee = data?.commission?.fee_mode === "exclusive";
+  const creatorBearsFee = (data?.commission?.fee_mode ?? "exclusive") === "exclusive";
   const status = (payout ? VERIFICATION_COPY[payout.verification_status] : undefined) ?? NOT_SET_UP;
 
   return (
@@ -190,6 +191,17 @@ export default function TeacherPayoutsPage() {
         title={`Payout account: ${status.label}`}
         description={status.description}
       />
+
+      <Card>
+        <CardHeader
+          title="Creator payout agreement"
+          description="Standard terms are a 10% AdventSkool commission, with Paystack processing fees charged to the creator."
+          actions={<Link href="/creator-payout-agreement" className="text-sm font-semibold text-blue-700 underline">Read agreement</Link>}
+        />
+        <CardBody>
+          <p className="text-sm text-slate-600">Special commission or fee arrangements can be discussed with AdventSkool at <a className="font-semibold text-blue-700 underline" href="mailto:adventskool@gmail.com?subject=Creator%20payout%20special%20deal">adventskool@gmail.com</a>. Any approved special arrangement must be confirmed in writing and saved to your creator payout settings before it applies to new sales.</p>
+        </CardBody>
+      </Card>
 
       <PayoutForm
         key={`${payout?.bank_code ?? "none"}-${payout?.account_last4 ?? "none"}-${payout?.verification_status ?? "none"}`}

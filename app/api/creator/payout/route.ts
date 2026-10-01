@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     db.from("creator_earnings").select("gross_amount,commission_percent,fee_mode,platform_commission,creator_amount,provider_fee,payout_status,settlement_mode,payment_reference,created_at").eq("creator_id", user.id).order("created_at", { ascending: false }),
   ]);
   const { data: defaults } = await db.from("platform_payment_settings").select("default_commission_percent,default_fee_mode").eq("id", true).maybeSingle();
-  return NextResponse.json({ payout, commission: commission ?? defaults, earnings: earnings ?? [] });
+  return NextResponse.json({ payout, commission: commission ?? defaults ?? { commission_percent: 10, fee_mode: "exclusive" }, earnings: earnings ?? [] });
 }
 
 export async function PUT(request: NextRequest) {

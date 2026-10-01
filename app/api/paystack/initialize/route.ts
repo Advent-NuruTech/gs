@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       admin.from("profiles").select("creator_status,suspended_until").eq("id", sellerId).maybeSingle(),
     ]);
     const commissionPercent = Number(creatorSettings?.commission_percent ?? platformSettings?.default_commission_percent ?? 10);
-    const feeMode = String(creatorSettings?.fee_mode ?? platformSettings?.default_fee_mode ?? "inclusive");
+    const feeMode = String(creatorSettings?.fee_mode ?? platformSettings?.default_fee_mode ?? "exclusive");
     if (!Number.isFinite(commissionPercent) || commissionPercent < 0 || commissionPercent > 100 || !["inclusive", "exclusive"].includes(feeMode)) {
       return NextResponse.json({ error: "Creator commission configuration is invalid. Contact AdventSkool support." }, { status: 503 });
     }

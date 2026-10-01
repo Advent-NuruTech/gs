@@ -328,9 +328,7 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                 Creating account...
               </span>
-            ) : (
-            {creatorMode ? "Create Creator Account" : "Create Account"}
-            )}
+            ) : creatorMode ? "Create Creator Account" : "Create Account"}
           </Button>
             </>
           ) : null}
