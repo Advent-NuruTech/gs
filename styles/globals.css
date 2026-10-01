@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* The app persists theme choice on <html>, so Tailwind dark: utilities must
+   follow that class instead of the device's color-scheme preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f8fafc;
   --surface: #ffffff;
@@ -40,6 +44,7 @@ body {
 }
 
 .dark .public-shell .text-slate-900,
+.dark .public-shell .text-slate-950,
 .dark .public-shell .text-slate-800 {
   color: #e5edf8;
 }

@@ -48,9 +48,11 @@ npm run lint
 - Every dashboard page and shared header control must fit narrow phone viewports without horizontal page scrolling or clipping. Use `min-w-0` on flex/grid children that contain text, allow long labels and prices to wrap, and stack cards/actions when side-by-side content no longer fits.
 - Search results and notification panels must stay within the viewport, scroll internally when their content is long, and wrap long notification text. Check responsive behavior at a narrow mobile width whenever changing dashboard listings or header controls.
 
-## Theme contrast follow-up
+## Dark mode contrast rule
 
-- Dark mode has reported text visibility/contrast problems in the cart, the homepage “Why new learners stay” section, the “Designed by Advent NuruTech” attribution, and the creator agreement title. Review these areas when working on theme styling and ensure text remains readable against its background in both light and dark modes.
+- The theme is selected by toggling the `.dark` class on `<html>` and saved as `adventskool-theme` in local storage. Tailwind's `dark:` variant must therefore use the class selector (`@custom-variant dark (&:where(.dark, .dark *));` in `styles/globals.css`); never rely on the device's `prefers-color-scheme` to activate app dark mode.
+- Every visible text label, heading, icon, border, input, selected state, and fixed navigation surface must retain readable contrast in both themes. Avoid hardcoded light-theme foregrounds/backgrounds on dark surfaces; add paired `dark:` styles or use the theme variables. Include `text-slate-950` in dark public-shell overrides when appropriate.
+- When touching theme styling, check the full affected screen and shared navigation, including mobile bottom navigation and dashboard sidebars/menus. Verify category/section headings, cards, footer attribution, cart, creator agreement, form controls, and overlays where present; do not fix only the first clipped or low-contrast word.
 
 ## Project memory maintenance
 
