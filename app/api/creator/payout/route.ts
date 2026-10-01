@@ -29,6 +29,14 @@ export async function PUT(request: NextRequest) {
   }
   const db = getSupabaseAdminClient();
   try {
+    const [{ data: creatorCommission }, { data: platformSettings }] = await Promise.all([
+      db.from("creator_commission_settings").select("commission_percent").eq("creator_id", user.id).maybeSingle(),
+      db.from("platform_payment_settings").select("default_commission_percent").eq("id", true).maybeSingle(),
+    ]);
+    const platformCommissionPercent = Number(creatorCommission?.commission_percent ?? platformSettings?.default_commission_percent ?? 10);
+    if (!Number.isFinite(platformCommissionPercent) || platformCommissionPercent < 0 || platformCommissionPercent > 100) {
+      return NextResponse.json({ error: "Payout settings are unavailable. Contact support." }, { status: 503 });
+    }
     const banks = await listKenyanBanks();
     const selectedBank = banks.find((item) => item.code === bankCode);
     if (!selectedBank) return NextResponse.json({ error: "Select a valid Kenyan bank from the list." }, { status: 400 });
@@ -39,6 +47,7 @@ export async function PUT(request: NextRequest) {
       bankCode,
       email: user.email,
       phone,
+      platformCommissionPercent,
     });
     const { error } = await db.from("creator_payout_profiles").upsert({
       creator_id: user.id,

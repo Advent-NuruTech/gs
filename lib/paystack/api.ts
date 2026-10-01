@@ -97,6 +97,7 @@ export async function createKenyanSubaccount(input: {
   bankCode: string;
   email: string;
   phone: string;
+  platformCommissionPercent: number;
 }) {
   const result = await paystackRequest<{
     subaccount_code: string;
@@ -110,7 +111,7 @@ export async function createKenyanSubaccount(input: {
       business_name: input.businessName.slice(0, 100),
       bank_code: input.bankCode,
       account_number: input.accountNumber,
-      percentage_charge: 0,
+      percentage_charge: input.platformCommissionPercent,
       primary_contact_name: input.accountHolderName.slice(0, 100),
       primary_contact_email: input.email,
       primary_contact_phone: input.phone,
@@ -124,6 +125,13 @@ export async function createKenyanSubaccount(input: {
     accountLast4: String(result.account_number ?? input.accountNumber).slice(-4),
     bankName: String(result.settlement_bank ?? ""),
   };
+}
+
+export async function updateSubaccountCommission(subaccountCode: string, platformCommissionPercent: number) {
+  await paystackRequest(`/subaccount/${encodeURIComponent(subaccountCode)}`, {
+    method: "PUT",
+    body: JSON.stringify({ percentage_charge: platformCommissionPercent }),
+  });
 }
 
 export interface VerifyResult {
