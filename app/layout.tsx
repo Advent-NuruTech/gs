@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import AppProviders from "@/context/AppProviders";
+import RouteProgress from "@/components/ui/RouteProgress";
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke").replace(/\/$/, "");
 
@@ -51,7 +52,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <RouteProgress />
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

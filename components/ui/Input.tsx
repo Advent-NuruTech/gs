@@ -1,21 +1,41 @@
 import { InputHTMLAttributes } from "react";
 
+import Field from "@/components/ui/Field";
+
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  /** Visible help text under the label. */
+  hint?: string;
   error?: string;
   /** Keep the label for screen readers but hide it visually (e.g. when an external icon-label is rendered). */
   hideLabel?: boolean;
 }
 
-export default function Input({ label, error, hideLabel = false, className = "", ...props }: InputProps) {
+const controlClassMap = {
+  base: "w-full rounded-md border bg-white px-3 py-2 text-slate-900 outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500",
+  valid: "border-slate-300 focus:border-blue-500 focus:ring-blue-500",
+  invalid: "border-red-400 focus:border-red-500 focus:ring-red-500",
+};
+
+export default function Input({
+  label,
+  hint,
+  error,
+  hideLabel = false,
+  className = "",
+  id,
+  disabled,
+  ...props
+}: InputProps) {
   return (
-    <label className="flex w-full flex-col gap-2 text-sm font-medium text-slate-700">
-      <span className={hideLabel ? "sr-only" : undefined}>{label}</span>
+    <Field label={label} htmlFor={id} hint={hint} error={error} hideLabel={hideLabel}>
       <input
-        className={`w-full rounded-md border border-slate-300 px-3 py-2 outline-none ring-blue-500 transition focus:ring-2 ${className}`}
+        id={id}
+        disabled={disabled}
+        aria-invalid={error ? true : undefined}
+        className={`${controlClassMap.base} ${error ? controlClassMap.invalid : controlClassMap.valid} ${className}`}
         {...props}
       />
-      {error ? <span className="text-xs text-red-600">{error}</span> : null}
-    </label>
+    </Field>
   );
 }

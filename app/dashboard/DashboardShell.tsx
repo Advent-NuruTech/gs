@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
+import PageSkeleton from "@/components/ui/PageSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function DashboardShell({ children }: { children: ReactNode }) {
@@ -20,7 +21,11 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   }, [loading, profile, router]);
 
   if (loading || !profile) {
-    return <div className="p-8">Loading dashboard...</div>;
+    return (
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-6">
+        <PageSkeleton label="Loading your dashboard…" variant="cards" />
+      </div>
+    );
   }
 
   return (

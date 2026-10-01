@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
+import { useAppRouter } from "@/hooks/useAppRouter";
+import { useAsyncAction } from "@/hooks/useAsyncAction";
 import { useAuth } from "@/hooks/useAuth";
 import {
   clearNotificationsForUser,
@@ -33,12 +34,19 @@ const ADMIN_SEARCH_LINKS: Array<{ label: string; href: string; keywords: string[
 ];
 
 export default function Header({ onMenuClick }: HeaderProps) {
-  const router = useRouter();
+  const router = useAppRouter();
   const { profile, logout } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  const signOut = useAsyncAction({
+    action: async () => {
+      await logout();
+      router.push("/login");
+    },
+  });
 
   const announcementsHref =
     profile?.role === "admin"
@@ -309,10 +317,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <Button
           type="button"
           variant="secondary"
-          onClick={async () => {
-            await logout();
-            router.push("/login");
-          }}
+          loading={signOut.isLoading}
+          loadingText="Signing out…"
+          onClick={() => void signOut.run()}
         >
           Logout
         </Button>

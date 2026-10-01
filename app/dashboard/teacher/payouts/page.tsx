@@ -1,89 +1,350 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
+import { Landmark, Percent, Receipt, TrendingUp } from "lucide-react";
+
+import Badge, { BadgeTone } from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
+import { Card, CardBody, CardHeader } from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
+import PageSkeleton from "@/components/ui/PageSkeleton";
+import Select from "@/components/ui/Select";
+import StatCard from "@/components/ui/StatCard";
+import StatusCard, { FeedbackKind } from "@/components/ui/StatusCard";
+import { useAsyncAction } from "@/hooks/useAsyncAction";
+import { useAsyncData } from "@/hooks/useAsyncData";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
+import { apiRequest } from "@/lib/api/client";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 
-type PayoutData = {
-  payout: { account_holder_name: string; bank_name: string; bank_code: string; account_last4: string; phone_number: string; verification_status: string; payout_status: string } | null;
-  commission: { commission_percent: number; fee_mode: string } | null;
-  earnings: Array<{ gross_amount: number; commission_percent: number; platform_commission: number; creator_amount: number; provider_fee: number | null; payout_status: string; settlement_mode: string; payment_reference: string | null; created_at: string }>;
+type PayoutProfile = {
+  account_holder_name: string;
+  bank_name: string;
+  bank_code: string;
+  account_last4: string;
+  phone_number: string;
+  verification_status: string;
+  payout_status: string;
 };
+
+type Earning = {
+  gross_amount: number;
+  commission_percent: number;
+  platform_commission: number;
+  creator_amount: number;
+  provider_fee: number | null;
+  payout_status: string;
+  settlement_mode: string;
+  payment_reference: string | null;
+  created_at: string;
+};
+
+type PayoutData = {
+  payout: PayoutProfile | null;
+  commission: { commission_percent: number; fee_mode: string } | null;
+  earnings: Earning[];
+};
+
 type Bank = { code: string; name: string };
+
+type PayoutPayload = PayoutData & { banks: Bank[] };
+
+const VERIFICATION_COPY: Record<string, { label: string; tone: BadgeTone; kind: FeedbackKind; description: string }> = {
+  verified: {
+    label: "Verified",
+    tone: "emerald",
+    kind: "success",
+    description:
+      "Your payout account is verified. You receive your share of new course sales in this account. Paystack sends the money on its normal schedule; earlier sales are not sent automatically.",
+  },
+  rejected: {
+    label: "Needs changes",
+    tone: "red",
+    kind: "error",
+    description:
+      "Your payout account was not approved. Check the details below and resubmit, or contact AdventSkool support if the bank says the account is correct.",
+  },
+  pending: {
+    label: "Pending review",
+    tone: "amber",
+    kind: "warning",
+    description:
+      "Your payout account is with AdventSkool for review. You can receive money from new course sales once it is approved. We usually finish reviews within one business day.",
+  },
+};
+
+const NOT_SET_UP: { label: string; tone: BadgeTone; kind: FeedbackKind; description: string } = {
+  label: "Not set up",
+  tone: "slate",
+  kind: "info",
+  description:
+    "Add your payout account details below, then wait for AdventSkool to review them. You can receive money from course sales after approval.",
+};
 
 export default function TeacherPayoutsPage() {
   const { profile } = useAuth();
-  const { isAllowed, loading } = useRoleGuard(["teacher"]);
-  const [data, setData] = useState<PayoutData | null>(null);
-  const [form, setForm] = useState({ accountHolderName: "", bankCode: "", accountNumber: "", phoneNumber: "" });
-  const [banks, setBanks] = useState<Bank[]>([]);
-  const [message, setMessage] = useState("");
-  const [saving, setSaving] = useState(false);
+  const { isAllowed, loading: guardLoading } = useRoleGuard(["teacher"]);
 
-  async function load() {
-    const response = await fetch("/api/creator/payout");
-    if (!response.ok) throw new Error("Could not load payout settings.");
-    const result = await response.json() as PayoutData;
-    setData(result);
-    const payout = result.payout;
-    if (payout) setForm((current) => ({ ...current, accountHolderName: payout.account_holder_name, bankCode: payout.bank_code, accountNumber: "" }));
+  const { data, isLoading, errorMessage, reload } = useAsyncData<PayoutPayload>(
+    async () => {
+      const [payoutData, bankData] = await Promise.all([
+        apiRequest<PayoutData>("/api/creator/payout"),
+        apiRequest<{ banks: Bank[] }>("/api/paystack/banks"),
+      ]);
+      return { ...payoutData, banks: bankData.banks ?? [] };
+    },
+    [profile?.id, isAllowed],
+  );
+
+  const save = useAsyncAction({
+    action: async (payload: Record<string, string>) => {
+      await apiRequest("/api/creator/payout", { method: "PUT", body: JSON.stringify(payload) });
+    },
+    successMessage: "Payout details saved. AdventSkool will review them before your next course sale is paid out.",
+    onSuccess: () => {
+      reload();
+    },
+  });
+
+  if (guardLoading || !isAllowed) {
+    return <PageSkeleton label="Checking your access to payout details…" variant="plain" />;
   }
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- This starts an async request; state changes after the response arrives.
-  useEffect(() => { if (profile && isAllowed) void load().catch((error: Error) => setMessage(error.message)); }, [profile, isAllowed]);
-  useEffect(() => {
-    if (!profile || !isAllowed) return;
-    void fetch("/api/paystack/banks").then(async (response) => {
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Could not load banks.");
-      setBanks(result.banks as Bank[]);
-    }).catch((error: Error) => setMessage(error.message));
-  }, [profile, isAllowed]);
-
-  async function save(event: FormEvent) {
-    event.preventDefault(); setSaving(true); setMessage("");
-    try {
-      const response = await fetch("/api/creator/payout", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Could not save payout details.");
-      await load(); setMessage("Payout details saved. Verification is pending.");
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Could not save payout details."); }
-    finally { setSaving(false); }
+  if (isLoading && !data) {
+    return <PageSkeleton label="Loading your payout details and earnings…" variant="form" />;
   }
 
-  if (loading || !isAllowed) return <p>Loading payout settings…</p>;
+  const payout = data?.payout ?? null;
   const earnings = data?.earnings ?? [];
   const total = earnings.reduce((sum, row) => sum + Number(row.creator_amount), 0);
-  const pending = earnings.filter((row) => row.payout_status === "pending").reduce((sum, row) => sum + Number(row.creator_amount), 0);
-  const routed = earnings.filter((row) => row.payout_status === "routed").reduce((sum, row) => sum + Number(row.creator_amount), 0);
-  const payoutReady = data?.payout?.verification_status === "verified" && data.payout.payout_status === "ready";
-  const payoutStatus = !data?.payout ? "Not set up" : payoutReady ? "Verified" : data.payout.verification_status === "rejected" ? "Needs changes" : "Pending review";
-  return <section className="max-w-3xl space-y-5">
-    <div><h2 className="text-2xl font-bold text-slate-900">Payout details</h2><p className="mt-1 text-sm text-slate-600">Add the account where AdventSkool can send your creator earnings. Only you and administrators can access these details.</p></div>
-    <form onSubmit={save} className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-2">
-      <label className="space-y-1 text-sm font-medium text-slate-700">Account holder name<input required value={form.accountHolderName} onChange={(e) => setForm({ ...form, accountHolderName: e.target.value })} className="w-full rounded-md border border-slate-300 px-3 py-2" /></label>
-      <label className="space-y-1 text-sm font-medium text-slate-700">Kenyan bank<select required value={form.bankCode} onChange={(e) => setForm({ ...form, bankCode: e.target.value })} className="w-full rounded-md border border-slate-300 px-3 py-2"><option value="">Select your bank</option>{banks.map((bank) => <option key={bank.code} value={bank.code}>{bank.name}</option>)}</select></label>
-      <label className="space-y-1 text-sm font-medium text-slate-700">Account number<input required inputMode="numeric" autoComplete="off" value={form.accountNumber} onChange={(e) => setForm({ ...form, accountNumber: e.target.value.replace(/\D/g, "") })} className="w-full rounded-md border border-slate-300 px-3 py-2" /></label>
-      <label className="space-y-1 text-sm font-medium text-slate-700">Phone number<input required type="tel" autoComplete="tel" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} className="w-full rounded-md border border-slate-300 px-3 py-2" /></label>
-      <p className="md:col-span-2 text-xs text-slate-500">Paystack creates the payout subaccount from these details. AdventSkool stores the Paystack subaccount reference and last four digits, not your account number.</p>
-      <div className="flex items-end"><button disabled={saving} className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? "Saving…" : "Save payout details"}</button></div>
-      {message && <p className="md:col-span-2 text-sm text-slate-700" role="status">{message}</p>}
-    </form>
-    <div className="grid gap-3 sm:grid-cols-4">
-      <article className="rounded-lg border bg-white p-4"><p className="text-sm text-slate-500">Commission</p><p className="text-xl font-semibold">{data?.commission?.commission_percent ?? 10}%</p><p className="text-xs text-slate-500">{data?.commission?.fee_mode === "exclusive" ? "Creator bears Paystack fee" : "AdventSkool bears Paystack fee"}</p></article>
-      <article className="rounded-lg border bg-white p-4"><p className="text-sm text-slate-500">Recorded earnings</p><p className="text-xl font-semibold">{formatKsh(total)}</p></article>
-      <article className="rounded-lg border bg-white p-4"><p className="text-sm text-slate-500">Pending payout</p><p className="text-xl font-semibold">{formatKsh(pending)}</p></article>
-      <article className="rounded-lg border bg-white p-4"><p className="text-sm text-slate-500">Sent for payout</p><p className="text-xl font-semibold">{formatKsh(routed)}</p></article>
-    </div>
-    <p className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">Payout account status: <strong>{payoutStatus}</strong>{data?.payout ? ` · ${data.payout.bank_name} · account ending ${data.payout.account_last4}` : ""}.</p>
-    <p className={`rounded-md p-3 text-sm ${payoutReady ? "bg-green-50 text-green-900" : "bg-amber-50 text-amber-900"}`}>{payoutReady
-      ? "Your payout account is verified. You will receive your share from new course sales in this account. Paystack sends the money on its normal schedule. Earlier sales will not be sent automatically."
-      : data?.payout?.verification_status === "rejected"
-        ? "Your payout account needs changes before you can receive money from course sales. Please contact AdventSkool support."
-        : data?.payout
-          ? "Your payout account is waiting for review. You will be able to receive money from new course sales after it is approved."
-          : "Add your payout account details, then wait for AdventSkool to review them. You can receive money from course sales after approval."}</p>
-    <div className="overflow-x-auto rounded-lg border bg-white"><h3 className="p-4 font-semibold">Earnings history</h3><table className="w-full text-left text-sm"><thead className="bg-slate-50"><tr>{["Date","Payment reference","Sale amount","AdventSkool fee","Your share","Payment fee","Status"].map((x) => <th key={x} className="p-3">{x}</th>)}</tr></thead><tbody>{earnings.map((row, i) => <tr key={`${row.created_at}-${i}`} className="border-t"><td className="p-3">{new Date(row.created_at).toLocaleDateString()}</td><td className="p-3 font-mono text-xs">{row.payment_reference ?? "—"}</td><td className="p-3">{formatKsh(Number(row.gross_amount))}</td><td className="p-3">{row.commission_percent}%</td><td className="p-3">{formatKsh(Number(row.creator_amount))}</td><td className="p-3">{row.provider_fee == null ? "Not reported" : formatKsh(Number(row.provider_fee))}</td><td className="p-3">{row.payout_status === "routed" ? "Sent for payout" : row.payout_status === "pending" ? "Waiting for payment" : row.payout_status}</td></tr>)}{earnings.length === 0 && <tr><td colSpan={7} className="p-4 text-slate-500">Earnings will appear after successful sales are recorded.</td></tr>}</tbody></table></div>
-  </section>;
+  const pending = earnings
+    .filter((row) => row.payout_status === "pending")
+    .reduce((sum, row) => sum + Number(row.creator_amount), 0);
+  const routed = earnings
+    .filter((row) => row.payout_status === "routed")
+    .reduce((sum, row) => sum + Number(row.creator_amount), 0);
+  const commissionPercent = data?.commission?.commission_percent ?? 10;
+  const creatorBearsFee = data?.commission?.fee_mode === "exclusive";
+  const status = (payout ? VERIFICATION_COPY[payout.verification_status] : undefined) ?? NOT_SET_UP;
+
+  return (
+    <section className="space-y-5">
+      <header className="space-y-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-2xl font-bold text-slate-900">Payout details</h2>
+          <Badge tone={status.tone}>{status.label}</Badge>
+        </div>
+        <p className="text-sm text-slate-600">
+          Add the Kenyan bank account where AdventSkool can send your creator earnings. Only you and AdventSkool
+          administrators can access these details.
+        </p>
+      </header>
+
+      {save.isLoading ? (
+        <StatusCard kind="loading" title="Saving your payout details…" description="Paystack is registering this account. Keep this page open." />
+      ) : null}
+      {save.status === "success" && save.successMessage ? (
+        <StatusCard kind="success" title="Payout details saved" description={save.successMessage} onDismiss={save.reset} />
+      ) : null}
+      {save.status === "error" && save.errorMessage ? (
+        <StatusCard kind="error" title="We could not save your payout details" description={save.errorMessage} />
+      ) : null}
+      {errorMessage && !isLoading ? (
+        <StatusCard
+          kind="error"
+          title="We could not load your payout details"
+          description={errorMessage}
+          actions={
+            <Button type="button" variant="secondary" size="sm" onClick={reload} loading={isLoading}>
+              Try again
+            </Button>
+          }
+        />
+      ) : null}
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Your commission"
+          value={`${commissionPercent}%`}
+          hint={creatorBearsFee ? "You also bear the Paystack fee" : "AdventSkool bears the Paystack fee"}
+          icon={<Percent className="h-4 w-4" aria-hidden="true" />}
+        />
+        <StatCard label="Recorded earnings" value={formatKsh(total)} icon={<TrendingUp className="h-4 w-4" aria-hidden="true" />} />
+        <StatCard
+          label="Waiting for payment"
+          value={formatKsh(pending)}
+          tone="warning"
+          hint="Recorded, not yet confirmed by Paystack"
+        />
+        <StatCard
+          label="Sent for payout"
+          value={formatKsh(routed)}
+          tone="positive"
+          hint="Accepted by Paystack for settlement"
+        />
+      </div>
+
+      <StatusCard
+        kind={status.kind}
+        title={`Payout account: ${status.label}`}
+        description={status.description}
+      />
+
+      <PayoutForm
+        key={`${payout?.bank_code ?? "none"}-${payout?.account_last4 ?? "none"}-${payout?.verification_status ?? "none"}`}
+        payout={payout}
+        banks={data?.banks ?? []}
+        defaultPhone={profile?.phone ?? ""}
+        isSaving={save.isLoading}
+        onSave={(payload) => save.run(payload)}
+      />
+
+      <Card>
+        <CardHeader
+          title="Earnings history"
+          description="Every recorded course sale, your share of it, and where it is in the payout process."
+        />
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                {["Date", "Payment reference", "Sale amount", "AdventSkool fee", "Your share", "Payment fee", "Status"].map(
+                  (heading) => (
+                    <th key={heading} scope="col" className="whitespace-nowrap px-4 py-3 font-semibold">
+                      {heading}
+                    </th>
+                  ),
+                )}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {earnings.map((row, index) => (
+                <tr key={`${row.created_at}-${index}`} className="hover:bg-slate-50">
+                  <td className="whitespace-nowrap px-4 py-3 text-slate-700">{new Date(row.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-600">{row.payment_reference ?? "—"}</td>
+                  <td className="whitespace-nowrap px-4 py-3 tabular-nums">{formatKsh(Number(row.gross_amount))}</td>
+                  <td className="whitespace-nowrap px-4 py-3 tabular-nums">{row.commission_percent}%</td>
+                  <td className="whitespace-nowrap px-4 py-3 font-semibold tabular-nums">
+                    {formatKsh(Number(row.creator_amount))}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 tabular-nums">
+                    {row.provider_fee == null ? "Not reported" : formatKsh(Number(row.provider_fee))}
+                  </td>
+                  <td className="px-4 py-3">
+                    <EarningStatusBadge payoutStatus={row.payout_status} />
+                  </td>
+                </tr>
+              ))}
+              {earnings.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center">
+                    <Receipt className="mx-auto h-8 w-8 text-slate-300" aria-hidden="true" />
+                    <p className="mt-2 text-sm font-semibold text-slate-700">No earnings recorded yet</p>
+                    <p className="text-sm text-slate-500">Earnings appear here after a successful course sale.</p>
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </section>
+  );
+}
+
+function EarningStatusBadge({ payoutStatus }: { payoutStatus: string }) {
+  if (payoutStatus === "routed") return <Badge tone="emerald">Sent for payout</Badge>;
+  if (payoutStatus === "pending") return <Badge tone="amber">Waiting for payment</Badge>;
+  return <Badge tone="slate">{payoutStatus || "Unknown"}</Badge>;
+}
+
+interface PayoutFormProps {
+  payout: PayoutProfile | null;
+  banks: Bank[];
+  defaultPhone: string;
+  isSaving: boolean;
+  onSave: (payload: Record<string, string>) => void;
+}
+
+function PayoutForm({ payout, banks, defaultPhone, isSaving, onSave }: PayoutFormProps) {
+  const [form, setForm] = useState({
+    accountHolderName: payout?.account_holder_name ?? "",
+    bankCode: payout?.bank_code ?? "",
+    accountNumber: "",
+    phoneNumber: payout?.phone_number || defaultPhone,
+  });
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onSave(form);
+  }
+
+  return (
+    <Card>
+      <CardHeader
+        title={payout ? "Payout account" : "Add your payout account"}
+        description={
+          payout
+            ? `Currently ${payout.bank_name} · account ending ${payout.account_last4 || "????"}. Submit again to replace it.`
+            : "Paystack registers this account for you. AdventSkool only stores the Paystack reference and your last four digits."
+        }
+        actions={payout ? <Badge tone="slate">Last four digits stored</Badge> : null}
+      />
+      <CardBody>
+        <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+          <Input
+            id="account-holder-name"
+            label="Account holder name"
+            required
+            autoComplete="name"
+            disabled={isSaving}
+            value={form.accountHolderName}
+            onChange={(event) => setForm({ ...form, accountHolderName: event.target.value })}
+          />
+          <Select
+            id="bank-code"
+            label="Kenyan bank"
+            required
+            disabled={isSaving}
+            placeholder="Select your bank"
+            value={form.bankCode}
+            onChange={(event) => setForm({ ...form, bankCode: event.target.value })}
+            options={banks.map((bank) => ({ value: bank.code, label: bank.name }))}
+          />
+          <Input
+            id="account-number"
+            label="Account number"
+            hint="Your full account number is sent straight to Paystack and then discarded."
+            required
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={20}
+            disabled={isSaving}
+            value={form.accountNumber}
+            onChange={(event) => setForm({ ...form, accountNumber: event.target.value.replace(/\D/g, "") })}
+          />
+          <Input
+            id="phone-number"
+            label="Phone number"
+            required
+            type="tel"
+            autoComplete="tel"
+            disabled={isSaving}
+            value={form.phoneNumber}
+            onChange={(event) => setForm({ ...form, phoneNumber: event.target.value })}
+          />
+          <div className="flex flex-wrap items-center gap-3 md:col-span-2">
+            <Button type="submit" loading={isSaving} loadingText="Saving payout details…">
+              {payout ? "Update payout details" : "Save payout details"}
+            </Button>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500">
+              <Landmark className="h-4 w-4" aria-hidden="true" />
+              Only you and AdventSkool administrators can see these details.
+            </span>
+          </div>
+        </form>
+      </CardBody>
+    </Card>
+  );
 }

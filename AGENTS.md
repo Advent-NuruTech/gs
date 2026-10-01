@@ -27,6 +27,16 @@ npm run lint
 - The account must have live Paystack API credentials, a configured platform settlement account, and Paystack subaccount/split functionality enabled for KES. Confirm feature access with Paystack if subaccount creation or split initialization is rejected. Test in Paystack test mode first, then deploy the same flow with live keys and verify one low-value transaction and its settlement report.
 - `PAYSTACK_SECRET_KEY` stays server-side. Never expose it, the Paystack subaccount code, or a full bank account number to browser code, logs, client responses, or git. Payout endpoints use the service-role client; authenticated browser clients have no direct table access to payout account data.
 
+## UI feedback, loading, and navigation conventions
+
+- **Always show a loading state to the user.** Never keep an action silent. For page loads, use `<PageSkeleton>` (with an accessible `label`) and `loading.tsx` files for routes. For button/form actions, pass `loading`/`loadingText` to `<Button>` or use `useAsyncAction` so the button is disabled, shows a spinner, and announces `aria-busy`.
+- **Separate feedback from the page.** Use `<StatusCard>` for loading, success, error, warning, and info. Messages must appear in a raised, tinted card (not inline paragraph text that blends in). Use the `role`/`aria-live` that `StatusCard` provides (assertive for errors).
+- **Block double submits.** Use `useAsyncAction` for any user-initiated request (forms, clicks). It ignores extra clicks while in flight. When you need manual state, set an explicit `isLoading` boolean and disable the trigger.
+- **Route transitions are visible.** Mount `<RouteProgress>` in the root layout so all client-side navigations show the top progress bar (handled for `<Link>` clicks and for `useAppRouter`'s `push/replace`).
+- **Consistent UI primitives.** Use shared components: `Card`, `CardHeader`, `CardBody`, `StatCard`, `Badge`, `Field`, `Input`, `Select`, `Button`, `Spinner`, `Skeleton`, `PageSkeleton`, `StatusCard`.
+- **Data fetching pattern.** Prefer `useAsyncData` for page loads (always exposes `isLoading`, `errorMessage`, `reload`). Prefer `apiRequest<T>` for browser fetches — it parses JSON and throws the server's `error` message so failures are never silent.
+- **Put these rules in memory.** Every new page must have a loading state (skeleton or status card), and every action that waits on the network must block repeats and display success/error in a distinct `StatusCard`. Apply these conventions to existing pages when you touch them.
+
 ## Project memory maintenance
 
 - Whenever a material change is made to product behavior, payments, authentication, data schema, third-party configuration, deployment, or operational setup, update this `AGENTS.md` in the same change with the current state, required configuration, and any rollout or safety notes.
