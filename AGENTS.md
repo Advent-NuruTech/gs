@@ -47,6 +47,10 @@ npm run lint
 - Every dashboard page and shared header control must fit narrow phone viewports without horizontal page scrolling or clipping. Use `min-w-0` on flex/grid children that contain text, allow long labels and prices to wrap, and stack cards/actions when side-by-side content no longer fits.
 - Search results and notification panels must stay within the viewport, scroll internally when their content is long, and wrap long notification text. Check responsive behavior at a narrow mobile width whenever changing dashboard listings or header controls.
 
+## Theme contrast follow-up
+
+- Dark mode has reported text visibility/contrast problems in the cart, the homepage “Why new learners stay” section, the “Designed by Advent NuruTech” attribution, and the creator agreement title. Review these areas when working on theme styling and ensure text remains readable against its background in both light and dark modes.
+
 ## Project memory maintenance
 
 - Whenever a material change is made to product behavior, payments, authentication, data schema, third-party configuration, deployment, or operational setup, update this `AGENTS.md` in the same change with the current state, required configuration, and any rollout or safety notes.
