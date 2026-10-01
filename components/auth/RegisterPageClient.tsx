@@ -122,7 +122,7 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
               {creatorMode ? "Create Creator Account" : "Create Student Account"}
             </h1>
             <p className="text-sm text-slate-500">
-              {creatorMode ? "Create and publish courses and products while your account is reviewed" : "Start your structured learning journey today"}
+              {creatorMode ? "Create and publish courses and products " : "Start your structured learning journey today"}
             </p>
           </div>
 
