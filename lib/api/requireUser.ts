@@ -34,10 +34,11 @@ export async function getRequestUser(request: NextRequest): Promise<RequestUser 
     if (!user) return null;
     const { data: profile } = await client
       .from("profiles")
-      .select("role, full_name, email")
+      .select("role, full_name, email, suspended_until")
       .eq("id", user.id)
       .maybeSingle();
     if (!profile) return null;
+    if (profile.suspended_until && new Date(profile.suspended_until).getTime() > Date.now()) return null;
     return {
       id: user.id,
       email: String(profile.email ?? user.email ?? ""),
@@ -53,10 +54,11 @@ export async function getRequestUser(request: NextRequest): Promise<RequestUser 
   if (!user) return null;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, full_name, email")
+    .select("role, full_name, email, suspended_until")
     .eq("id", user.id)
     .maybeSingle();
   if (!profile) return null;
+  if (profile.suspended_until && new Date(profile.suspended_until).getTime() > Date.now()) return null;
   return {
     id: user.id,
     email: String(profile.email ?? user.email ?? ""),

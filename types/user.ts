@@ -10,6 +10,9 @@ export interface AppUser {
   marketingSubscribed?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  creatorStatus?: "none" | "pending" | "approved" | "rejected";
+  suspendedUntil?: string | null;
+  whatsapp?: string;
 }
 
 export interface CreateUserInput {

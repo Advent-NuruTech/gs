@@ -38,6 +38,20 @@ export default function AdminUsersPage() {
   const [latestInviteLink, setLatestInviteLink] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [creatorActionId, setCreatorActionId] = useState<string | null>(null);
+
+  const creatorAction = async (id: string, action: string, hours?: number) => {
+    setCreatorActionId(id);
+    try {
+      const { data } = await (await import("@/lib/supabase/client")).getSupabaseBrowserClient().auth.getSession();
+      const response = await fetch("/api/admin/users", { method: "PATCH", headers: { "Content-Type": "application/json", ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}) }, body: JSON.stringify({ id, action, hours }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Account update failed.");
+      pushToast("Account updated.", "success");
+      await reload();
+    } catch (error) { pushToast(error instanceof Error ? error.message : "Account update failed.", "error"); }
+    finally { setCreatorActionId(null); }
+  };
 
   useEffect(() => {
     async function load() {
@@ -237,6 +251,16 @@ export default function AdminUsersPage() {
               </label>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
+              {user.creatorStatus === "pending" ? <>
+                <span className="self-center rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">Creator application in review</span>
+                <Button type="button" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "approve_creator")}>Approve creator</Button>
+                <Button type="button" variant="secondary" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "reject_creator")}>Reject application</Button>
+              </> : null}
+              {user.role === "teacher" ? <>
+                {user.suspendedUntil && new Date(user.suspendedUntil) > new Date() ? <Button type="button" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "restore")}>Restore access</Button> : <Button type="button" variant="secondary" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "suspend", 24)}>Suspend 24 hours</Button>}
+                <Button type="button" variant="secondary" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "suspend", 24 * 30)}>Suspend 30 days</Button>
+                <Button type="button" variant="secondary" disabled={creatorActionId === user.id} onClick={() => { const days = Number(window.prompt("Suspend for how many days? (1–365)", "7")); if (Number.isInteger(days) && days >= 1 && days <= 365) void creatorAction(user.id, "suspend", days * 24); }}>Custom suspension…</Button>
+              </> : null}
               <Button
                 type="button"
                 onClick={async () => {

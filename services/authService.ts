@@ -16,6 +16,9 @@ export function mapProfile(row: Record<string, unknown>): AppUser {
     marketingSubscribed: row.marketing_subscribed === undefined ? undefined : Boolean(row.marketing_subscribed),
     createdAt: row.created_at ? String(row.created_at) : undefined,
     updatedAt: row.updated_at ? String(row.updated_at) : undefined,
+    creatorStatus: (row.creator_status as AppUser["creatorStatus"]) ?? "none",
+    suspendedUntil: row.suspended_until ? String(row.suspended_until) : null,
+    whatsapp: String(row.whatsapp ?? ""),
   };
 }
 
@@ -31,8 +34,14 @@ export interface RegisterResult {
  * has "Confirm email" enabled, `session` is null until the user confirms.
  */
 export async function registerUser(input: CreateUserInput): Promise<RegisterResult> {
+  const email = input.email.trim().toLowerCase();
+  const domain = email.split("@")[1] ?? "";
+  const disposableDomains = new Set(["mailinator.com", "tempmail.com", "temp-mail.org", "10minutemail.com", "guerrillamail.com", "yopmail.com", "trashmail.com", "getnada.com", "dispostable.com", "fakeinbox.com"]);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || disposableDomains.has(domain)) {
+    throw new Error("Use a valid, non-temporary email address you can access.");
+  }
   const { data, error } = await supabase.auth.signUp({
-    email: input.email,
+    email,
     password: input.password,
     options: {
       data: {

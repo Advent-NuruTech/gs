@@ -7,6 +7,7 @@ const navLinks = [
   { href: "/designs", label: "Digital Products" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },
+  { href: "/become-a-creator", label: "Become a teacher" },
 ];
 
 const legalLinks = [

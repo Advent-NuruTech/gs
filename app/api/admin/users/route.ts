@@ -91,3 +91,25 @@ export async function DELETE(request: NextRequest) {
 
   return NextResponse.json({ ok: true });
 }
+
+export async function PATCH(request: NextRequest) {
+  const admin = await requireAdmin(request);
+  if (!admin) return NextResponse.json({ error: "Not authorized." }, { status: 403 });
+  const body = await request.json().catch(() => null);
+  const userId = String(body?.id ?? "");
+  const action = String(body?.action ?? "");
+  if (!userId || !["approve_creator", "reject_creator", "suspend", "restore"].includes(action)) return NextResponse.json({ error: "Invalid account action." }, { status: 400 });
+  if (userId === admin.id) return NextResponse.json({ error: "You cannot change your own account." }, { status: 400 });
+  const db = getSupabaseAdminClient();
+  let result;
+  if (action === "approve_creator") result = await db.from("profiles").update({ role: "teacher", creator_status: "approved" }).eq("id", userId);
+  else if (action === "reject_creator") result = await db.from("profiles").update({ creator_status: "rejected" }).eq("id", userId);
+  else if (action === "restore") result = await db.from("profiles").update({ suspended_until: null, suspension_reason: null }).eq("id", userId);
+  else {
+    const hours = Number(body?.hours);
+    if (!Number.isFinite(hours) || hours < 1 || hours > 24 * 365) return NextResponse.json({ error: "Suspension duration must be 1 hour to 365 days." }, { status: 400 });
+    result = await db.from("profiles").update({ suspended_until: new Date(Date.now() + hours * 3600000).toISOString(), suspension_reason: String(body?.reason ?? "Account suspended by administrator.").slice(0, 500) }).eq("id", userId);
+  }
+  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  return NextResponse.json({ ok: true });
+}

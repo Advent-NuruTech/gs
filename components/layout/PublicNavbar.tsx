@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/designs", label: "Digital Products" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },
+  { href: "/become-a-creator", label: "Teach & sell" },
 ];
 
 /** Catalogue pages own their own filter bar, so the global search is hidden there. */
