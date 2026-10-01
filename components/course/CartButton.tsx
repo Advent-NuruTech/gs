@@ -24,7 +24,7 @@ export default function CartButton({ hideWhenEmpty = false, className = "" }: Ca
       className={`inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-blue-300 dark:hover:bg-slate-800 ${className}`}
       aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
     >
-      <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+      <ShoppingCart className="h-5 w-5 shrink-0 text-blue-700 dark:text-blue-300" aria-hidden="true" />
       <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
         {itemCount}
       </span>

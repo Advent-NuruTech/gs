@@ -221,7 +221,7 @@ export default function PublicNavbar() {
             </Link>
           )}
           <div className="ml-auto flex items-center gap-2 lg:hidden">
-            <CartButton className="h-11 w-11 justify-center rounded-xl px-0 py-0" />
+            <CartButton className="h-11 w-11 justify-center border-0 !bg-transparent p-0 text-blue-700 shadow-none hover:!bg-transparent dark:text-blue-300" />
             <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu" className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"><Menu className="h-5 w-5" /></button>
           </div>
         </div>

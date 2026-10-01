@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, BookOpen, Compass, Download, Flame, Layers3, Sparkles } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import CourseCard from "@/components/course/CourseCard";
 import DesignCard from "@/components/design/DesignCard";
@@ -26,31 +26,81 @@ function TypewriterCopy() {
 
     let timer: ReturnType<typeof setTimeout>;
     let index = 0;
-    const typo = "Discover practicall";
-    const type = (value: string, delay = 38) => {
-      if (index >= value.length) {
-        if (value !== typo) return;
-        timer = setTimeout(() => {
-          setCopy(typo.slice(0, -1));
-          timer = setTimeout(() => {
-            setCopy(typo.slice(0, -1));
-            index = typo.length - 1;
-            type(HERO_COPY, 24);
-          }, 220);
-        }, 350);
-        return;
+    let deleting = false;
+    const tick = () => {
+      index += deleting ? -1 : 1;
+      setCopy(HERO_COPY.slice(0, index));
+      if (!deleting && index === HERO_COPY.length) {
+        deleting = true;
+        timer = setTimeout(tick, 1800);
+      } else if (deleting && index === 0) {
+        deleting = false;
+        timer = setTimeout(tick, 500);
+      } else {
+        timer = setTimeout(tick, deleting ? 22 : 38);
       }
-      index += 1;
-      setCopy(value.slice(0, index));
-      timer = setTimeout(() => type(value, delay), delay);
     };
-    type(typo);
+    timer = setTimeout(tick, 200);
     return () => clearTimeout(timer);
   }, []);
 
   return <p className="mt-5 min-h-[3.5rem] max-w-xl text-base leading-7 text-blue-100 sm:min-h-7 sm:text-lg" aria-label={HERO_COPY}>
     <span aria-hidden="true">{copy}</span><span className="ml-0.5 animate-pulse text-white" aria-hidden="true">|</span>
   </p>;
+}
+
+function CategoryRail({ categories, activeCategory, onSelect }: { categories: string[]; activeCategory: string; onSelect: (category: string) => void }) {
+  const railRef = useRef<HTMLDivElement>(null);
+  const pauseUntilRef = useRef(0);
+  const [loopEnabled, setLoopEnabled] = useState(false);
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail || categories.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(min-width: 640px)").matches) return;
+    setLoopEnabled(true);
+
+    let frame = 0;
+    let previous = 0;
+    const pauseForInteraction = () => { pauseUntilRef.current = performance.now() + 30_000; };
+    const animate = (now: number) => {
+      const loopWidth = rail.scrollWidth / 2;
+      if (loopWidth > rail.clientWidth) {
+        if (rail.scrollLeft > loopWidth || rail.scrollLeft === 0 && previous === 0) rail.scrollLeft = loopWidth;
+        const elapsed = previous ? Math.min(now - previous, 48) : 0;
+        if (now >= pauseUntilRef.current) {
+          rail.scrollLeft -= elapsed * 0.025;
+          if (rail.scrollLeft <= 0) rail.scrollLeft = loopWidth;
+        }
+      }
+      previous = now;
+      frame = requestAnimationFrame(animate);
+    };
+
+    rail.addEventListener("pointerdown", pauseForInteraction);
+    rail.addEventListener("touchstart", pauseForInteraction, { passive: true });
+    rail.addEventListener("wheel", pauseForInteraction, { passive: true });
+    rail.addEventListener("focusin", pauseForInteraction);
+    frame = requestAnimationFrame(animate);
+    return () => {
+      cancelAnimationFrame(frame);
+      rail.removeEventListener("pointerdown", pauseForInteraction);
+      rail.removeEventListener("touchstart", pauseForInteraction);
+      rail.removeEventListener("wheel", pauseForInteraction);
+      rail.removeEventListener("focusin", pauseForInteraction);
+    };
+  }, [categories]);
+
+  const renderCategory = (category: string, index: number, duplicate = false) => (
+    <button key={`${duplicate ? "copy-" : ""}${category}`} type="button" tabIndex={duplicate ? -1 : undefined} aria-hidden={duplicate || undefined} onClick={() => !duplicate && onSelect(category)} className={`flex shrink-0 items-center gap-3 rounded-2xl border px-4 py-3 text-left transition sm:min-w-40 ${duplicate ? "sm:hidden" : ""} ${activeCategory === category ? "border-blue-700 bg-blue-700 text-white shadow-lg shadow-blue-900/15" : "border-slate-200 bg-white text-slate-800 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"}`}>
+      <span className={`grid h-10 w-10 place-items-center rounded-xl ${activeCategory === category ? "bg-white/15" : "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"}`}>{index === 0 ? <Compass className="h-5 w-5" /> : <Layers3 className="h-5 w-5" />}</span>
+      <span className="max-w-32 truncate text-sm font-bold">{category}</span>
+    </button>
+  );
+
+  return <div ref={railRef} className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+    {categories.map((category, index) => renderCategory(category, index))}
+    {categories.map((category, index) => loopEnabled ? renderCategory(category, index, true) : <span key={`copy-${category}`} className="hidden" aria-hidden="true" />)}
+  </div>;
 }
 
 function SectionHeading({ eyebrow, title, href, label = "Explore all" }: { eyebrow: string; title: string; href: string; label?: string }) {
@@ -98,9 +148,7 @@ export default function HomePage() {
 
     <section aria-label="Browse categories">
       <SectionHeading eyebrow="Find your next thing" title="Explore categories" href="/courses" label="Browse all" />
-      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:px-0">
-        {categories.map((category, index) => <button key={category} type="button" onClick={() => setActiveCategory(category)} className={`flex shrink-0 items-center gap-3 rounded-2xl border px-4 py-3 text-left transition sm:min-w-40 ${activeCategory === category ? "border-blue-700 bg-blue-700 text-white shadow-lg shadow-blue-900/15" : "border-slate-200 bg-white text-slate-800 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"}`}><span className={`grid h-10 w-10 place-items-center rounded-xl ${activeCategory === category ? "bg-white/15" : "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"}`}>{index === 0 ? <Compass className="h-5 w-5" /> : <Layers3 className="h-5 w-5" />}</span><span className="max-w-32 truncate text-sm font-bold">{category}</span></button>)}
-      </div>
+      <CategoryRail categories={categories} activeCategory={activeCategory} onSelect={setActiveCategory} />
     </section>
 
     <section>

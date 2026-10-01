@@ -54,6 +54,11 @@ npm run lint
 - Every visible text label, heading, icon, border, input, selected state, and fixed navigation surface must retain readable contrast in both themes. Avoid hardcoded light-theme foregrounds/backgrounds on dark surfaces; add paired `dark:` styles or use the theme variables. Include `text-slate-950` in dark public-shell overrides when appropriate.
 - When touching theme styling, check the full affected screen and shared navigation, including mobile bottom navigation and dashboard sidebars/menus. Verify category/section headings, cards, footer attribution, cart, creator agreement, form controls, and overlays where present; do not fix only the first clipped or low-contrast word.
 
+## Homepage motion
+
+- The homepage category rail auto-loops on narrow screens, pauses for 30 seconds after touch, pointer, wheel, or keyboard focus interaction, and remains still when reduced motion is requested. Keep duplicate rail items hidden from assistive technology and keyboard navigation.
+- Homepage hero copy and footer “Powered by Advent NuruTech Services” text type in a repeating cycle. Show the full text without animation for users who request reduced motion.
+
 ## Project memory maintenance
 
 - Whenever a material change is made to product behavior, payments, authentication, data schema, third-party configuration, deployment, or operational setup, update this `AGENTS.md` in the same change with the current state, required configuration, and any rollout or safety notes.

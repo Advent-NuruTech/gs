@@ -1,5 +1,42 @@
+"use client";
+
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const CREDIT = "Powered by Advent NuruTech Services";
+
+function TypingCredit() {
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setText(CREDIT);
+      return;
+    }
+
+    let index = 0;
+    let deleting = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      index += deleting ? -1 : 1;
+      setText(CREDIT.slice(0, index));
+      if (!deleting && index === CREDIT.length) {
+        deleting = true;
+        timer = setTimeout(tick, 1800);
+      } else if (deleting && index === 0) {
+        deleting = false;
+        timer = setTimeout(tick, 600);
+      } else {
+        timer = setTimeout(tick, deleting ? 35 : 70);
+      }
+    };
+    timer = setTimeout(tick, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return <span aria-label={CREDIT}><span aria-hidden="true">{text}</span><span className="animate-pulse" aria-hidden="true">|</span></span>;
+}
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -89,7 +126,7 @@ export default function Footer() {
               className="inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-center text-xs font-semibold text-sky-700 transition-colors hover:border-sky-300 hover:bg-sky-100 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:border-emerald-800 dark:hover:bg-emerald-950"
             >
               <MessageCircle className="h-4 w-4" />
-              Designed by Advent NuruTech Services
+              <TypingCredit />
             </a>
             {legalLinks.map((link) => (
               <Link
