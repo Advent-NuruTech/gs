@@ -81,3 +81,129 @@ a {
 .prose-content ol {
   margin-left: 1.25rem;
 }
+
+/* -----------------------------------------------------------------------------
+   Handbook print / "Save as PDF" output.
+
+   The handbook at /dashboard/admin/documentation prints the document body only.
+   It must print as ink-on-paper regardless of the saved theme, so the theme is
+   flattened and the dashboard chrome is stripped here rather than in JS.
+   Keep the document free of <header>, <nav>, and <aside> elements: those
+   selectors are what separate the handbook from the dashboard shell.
+   -------------------------------------------------------------------------- */
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  body:has(.handbook-doc) header,
+  body:has(.handbook-doc) aside,
+  body:has(.handbook-doc) nav,
+  body:has(.handbook-doc) .no-print {
+    display: none !important;
+  }
+
+  body:has(.handbook-doc) main {
+    padding: 0 !important;
+  }
+
+  html.dark {
+    --background: #ffffff;
+    --surface: #ffffff;
+    --foreground: #0f172a;
+    --muted: #475569;
+    --border: #cbd5e1;
+    color-scheme: light;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .handbook-doc,
+  .handbook-doc * {
+    color: #0f172a !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .handbook-doc {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .handbook-doc a {
+    color: #1d4ed8 !important;
+  }
+
+  .handbook-doc table {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .handbook-table-scroll {
+    overflow: visible !important;
+  }
+
+  .handbook-doc thead th,
+  .handbook-doc tbody td,
+  .handbook-doc tbody tr,
+  .handbook-doc dl > div,
+  .handbook-doc hr {
+    border-color: #cbd5e1 !important;
+  }
+
+  .handbook-callout {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .handbook-doc .handbook-callout-info {
+    background: #eff6ff !important;
+    border-left-color: #1d4ed8 !important;
+  }
+
+  .handbook-doc .handbook-callout-info * {
+    color: #1e3a8a !important;
+  }
+
+  .handbook-doc .handbook-callout-success {
+    background: #ecfdf5 !important;
+    border-left-color: #047857 !important;
+  }
+
+  .handbook-doc .handbook-callout-success * {
+    color: #065f46 !important;
+  }
+
+  .handbook-doc .handbook-callout-warning {
+    background: #fffbeb !important;
+    border-left-color: #b45309 !important;
+  }
+
+  .handbook-doc .handbook-callout-warning * {
+    color: #92400e !important;
+  }
+
+  .handbook-cover {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .handbook-chapter,
+  .handbook-doc table,
+  .handbook-doc .handbook-callout,
+  .handbook-doc li,
+  .handbook-doc tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .handbook-doc h1,
+  .handbook-doc h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+}

@@ -31,6 +31,7 @@ const ADMIN_SEARCH_LINKS: Array<{ label: string; href: string; keywords: string[
   { label: "Payments", href: "/dashboard/admin/payments", keywords: ["payments", "payment", "approve", "checkout"] },
   { label: "Analytics", href: "/dashboard/admin/analytics", keywords: ["analytics", "stats", "progress"] },
   { label: "Chat with AI", href: "/dashboard/admin/chat", keywords: ["ai", "chat", "questions", "notes"] },
+  { label: "Documentation Handbook", href: "/dashboard/admin/documentation", keywords: ["documentation", "handbook", "manual", "pdf", "guide", "ai training", "what is adventskool", "payout terms"] },
 ];
 
 export default function Header({ onMenuClick }: HeaderProps) {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  BookMarked,
   BookOpen,
   CircleUser,
   ClipboardCheck,
@@ -93,6 +94,7 @@ const linkMap: Record<UserRole, NavLink[]> = {
     { href: "/dashboard/admin/email-campaigns", label: "Email Campaigns", icon: Mail },
     { href: "/dashboard/admin/reports", label: "Reports", icon: FileText },
     { href: "/dashboard/admin/auth-settings", label: "Auth Settings", icon: KeyRound },
+    { href: "/dashboard/admin/documentation", label: "Documentation", icon: BookMarked },
     //{ href: "/dashboard/admin/chat", label: "Chat with AI" },
     { href: "/dashboard/account", label: "Account", icon: CircleUser },
     ...publicLinks,
