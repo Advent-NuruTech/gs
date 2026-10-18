@@ -42,6 +42,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/courses", label: "Courses" },
   { href: "/designs", label: "Digital Products" },
+  { href: "/wealth", label: "Wealth Academy" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },
   { href: "/become-a-creator", label: "Become a teacher" },

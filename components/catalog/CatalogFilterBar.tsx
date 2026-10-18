@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 
-type Accent = "blue" | "indigo";
+type Accent = "blue" | "indigo" | "emerald";
 
 const ACCENTS: Record<Accent, { focus: string; selected: string; hover: string }> = {
   blue: {
@@ -15,6 +15,11 @@ const ACCENTS: Record<Accent, { focus: string; selected: string; hover: string }
     focus: "focus-within:border-indigo-500 focus-within:ring-indigo-100",
     selected: "bg-indigo-600 text-white hover:bg-indigo-700",
     hover: "hover:bg-indigo-50 hover:text-indigo-700",
+  },
+  emerald: {
+    focus: "focus-within:border-emerald-500 focus-within:ring-emerald-100",
+    selected: "bg-emerald-600 text-white hover:bg-emerald-700",
+    hover: "hover:bg-emerald-50 hover:text-emerald-700",
   },
 };
 

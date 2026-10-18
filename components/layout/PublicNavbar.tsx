@@ -17,6 +17,7 @@ import {
   Package,
   Search,
   Sun,
+  TrendingUp,
   Wrench,
   X,
   type LucideIcon,
@@ -25,20 +26,23 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useCourse } from "@/hooks/useCourse";
 import { listDesigns } from "@/services/designService";
+import { listWealthProducts } from "@/services/wealthService";
 import { Design } from "@/types/design";
+import { WealthProduct } from "@/types/wealth";
 import CartButton from "@/components/course/CartButton";
 
 const navLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
   { href: "/", label: "Home", icon: House },
   { href: "/courses", label: "Courses", icon: BookOpen },
   { href: "/designs", label: "Digital Products", icon: Package },
+  { href: "/wealth", label: "Wealth Academy", icon: TrendingUp },
   { href: "/tools", label: "Tools", icon: Wrench },
   { href: "/about", label: "About", icon: Info },
   { href: "/become-a-creator", label: "Teach & sell", icon: GraduationCap },
 ];
 
 /** Catalogue pages own their own filter bar, so the global search is hidden there. */
-const CATALOGUE_ROUTES = ["/courses", "/designs"];
+const CATALOGUE_ROUTES = ["/courses", "/designs", "/wealth"];
 
 function isNavActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -52,6 +56,7 @@ export default function PublicNavbar() {
   const showSearch = !CATALOGUE_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
   const { courses } = useCourse(undefined, { published: true, pageSize: 100 });
   const [designs, setDesigns] = useState<Design[]>([]);
+  const [wealthProducts, setWealthProducts] = useState<WealthProduct[]>([]);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -70,6 +75,9 @@ export default function PublicNavbar() {
     void listDesigns({ published: true, pageSize: 100 })
       .then((items) => active && setDesigns(items))
       .catch(() => active && setDesigns([]));
+    void listWealthProducts({ published: true, pageSize: 100 })
+      .then((items) => active && setWealthProducts(items))
+      .catch(() => active && setWealthProducts([]));
     return () => {
       active = false;
     };
@@ -94,7 +102,7 @@ export default function PublicNavbar() {
 
   const results = useMemo(() => {
     const value = query.trim().toLowerCase();
-    if (!value) return { courses: [], designs: [] };
+    if (!value) return { courses: [], designs: [], wealth: [] };
     return {
       courses: courses
         .filter((course) =>
@@ -108,8 +116,15 @@ export default function PublicNavbar() {
           ),
         )
         .slice(0, 4),
+      wealth: wealthProducts
+        .filter((product) =>
+          [product.title, product.description, product.category].some((field) =>
+            field?.toLowerCase().includes(value),
+          ),
+        )
+        .slice(0, 4),
     };
-  }, [courses, designs, query]);
+  }, [courses, designs, wealthProducts, query]);
 
   const toggleTheme = () => {
     const next = !dark;
@@ -139,14 +154,14 @@ export default function PublicNavbar() {
             setQuery(event.target.value);
             setSearchOpen(true);
           }}
-          placeholder="Search courses and products"
-          aria-label="Search courses and digital products"
+          placeholder="Search courses, products and wealth"
+          aria-label="Search courses, digital products and wealth resources"
           className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100"
         />
       </label>
       {searchOpen && query.trim() ? (
         <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-900">
-          {results.courses.length || results.designs.length ? (
+          {results.courses.length || results.designs.length || results.wealth.length ? (
             <>
               {results.courses.map((course) => (
                 <Link key={course.id} href={`/courses/${course.id}`} onClick={closeSearch} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-blue-50 dark:hover:bg-slate-800">
@@ -160,9 +175,15 @@ export default function PublicNavbar() {
                   <span className="min-w-0"><span className="block truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{design.title}</span><span className="block text-xs text-slate-500">Digital product · {design.category || "General"}</span></span>
                 </Link>
               ))}
+              {results.wealth.map((product) => (
+                <Link key={product.id} href={`/wealth/${product.id}`} onClick={closeSearch} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-emerald-50 dark:hover:bg-slate-800">
+                  <TrendingUp className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span className="min-w-0"><span className="block truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{product.title}</span><span className="block text-xs text-slate-500">Wealth · {product.category || "General"}</span></span>
+                </Link>
+              ))}
             </>
           ) : (
-            <p className="px-3 py-5 text-center text-sm text-slate-500">No courses or products match “{query}”.</p>
+            <p className="px-3 py-5 text-center text-sm text-slate-500">No courses, products or wealth resources match “{query}”.</p>
           )}
         </div>
       ) : null}

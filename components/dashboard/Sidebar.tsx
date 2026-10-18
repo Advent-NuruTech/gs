@@ -22,6 +22,7 @@ import {
   Package,
   PlusCircle,
   ShoppingBag,
+  TrendingUp,
   Video,
   Wallet,
   Wrench,
@@ -47,6 +48,7 @@ const publicLinks: NavLink[] = [
   { href: "/", label: "Public Home", icon: House },
   { href: "/courses", label: "Browse Courses", icon: BookOpen },
   { href: "/designs", label: "Browse Digital Products", icon: Package },
+  { href: "/wealth", label: "Browse Wealth Academy", icon: TrendingUp },
 ];
 
 const linkMap: Record<UserRole, NavLink[]> = {
@@ -54,6 +56,7 @@ const linkMap: Record<UserRole, NavLink[]> = {
     { href: "/dashboard/student", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/student/my-courses", label: "My Courses", icon: GraduationCap },
     { href: "/dashboard/products", label: "My Digital Products", icon: Library },
+    { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
     { href: "/dashboard/student/live-classes", label: "Live Classes", icon: Video },
     { href: "/dashboard/student/messages", label: "Messages", icon: MessageSquare },
     { href: "/dashboard/student/announcements", label: "Announcements", icon: Megaphone },
@@ -69,6 +72,7 @@ const linkMap: Record<UserRole, NavLink[]> = {
     { href: "/dashboard/teacher/payouts", label: "Payout Details", icon: Wallet },
     { href: "/dashboard/teacher/courses/create", label: "Create Course", icon: PlusCircle },
     { href: "/dashboard/products", label: "My Digital Products", icon: Library },
+    { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
     { href: "/dashboard/teacher/live-classes", label: "Live Classes", icon: Video },
     { href: "/dashboard/teacher/messages", label: "Messages", icon: MessageSquare },
     { href: "/dashboard/teacher/announcements", label: "Announcements", icon: Megaphone },
@@ -85,7 +89,10 @@ const linkMap: Record<UserRole, NavLink[]> = {
     { href: "/dashboard/admin/courses/create", label: "Create Course", icon: PlusCircle },
     { href: "/dashboard/admin/designs", label: "Digital Products", icon: Package },
     { href: "/dashboard/admin/designs/orders", label: "Product Orders", icon: ShoppingBag },
+    { href: "/dashboard/admin/wealth", label: "Wealth Academy", icon: TrendingUp },
+    { href: "/dashboard/admin/wealth/orders", label: "Wealth Orders", icon: ShoppingBag },
     { href: "/dashboard/products", label: "My Digital Products", icon: Library },
+    { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
     { href: "/dashboard/admin/live-classes", label: "Live Classes", icon: Video },
     { href: "/dashboard/admin/payments", label: "Payments", icon: CreditCard },
     { href: "/dashboard/admin/creator-payouts", label: "Creator Payouts", icon: Wallet },
