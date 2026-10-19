@@ -43,6 +43,15 @@ body {
   color: var(--foreground);
 }
 
+/* Creator storefronts provide their own shop header and catalogue navigation. */
+.public-shell:has(.creator-storefront) > .public-global-header {
+  display: none;
+}
+
+.public-shell:has(.creator-storefront) > .public-content {
+  padding-bottom: 0;
+}
+
 .dark .public-shell .text-slate-900,
 .dark .public-shell .text-slate-950,
 .dark .public-shell .text-slate-800 {
