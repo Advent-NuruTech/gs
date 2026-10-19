@@ -27,6 +27,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCourse } from "@/hooks/useCourse";
 import { listDesigns } from "@/services/designService";
 import { listWealthProducts } from "@/services/wealthService";
+import { getWealthPublicNavigationEnabled } from "@/services/wealthSettingsService";
 import { Design } from "@/types/design";
 import { WealthProduct } from "@/types/wealth";
 import CartButton from "@/components/course/CartButton";
@@ -57,6 +58,7 @@ export default function PublicNavbar() {
   const { courses } = useCourse(undefined, { published: true, pageSize: 100 });
   const [designs, setDesigns] = useState<Design[]>([]);
   const [wealthProducts, setWealthProducts] = useState<WealthProduct[]>([]);
+  const [wealthPublicNavigation, setWealthPublicNavigation] = useState(false);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -70,18 +72,35 @@ export default function PublicNavbar() {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    void getWealthPublicNavigationEnabled()
+      .then((enabled) => active && setWealthPublicNavigation(enabled))
+      .catch((error) => console.error("Could not load public Wealth Academy navigation setting.", error));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!showSearch) return;
     let active = true;
     void listDesigns({ published: true, pageSize: 100 })
       .then((items) => active && setDesigns(items))
       .catch(() => active && setDesigns([]));
-    void listWealthProducts({ published: true, pageSize: 100 })
-      .then((items) => active && setWealthProducts(items))
-      .catch(() => active && setWealthProducts([]));
+    if (wealthPublicNavigation) {
+      void listWealthProducts({ published: true, pageSize: 100 })
+        .then((items) => active && setWealthProducts(items))
+        .catch((error) => {
+          console.error("Could not load Wealth Academy search results.", error);
+          if (active) setWealthProducts([]);
+        });
+    } else {
+      setWealthProducts([]);
+    }
     return () => {
       active = false;
     };
-  }, [showSearch]);
+  }, [showSearch, wealthPublicNavigation]);
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -196,7 +215,7 @@ export default function PublicNavbar() {
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4">
           <Link href="/" className="shrink-0 text-lg font-black tracking-tight text-slate-950 dark:text-white">Advent<span className="text-blue-600">Skool</span></Link>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-            {navLinks.map((link) => {
+            {navLinks.filter((link) => link.href !== "/wealth" || wealthPublicNavigation).map((link) => {
               const active = isNavActive(pathname, link.href);
               return (
                 <Link
@@ -260,7 +279,7 @@ export default function PublicNavbar() {
           <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu" className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-900"><X className="h-5 w-5" /></button>
         </div>
         <nav className="mt-5 flex flex-col gap-1" aria-label="Mobile navigation">
-          {navLinks.map((link) => {
+          {navLinks.filter((link) => link.href !== "/wealth" || wealthPublicNavigation).map((link) => {
             const active = isNavActive(pathname, link.href);
             return (
               <Link

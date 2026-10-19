@@ -16,6 +16,7 @@ import { recordDesignView } from "@/services/designService";
 import { Design } from "@/types/design";
 import { ProductAccessMode } from "@/types/designOrder";
 import ShareButton from "@/components/share/ShareButton";
+import { useCreatorSharePath } from "@/hooks/useCreatorSharePath";
 
 function triggerDownload(url: string) {
   const link = document.createElement("a");
@@ -40,6 +41,7 @@ export default function DesignDetailClient({
   const [showCustomize, setShowCustomize] = useState(false);
   const [revealed, setRevealed] = useState<"purchase" | "customize" | null>(null);
   const [accessMode, setAccessMode] = useState<ProductAccessMode>(resumeReadPurchase ? "read_online" : "download");
+  const sharePath = useCreatorSharePath(design.createdBy, "design", design.id, `/designs/${design.id}`);
 
   const productFree = Number(design.downloadPrice || 0) <= 0;
   const customizeFree = Number(design.customizationPrice || 0) <= 0;
@@ -88,7 +90,7 @@ export default function DesignDetailClient({
               <ShareButton
                 title={design.title}
                 entityLabel="Product"
-                path={`/designs/${design.id}`}
+                path={sharePath}
               />
             </div>
           </div>

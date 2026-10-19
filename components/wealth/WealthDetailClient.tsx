@@ -16,6 +16,7 @@ import { recordWealthView } from "@/services/wealthService";
 import { WealthProduct } from "@/types/wealth";
 import { WealthAccessMode } from "@/types/wealthOrder";
 import ShareButton from "@/components/share/ShareButton";
+import { useCreatorSharePath } from "@/hooks/useCreatorSharePath";
 
 function triggerDownload(url: string) {
   const link = document.createElement("a");
@@ -40,6 +41,7 @@ export default function WealthDetailClient({
   const [showCustomize, setShowCustomize] = useState(false);
   const [revealed, setRevealed] = useState<"purchase" | "customize" | null>(null);
   const [accessMode, setAccessMode] = useState<WealthAccessMode>(resumeReadPurchase ? "read_online" : "download");
+  const sharePath = useCreatorSharePath(product.createdBy, "wealth", product.id, `/wealth/${product.id}`);
 
   const productFree = Number(product.downloadPrice || 0) <= 0;
   const customizeFree = Number(product.customizationPrice || 0) <= 0;
@@ -88,7 +90,7 @@ export default function WealthDetailClient({
               <ShareButton
                 title={product.title}
                 entityLabel="Resource"
-                path={`/wealth/${product.id}`}
+                path={sharePath}
               />
             </div>
           </div>

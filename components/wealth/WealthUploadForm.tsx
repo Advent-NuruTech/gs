@@ -126,8 +126,11 @@ export default function WealthUploadForm({ product }: Props) {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!profile || profile.role !== "admin") {
-      pushToast("Only admins can manage wealth resources.", "error");
+    const canManageWealth =
+      profile?.role === "admin" ||
+      (profile?.role === "teacher" && profile.creatorStatus === "approved" && profile.wealthEnabled);
+    if (!profile || !canManageWealth) {
+      pushToast("Wealth product access has not been granted to this account.", "error");
       return;
     }
     if (!title.trim() || !imageUrl) {
@@ -158,7 +161,7 @@ export default function WealthUploadForm({ product }: Props) {
         await createWealthProduct({ ...payload, createdBy: profile.id });
         pushToast("Wealth resource published.", "success");
       }
-      router.push("/dashboard/admin/wealth");
+      router.push(profile.role === "admin" ? "/dashboard/admin/wealth" : "/dashboard/teacher/wealth");
     } catch (error) {
       pushToast(error instanceof Error ? error.message : "Could not save wealth resource.", "error");
     } finally {

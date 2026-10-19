@@ -19,6 +19,9 @@ export function mapProfile(row: Record<string, unknown>): AppUser {
     creatorStatus: (row.creator_status as AppUser["creatorStatus"]) ?? "none",
     suspendedUntil: row.suspended_until ? String(row.suspended_until) : null,
     whatsapp: String(row.whatsapp ?? ""),
+    wealthEnabled: Boolean(row.wealth_enabled),
+    handle: row.handle ? String(row.handle) : undefined,
+    bio: row.bio ? String(row.bio) : undefined,
   };
 }
 

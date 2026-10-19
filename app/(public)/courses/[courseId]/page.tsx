@@ -14,6 +14,7 @@ import { getEnrollmentByUserAndCourse } from "@/services/enrollmentService";
 import { listCourseLessons } from "@/services/lessonService";
 import { useCourse } from "@/hooks/useCourse";
 import { Lesson } from "@/types/lesson";
+import { useCreatorSharePath } from "@/hooks/useCreatorSharePath";
 
 export default function CoursePreviewPage() {
   const params = useParams<{ courseId: string }>();
@@ -21,6 +22,7 @@ export default function CoursePreviewPage() {
   const { profile } = useAuth();
   const { course, loading } = useCourse(params.courseId);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const sharePath = useCreatorSharePath(course?.instructorId, "course", params.courseId, `/courses/${params.courseId}`);
 
   useEffect(() => {
     async function loadLessons() {
@@ -108,7 +110,7 @@ export default function CoursePreviewPage() {
             <ShareButton
               title={course.title}
               entityLabel="Course"
-              path={`/courses/${course.id}`}
+              path={sharePath}
             />
           </div>
         </div>

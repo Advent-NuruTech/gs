@@ -13,6 +13,9 @@ export interface AppUser {
   creatorStatus?: "none" | "pending" | "approved" | "rejected";
   suspendedUntil?: string | null;
   whatsapp?: string;
+  wealthEnabled?: boolean;
+  handle?: string;
+  bio?: string;
 }
 
 export interface CreateUserInput {

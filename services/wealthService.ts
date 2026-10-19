@@ -128,12 +128,27 @@ export async function updateWealthProduct(
   if (typeof updates.customizationPrice === "number") payload.customization_price = updates.customizationPrice;
   if (typeof updates.published === "boolean") payload.published = updates.published;
 
-  const { error } = await supabase.from("wealth_products").update(payload).eq("id", productId);
+  const { data, error } = await supabase
+    .from("wealth_products")
+    .update(payload)
+    .eq("id", productId)
+    .select("id")
+    .maybeSingle();
   if (error) throw new Error(error.message);
+  if (!data) throw new Error("You do not have permission to update this wealth resource.");
 }
 
 export async function deleteWealthProduct(productId: string): Promise<void> {
   const product = await getWealthProductById(productId);
+  const { data, error } = await supabase
+    .from("wealth_products")
+    .delete()
+    .eq("id", productId)
+    .select("id")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("You do not have permission to delete this wealth resource.");
+
   if (product?.imageUrl) {
     await deleteCloudinaryImageByUrl(product.imageUrl).catch(() => {});
   }
@@ -141,8 +156,6 @@ export async function deleteWealthProduct(productId: string): Promise<void> {
   if (product?.fileUrl && product.fileUrl !== product.imageUrl) {
     await deleteCloudinaryImageByUrl(product.fileUrl).catch(() => {});
   }
-  const { error } = await supabase.from("wealth_products").delete().eq("id", productId);
-  if (error) throw new Error(error.message);
 }
 
 /** Best-effort atomic view increment (does not block rendering). */

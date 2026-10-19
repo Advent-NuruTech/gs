@@ -44,11 +44,11 @@ export default function AdminUsersPage() {
   const [category, setCategory] = useState<"all" | AppUser["role"]>("all");
   const [search, setSearch] = useState("");
 
-  const creatorAction = async (id: string, action: string, hours?: number) => {
+  const creatorAction = async (id: string, action: string, hours?: number, wealthEnabled?: boolean) => {
     setCreatorActionId(id);
     try {
       const { data } = await (await import("@/lib/supabase/client")).getSupabaseBrowserClient().auth.getSession();
-      const response = await fetch("/api/admin/users", { method: "PATCH", headers: { "Content-Type": "application/json", ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}) }, body: JSON.stringify({ id, action, hours }) });
+      const response = await fetch("/api/admin/users", { method: "PATCH", headers: { "Content-Type": "application/json", ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}) }, body: JSON.stringify({ id, action, hours, wealthEnabled }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Account update failed.");
       pushToast("Account updated.", "success");
@@ -268,6 +268,19 @@ export default function AdminUsersPage() {
                 <Button type="button" variant="secondary" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "reject_creator")}>Reject application</Button>
               </> : null}
               {user.role === "teacher" ? <>
+                {user.creatorStatus === "approved" ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={creatorActionId === user.id}
+                    loading={creatorActionId === user.id}
+                    onClick={() => void creatorAction(user.id, "set_wealth_access", undefined, !user.wealthEnabled)}
+                  >
+                    {user.wealthEnabled ? "Disable Wealth products" : "Enable Wealth products"}
+                  </Button>
+                ) : (
+                  <span className="self-center text-sm text-slate-500">Approve creator before granting Wealth access.</span>
+                )}
                 {user.suspendedUntil && new Date(user.suspendedUntil) > new Date() ? <Button type="button" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "restore")}>Restore access</Button> : <Button type="button" variant="secondary" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "suspend", 24)}>Suspend 24 hours</Button>}
                 <Button type="button" variant="secondary" disabled={creatorActionId === user.id} onClick={() => creatorAction(user.id, "suspend", 24 * 30)}>Suspend 30 days</Button>
                 <Button type="button" variant="secondary" disabled={creatorActionId === user.id} onClick={() => { const days = Number(window.prompt("Suspend for how many days? (1–365)", "7")); if (Number.isInteger(days) && days >= 1 && days <= 365) void creatorAction(user.id, "suspend", days * 24); }}>Custom suspension…</Button>

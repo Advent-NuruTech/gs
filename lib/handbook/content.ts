@@ -384,7 +384,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
         kind: "callout",
         tone: "info",
         title: "Pending means pending on money, not on content",
-        text: "A pending creator can create and publish courses and digital products straight away. What is gated is payout: until an administrator approves the application, every sale settles to the platform and is recorded on the earnings ledger as owed to the creator.",
+        text: "A pending creator can create and publish courses and Digital Products. Wealth Academy authoring is separately disabled by default and is available only after an administrator approves the creator and explicitly grants Wealth access. Payout routing remains gated until approval; sales before approval settle to the platform and are recorded as owed to the creator.",
       },
       {
         kind: "paragraph",
@@ -403,10 +403,14 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
         kind: "bullets",
         title: "Create and sell",
         items: [
+          "Maintain a public creator storefront at adventskool.co.ke/@handle. The creator name is required; profile picture, bio, and social links are optional and stay hidden when empty.",
+          "Share an individual storefront product link that opens the creator page at that exact course, Digital Product, or Wealth resource.",
           "Write a course outline, add lessons with rich content, images, video links, and quizzes, and set prices.",
           "Publish or unpublish the course at any time. Publishing makes it visible in the public catalogue and triggers an announcement email to interested subscribers.",
           "Upload digital products as images or PDFs, set a download price or make them free, and optionally offer a customization service.",
+          "Create Wealth Academy resources only when an administrator has explicitly enabled Wealth access for the approved creator account.",
           "Handle customization orders and mark them as work in progress, completed, or delivered.",
+          "Request a custom domain that the creator already owns. AdventSkool processes the setup manually and sends an in-app notification after the domain is verified and marked ready.",
         ],
       },
       {
@@ -832,7 +836,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           {
             term: "Does a creator need to be approved before they can teach?",
             description:
-              "No. A pending creator can publish courses and products immediately. Approval is what enables routed payouts. Sales before approval settle to the platform and stay recorded as owed.",
+              "A pending creator can publish courses and Digital Products. Wealth Academy authoring requires an administrator to approve the creator and separately enable Wealth access. Approval is what enables routed payouts. Sales before approval settle to the platform and stay recorded as owed.",
           },
           {
             term: "Can a creator set their own commission or take payment outside the platform?",

@@ -10,6 +10,11 @@ import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { deleteWealthProduct, listWealthProducts, updateWealthProduct } from "@/services/wealthService";
 import { WealthProduct } from "@/types/wealth";
+import {
+  getWealthPublicNavigationEnabled,
+  setWealthPublicNavigationEnabled,
+} from "@/services/wealthSettingsService";
+import StatusCard from "@/components/ui/StatusCard";
 
 export default function AdminWealthPage() {
   const { isAllowed, loading: guardLoading } = useRoleGuard(["admin"]);
@@ -17,6 +22,8 @@ export default function AdminWealthPage() {
   const [products, setProducts] = useState<WealthProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [publicNavigation, setPublicNavigation] = useState(false);
+  const [savingNavigation, setSavingNavigation] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -30,6 +37,13 @@ export default function AdminWealthPage() {
   useEffect(() => {
     if (isAllowed) void load();
   }, [isAllowed, load]);
+
+  useEffect(() => {
+    if (!isAllowed) return;
+    void getWealthPublicNavigationEnabled()
+      .then(setPublicNavigation)
+      .catch((error) => pushToast(error instanceof Error ? error.message : "Could not load Wealth settings.", "error"));
+  }, [isAllowed, pushToast]);
 
   if (guardLoading || !isAllowed) return <p>Loading…</p>;
 
@@ -49,6 +63,34 @@ export default function AdminWealthPage() {
           </Link>
         </div>
       </div>
+
+      <article className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="font-semibold text-slate-900">Public Wealth Academy navigation</h3>
+          <p className="text-sm text-slate-600">Choose whether Wealth Academy appears in public navigation and discovery search. Directly shared links remain accessible.</p>
+        </div>
+        <Button
+          type="button"
+          variant={publicNavigation ? "secondary" : "primary"}
+          loading={savingNavigation}
+          disabled={savingNavigation}
+          onClick={async () => {
+            setSavingNavigation(true);
+            try {
+              const next = !publicNavigation;
+              await setWealthPublicNavigationEnabled(next);
+              setPublicNavigation(next);
+              pushToast(next ? "Wealth Academy is visible in public navigation." : "Wealth Academy is hidden from public navigation.", "success");
+            } catch (error) {
+              pushToast(error instanceof Error ? error.message : "Could not update Wealth settings.", "error");
+            } finally {
+              setSavingNavigation(false);
+            }
+          }}
+        >
+          {publicNavigation ? "Hide from public navigation" : "Show in public navigation"}
+        </Button>
+      </article>
 
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <div className="rounded-lg border border-slate-200 bg-white p-3 text-center">

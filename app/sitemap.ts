@@ -115,5 +115,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })) ?? [];
 
-  return [...staticRoutes, ...courseRoutes, ...designRoutes, ...wealthRoutes];
+  let creatorRoutes: MetadataRoute.Sitemap = [];
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const { createClient } = await import("@supabase/supabase-js");
+    const admin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+    const { data: creators } = await admin
+      .from("profiles")
+      .select("handle, updated_at")
+      .eq("role", "teacher")
+      .in("creator_status", ["pending", "approved"])
+      .not("handle", "is", null);
+    creatorRoutes = (creators ?? []).map((creator) => ({
+      url: `${siteUrl}/@${creator.handle}`,
+      lastModified: creator.updated_at ? new Date(creator.updated_at) : new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  }
+
+  return [...staticRoutes, ...courseRoutes, ...designRoutes, ...wealthRoutes, ...creatorRoutes];
 }

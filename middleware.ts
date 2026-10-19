@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 import { updateSession } from "@/lib/supabase/middleware";
 
@@ -13,6 +14,52 @@ export async function middleware(request: NextRequest) {
 
   // Always refresh the Supabase session so tokens stay valid.
   const { response, user } = await updateSession(request);
+
+  // Custom domains are attached and verified manually by AdventSkool. Only a
+  // request explicitly marked ready may route its root to a creator storefront.
+  // All tenant domains still share this one application and deployment.
+  const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
+  const hostname = forwardedHost.split(":")[0].toLowerCase().replace(/^www\./, "");
+  let officialHostname = "adventskool.co.ke";
+  try {
+    officialHostname = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke").hostname.replace(/^www\./, "");
+  } catch {}
+  const isPotentialCustomDomain = Boolean(
+    hostname &&
+    hostname !== officialHostname &&
+    hostname !== "localhost" &&
+    !hostname.endsWith(".localhost") &&
+    !hostname.endsWith(".vercel.app")
+  );
+
+  if (pathname === "/" && isPotentialCustomDomain && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const admin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+    const { data: domain } = await admin
+      .from("creator_domain_requests")
+      .select("creator_id")
+      .eq("requested_domain", hostname)
+      .eq("status", "ready")
+      .maybeSingle();
+    if (domain?.creator_id) {
+      const { data: creator } = await admin
+        .from("profiles")
+        .select("handle,role,creator_status,suspended_until")
+        .eq("id", domain.creator_id)
+        .maybeSingle();
+      const suspended = creator?.suspended_until && new Date(String(creator.suspended_until)).getTime() > Date.now();
+      if (creator?.handle && creator.role === "teacher" && ["pending", "approved"].includes(String(creator.creator_status)) && !suspended) {
+        const rewriteUrl = request.nextUrl.clone();
+        rewriteUrl.pathname = `/@${creator.handle}`;
+        const rewrite = NextResponse.rewrite(rewriteUrl);
+        response.cookies.getAll().forEach((cookie) => rewrite.cookies.set(cookie));
+        return rewrite;
+      }
+    }
+  }
 
   if (!pathname.startsWith("/dashboard")) {
     return response;

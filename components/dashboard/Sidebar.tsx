@@ -12,6 +12,7 @@ import {
   FileText,
   Flag,
   GraduationCap,
+  Globe2,
   House,
   KeyRound,
   LayoutDashboard,
@@ -22,6 +23,7 @@ import {
   Package,
   PlusCircle,
   ShoppingBag,
+  Store,
   TrendingUp,
   Video,
   Wallet,
@@ -31,6 +33,9 @@ import {
 } from "lucide-react";
 
 import { UserRole } from "@/types/user";
+import { useAuth } from "@/hooks/useAuth";
+import { getWealthPublicNavigationEnabled } from "@/services/wealthSettingsService";
+import { useEffect, useState } from "react";
 
 interface SidebarProps {
   role: UserRole;
@@ -57,6 +62,7 @@ const linkMap: Record<UserRole, NavLink[]> = {
     { href: "/dashboard/student/my-courses", label: "My Courses", icon: GraduationCap },
     { href: "/dashboard/products", label: "My Digital Products", icon: Library },
     { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
+    { href: "/dashboard/teacher/wealth", label: "Create Wealth Products", icon: PlusCircle },
     { href: "/dashboard/student/live-classes", label: "Live Classes", icon: Video },
     { href: "/dashboard/student/messages", label: "Messages", icon: MessageSquare },
     { href: "/dashboard/student/announcements", label: "Announcements", icon: Megaphone },
@@ -68,6 +74,7 @@ const linkMap: Record<UserRole, NavLink[]> = {
   ],
   teacher: [
     { href: "/dashboard/teacher", label: "Overview", icon: LayoutDashboard },
+    { href: "/dashboard/teacher/storefront", label: "My Storefront", icon: Store },
     { href: "/dashboard/teacher/courses", label: "Courses", icon: BookOpen },
     { href: "/dashboard/teacher/payouts", label: "Payout Details", icon: Wallet },
     { href: "/dashboard/teacher/courses/create", label: "Create Course", icon: PlusCircle },
@@ -85,6 +92,7 @@ const linkMap: Record<UserRole, NavLink[]> = {
     { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/admin/users", label: "Users", icon: CircleUser },
     { href: "/dashboard/admin/creator-applications", label: "Creator Applications", icon: ClipboardCheck },
+    { href: "/dashboard/admin/creator-domains", label: "Creator Domains", icon: Globe2 },
     { href: "/dashboard/admin/courses", label: "Courses", icon: BookOpen },
     { href: "/dashboard/admin/courses/create", label: "Create Course", icon: PlusCircle },
     { href: "/dashboard/admin/designs", label: "Digital Products", icon: Package },
@@ -115,7 +123,26 @@ const linkClasses = (active: boolean) =>
 
 export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const links = linkMap[role];
+  const { profile } = useAuth();
+  const [wealthPublicNavigation, setWealthPublicNavigation] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void getWealthPublicNavigationEnabled()
+      .then((enabled) => active && setWealthPublicNavigation(enabled))
+      .catch((error) => console.error("Could not load public Wealth Academy navigation setting.", error));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const links = linkMap[role].filter((link) => {
+    if (link.href === "/wealth" && !wealthPublicNavigation) return false;
+    if (link.href === "/dashboard/teacher/wealth") {
+      return Boolean(profile?.role === "teacher" && profile.creatorStatus === "approved" && profile.wealthEnabled);
+    }
+    return true;
+  });
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
