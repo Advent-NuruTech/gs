@@ -110,12 +110,12 @@ export default function HomeHero() {
           </div>
         ))}
         <div className="absolute inset-0 hidden bg-gradient-to-r from-slate-950/45 via-slate-950/5 to-transparent sm:block" />
-        <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-2 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-4 pb-4 pt-12 min-[420px]:flex-row sm:justify-end sm:px-5 sm:pb-5">
-          <Link href={ctas.primaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-bold text-blue-800 shadow-lg transition hover:bg-blue-50">
-            <span className="truncate">{ctas.primaryCtaLabel}</span><ArrowRight className="h-4 w-4 shrink-0" />
+        <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-3 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-4 pb-4 pt-12 min-[420px]:flex-row sm:justify-end sm:px-8 sm:pb-10">
+          <Link href={ctas.primaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2.5 rounded-md bg-white px-6 py-3.5 text-base font-bold text-blue-800 shadow-lg transition hover:bg-blue-50">
+            <span className="truncate">{ctas.primaryCtaLabel}</span><ArrowRight className="h-5 w-5 shrink-0" />
           </Link>
-          <Link href={ctas.secondaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2 rounded-md border border-white/70 bg-slate-950/55 px-4 py-2.5 text-sm font-bold text-white shadow-lg backdrop-blur transition hover:bg-slate-950/75">
-            <span className="truncate">{ctas.secondaryCtaLabel}</span><ArrowRight className="h-4 w-4 shrink-0" />
+          <Link href={ctas.secondaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2.5 rounded-md border border-blue-500 bg-blue-600 px-6 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-blue-700">
+            <span className="truncate">{ctas.secondaryCtaLabel}</span><ArrowRight className="h-5 w-5 shrink-0" />
           </Link>
         </div>
       </div>
