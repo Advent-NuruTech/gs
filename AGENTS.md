@@ -76,7 +76,8 @@ npm run lint
 ## Homepage motion
 
 - The homepage category rail auto-loops on narrow screens, pauses for 30 seconds after touch, pointer, wheel, or keyboard focus interaction, and remains still when reduced motion is requested. Keep duplicate rail items hidden from assistive technology and keyboard navigation.
-- The homepage hero uses four project-local portrait banners in `public/images/hero`, cross-fades them every 6.5 seconds, pauses during pointer or keyboard interaction, exposes slide and pause controls, and remains still when reduced motion is requested. The responsive layout keeps the copy in a raised white card and uses a mobile-safe crop. Homepage hero copy and footer “Powered by Advent NuruTech Services” text type in a repeating cycle; show the full text without animation for users who request reduced motion.
+- The homepage hero uses four desktop banners plus four dedicated high-resolution 4:3 mobile compositions in `public/images/hero`, cross-fades them every 6.5 seconds, pauses during pointer or keyboard interaction, exposes slide and pause controls, and remains still when reduced motion is requested. The hero has square outer corners. Mobile follows an image-above-copy layout without stretching or tightly cropping the desktop source; desktop overlays a sharp-cornered white copy card on the wide image. Homepage hero copy and footer “Powered by Advent NuruTech Services” text type in a repeating cycle; show the full text without animation for users who request reduced motion.
+- Hero images use Next Image quality 100. Keep `100` in `images.qualities` in `next.config.ts`; Next.js 16 rejects unconfigured image-quality values. Other images retain the default quality 75 tier.
 
 ## Public display settings
 
