@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import CourseCard from "@/components/course/CourseCard";
 import DesignCard from "@/components/design/DesignCard";
 import HomeHero from "@/components/marketing/HomeHero";
+import HomeLoadingScreen from "@/components/marketing/HomeLoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { useCourse } from "@/hooks/useCourse";
 import { listDesigns } from "@/services/designService";
@@ -96,6 +97,7 @@ export default function HomePage() {
   const popularDesigns = useMemo(() => [...designs].sort((a, b) => (b.ordersCount * 3 + b.views) - (a.ordersCount * 3 + a.views)).slice(0, TAKE), [designs]);
   const newestCourses = useMemo(() => [...courses].sort((a, b) => Date.parse(b.createdAt ?? "") - Date.parse(a.createdAt ?? "")).slice(0, TAKE), [courses]);
   const libraryHref = profile ? (profile.role === "student" ? "/dashboard/student/my-courses" : `/dashboard/${profile.role}`) : "/login?redirect=%2Fdashboard%2Fstudent%2Fmy-courses";
+  if (loading || designsLoading) return <HomeLoadingScreen />;
   return <main className="mx-auto max-w-7xl space-y-12 px-2 pb-8 pt-3 sm:px-4 sm:pt-8 lg:space-y-16">
     <HomeHero />
 

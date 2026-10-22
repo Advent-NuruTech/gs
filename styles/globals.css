@@ -4,6 +4,17 @@
    follow that class instead of the device's color-scheme preference. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+@keyframes home-loading-progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-loading-progress {
+    animation: home-loading-progress 1.5s ease-in-out infinite;
+  }
+}
+
 :root {
   --background: #f8fafc;
   --surface: #ffffff;
