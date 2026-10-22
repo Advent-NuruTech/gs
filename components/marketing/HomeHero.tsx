@@ -110,23 +110,24 @@ export default function HomeHero() {
           </div>
         ))}
         <div className="absolute inset-0 hidden bg-gradient-to-r from-slate-950/45 via-slate-950/5 to-transparent sm:block" />
-        <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-3 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-4 pb-4 pt-12 min-[420px]:flex-row sm:justify-end sm:px-8 sm:pb-10">
-          <Link href={ctas.primaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2.5 rounded-md bg-white px-6 py-3.5 text-base font-bold text-blue-800 shadow-lg transition hover:bg-blue-50">
-            <span className="truncate">{ctas.primaryCtaLabel}</span><ArrowRight className="h-5 w-5 shrink-0" />
+        <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-2 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-4 pb-4 pt-12 min-[420px]:flex-row sm:justify-end sm:gap-3 sm:px-8 sm:pb-10">
+          <Link href={ctas.primaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-bold text-blue-800 shadow-lg transition hover:bg-blue-50 sm:gap-2.5 sm:px-6 sm:py-3.5 sm:text-base">
+            <span className="truncate">{ctas.primaryCtaLabel}</span><ArrowRight className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
           </Link>
-          <Link href={ctas.secondaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2.5 rounded-md border border-blue-500 bg-blue-600 px-6 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-blue-700">
-            <span className="truncate">{ctas.secondaryCtaLabel}</span><ArrowRight className="h-5 w-5 shrink-0" />
+          <Link href={ctas.secondaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-bold !text-white shadow-lg transition hover:bg-blue-700 sm:gap-2.5 sm:px-6 sm:py-3.5 sm:text-base">
+            <span className="truncate">{ctas.secondaryCtaLabel}</span><ArrowRight className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
           </Link>
         </div>
       </div>
 
-      <div className="relative z-10 bg-white px-5 py-7 dark:bg-slate-900 sm:absolute sm:bottom-auto sm:left-8 sm:right-auto sm:top-1/2 sm:w-[min(31rem,48%)] sm:-translate-y-1/2 sm:p-7 sm:shadow-2xl sm:ring-1 sm:ring-black/5 sm:dark:ring-white/10 lg:left-14 lg:p-8">
+      <div className="relative z-10 bg-white px-5 py-7 text-center dark:bg-slate-900 sm:absolute sm:bottom-auto sm:left-8 sm:right-auto sm:top-1/2 sm:w-[min(31rem,48%)] sm:-translate-y-1/2 sm:p-7 sm:shadow-2xl sm:ring-1 sm:ring-black/5 sm:dark:ring-white/10 lg:left-14 lg:p-8">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">Learn. Create. Grow.</p>
         <h1 className="mt-2 text-3xl font-black leading-tight tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
           Skills and resources for your next move.
         </h1>
         <TypewriterCopy />
-        <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 sm:text-sm">
+        <p className="mt-3 text-sm font-bold text-blue-700 dark:text-blue-300">Learn something. Earn something.</p>
+        <div className="mt-5 flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 sm:text-sm">
           <span>✓ Learn at your pace</span>
           <span>✓ Instant access</span>
           <span>✓ Built for progress</span>
