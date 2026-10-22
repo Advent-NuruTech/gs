@@ -708,6 +708,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           "Read analytics, users, courses, payments, payouts, and reported problems from one dashboard.",
           "Turn Google or email sign-in on or off for the public pages.",
           "Show or completely hide public view counters for Digital Products and Wealth Academy resources without stopping internal view tracking.",
+          "Manage up to ten responsive homepage hero slides and edit both public hero action labels and destinations.",
         ],
       },
       {

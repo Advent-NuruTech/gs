@@ -2,17 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, Layers3, Pause, Play } from "lucide-react";
+import { ArrowRight, Pause, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const HERO_COPY = "Discover practical courses and digital resources made to move your goals forward.";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { getHomeHeroContent } from "@/services/homeHeroService";
+import { DEFAULT_HOME_HERO_SETTINGS, DEFAULT_HOME_HERO_SLIDES } from "@/types/hero";
 
-const slides = [
-  { src: "/images/hero/adventskool-learn.png", mobileSrc: "/images/hero/adventskool-learn-mobile-v2.png", alt: "Learning online with AdventSkool on a laptop" },
-  { src: "/images/hero/adventskool-create.png", mobileSrc: "/images/hero/adventskool-create-mobile-v2.png", alt: "Creating digital work with a tablet and stylus" },
-  { src: "/images/hero/adventskool-grow.png", mobileSrc: "/images/hero/adventskool-grow-mobile-v2.png", alt: "Learning from a phone with headphones" },
-  { src: "/images/hero/adventskool-sell.png", mobileSrc: "/images/hero/adventskool-sell-mobile-v2.png", alt: "Presenting a finished digital resource on a tablet" },
-] as const;
+const HERO_COPY = "Discover practical courses and digital resources made to move your goals forward.";
 
 function TypewriterCopy() {
   const [copy, setCopy] = useState("");
@@ -51,6 +48,9 @@ function TypewriterCopy() {
 }
 
 export default function HomeHero() {
+  const heroContent = useAsyncData(getHomeHeroContent, []);
+  const slides = heroContent.data?.slides.length ? heroContent.data.slides : DEFAULT_HOME_HERO_SLIDES;
+  const ctas = heroContent.data?.settings ?? DEFAULT_HOME_HERO_SETTINGS;
   const [activeSlide, setActiveSlide] = useState(0);
   const [paused, setPaused] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(true);
@@ -69,7 +69,9 @@ export default function HomeHero() {
       setActiveSlide((current) => (current + 1) % slides.length);
     }, 6500);
     return () => window.clearInterval(timer);
-  }, [paused, reduceMotion]);
+  }, [paused, reduceMotion, slides.length]);
+
+  const visibleSlide = activeSlide % slides.length;
 
   return (
     <section
@@ -84,30 +86,38 @@ export default function HomeHero() {
     >
       <div className="relative aspect-[4/3] w-full sm:absolute sm:inset-0 sm:h-full sm:aspect-auto">
         {slides.map((slide, index) => (
-          <div key={slide.src} className={`absolute inset-0 transition-opacity duration-1000 motion-reduce:transition-none ${index === activeSlide ? "opacity-100" : "opacity-0"}`}>
+          <div key={slide.id} className={`absolute inset-0 transition-opacity duration-1000 motion-reduce:transition-none ${index === visibleSlide ? "opacity-100" : "opacity-0"}`}>
             <Image
-              src={slide.mobileSrc}
-              alt={index === activeSlide ? slide.alt : ""}
+              src={slide.mobileImageUrl}
+              alt={index === visibleSlide ? slide.altText : ""}
               fill
               priority={index === 0}
               quality={100}
               sizes="100vw"
-              aria-hidden={index !== activeSlide}
+              aria-hidden={index !== visibleSlide}
               className="object-cover sm:hidden"
             />
             <Image
-              src={slide.src}
-              alt={index === activeSlide ? slide.alt : ""}
+              src={slide.desktopImageUrl}
+              alt={index === visibleSlide ? slide.altText : ""}
               fill
               priority={index === 0}
               quality={100}
               sizes="(max-width: 1280px) 100vw, 1280px"
-              aria-hidden={index !== activeSlide}
+              aria-hidden={index !== visibleSlide}
               className="hidden object-cover object-center sm:block"
             />
           </div>
         ))}
         <div className="absolute inset-0 hidden bg-gradient-to-r from-slate-950/45 via-slate-950/5 to-transparent sm:block" />
+        <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-2 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-4 pb-4 pt-12 min-[420px]:flex-row sm:justify-end sm:px-5 sm:pb-5">
+          <Link href={ctas.primaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-bold text-blue-800 shadow-lg transition hover:bg-blue-50">
+            <span className="truncate">{ctas.primaryCtaLabel}</span><ArrowRight className="h-4 w-4 shrink-0" />
+          </Link>
+          <Link href={ctas.secondaryCtaHref} className="inline-flex min-w-0 items-center justify-center gap-2 rounded-md border border-white/70 bg-slate-950/55 px-4 py-2.5 text-sm font-bold text-white shadow-lg backdrop-blur transition hover:bg-slate-950/75">
+            <span className="truncate">{ctas.secondaryCtaLabel}</span><ArrowRight className="h-4 w-4 shrink-0" />
+          </Link>
+        </div>
       </div>
 
       <div className="relative z-10 bg-white px-5 py-7 dark:bg-slate-900 sm:absolute sm:bottom-auto sm:left-8 sm:right-auto sm:top-1/2 sm:w-[min(31rem,48%)] sm:-translate-y-1/2 sm:p-7 sm:shadow-2xl sm:ring-1 sm:ring-black/5 sm:dark:ring-white/10 lg:left-14 lg:p-8">
@@ -116,14 +126,6 @@ export default function HomeHero() {
           Skills and resources for your next move.
         </h1>
         <TypewriterCopy />
-        <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
-          <Link href="/courses" className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-blue-950/20 transition hover:bg-blue-600">
-            <BookOpen className="h-4 w-4" /> Explore courses
-          </Link>
-          <Link href="/designs" className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-bold text-blue-800 transition hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900">
-            <Layers3 className="h-4 w-4" /> Shop digital products
-          </Link>
-        </div>
         <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 sm:text-sm">
           <span>✓ Learn at your pace</span>
           <span>✓ Instant access</span>
@@ -131,15 +133,15 @@ export default function HomeHero() {
         </div>
       </div>
 
-      <div className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-full bg-slate-950/55 p-1.5 text-white shadow-lg backdrop-blur sm:bottom-4 sm:top-auto">
+      <div className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-full bg-slate-950/55 p-1.5 text-white shadow-lg backdrop-blur">
         {slides.map((slide, index) => (
           <button
-            key={slide.src}
+            key={slide.id}
             type="button"
             onClick={() => setActiveSlide(index)}
-            className={`h-2.5 rounded-full transition-all ${index === activeSlide ? "w-7 bg-white" : "w-2.5 bg-white/55 hover:bg-white/80"}`}
+            className={`h-2.5 rounded-full transition-all ${index === visibleSlide ? "w-7 bg-white" : "w-2.5 bg-white/55 hover:bg-white/80"}`}
             aria-label={`Show hero image ${index + 1}`}
-            aria-current={index === activeSlide ? "true" : undefined}
+            aria-current={index === visibleSlide ? "true" : undefined}
           />
         ))}
         {!reduceMotion ? (
