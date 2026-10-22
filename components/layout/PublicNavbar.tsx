@@ -211,7 +211,7 @@ export default function PublicNavbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-[var(--background)]/95 backdrop-blur dark:border-slate-800">
+      <header className="z-40 border-b border-slate-200 bg-[var(--background)]/95 backdrop-blur sm:sticky sm:top-0 dark:border-slate-800">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4">
           <Link href="/" className="shrink-0 text-lg font-black tracking-tight text-slate-950 dark:text-white">Advent<span className="text-blue-600">Skool</span></Link>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">

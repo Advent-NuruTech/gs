@@ -9,7 +9,7 @@ alter table profiles
   add column if not exists social_links jsonb not null default '{}'::jsonb;
 
 alte  r table profiles
-  drop constraint if exists profiles_handle_format_check;
+  drop constraint if exists profiles_handle_form at_check;
 alter table profiles
   drop constraint if exists profiles_creator_bio_length_check,
   drop constraint if exists profiles_social_links_object_check;

@@ -110,11 +110,11 @@ export default function CatalogFilterBar({
   return (
     <div
       ref={rootRef}
-      className="sticky top-16 z-30 -mx-4 border-y border-slate-200 bg-[var(--background)]/95 px-4 py-3 shadow-sm backdrop-blur"
+      className="sm:sticky sm:top-16 z-30 -mx-4 border-y border-slate-200 bg-[var(--background)]/95 px-4 py-3 shadow-sm backdrop-blur"
     >
       <div className={`mx-auto flex flex-col gap-2.5 sm:flex-row sm:items-center ${innerMaxWidth}`}>
         <div
-          className={`flex h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 shadow-sm transition focus-within:ring-2 ${tones.focus}`}
+          className={`flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 shadow-sm transition focus-within:ring-2 sm:h-11 ${tones.focus}`}
         >
           <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
           <input
@@ -123,7 +123,7 @@ export default function CatalogFilterBar({
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder={searchPlaceholder}
             aria-label={searchLabel}
-            className="min-w-0 flex-1 appearance-none bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 [&::-webkit-search-cancel-button]:appearance-none dark:text-slate-100"
+            className="min-w-0 flex-1 appearance-none bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400 sm:text-sm [&::-webkit-search-cancel-button]:appearance-none dark:text-slate-100"
           />
           {query ? (
             <button
