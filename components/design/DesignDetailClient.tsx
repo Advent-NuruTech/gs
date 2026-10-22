@@ -17,6 +17,7 @@ import { Design } from "@/types/design";
 import { ProductAccessMode } from "@/types/designOrder";
 import ShareButton from "@/components/share/ShareButton";
 import { useCreatorSharePath } from "@/hooks/useCreatorSharePath";
+import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext";
 
 function triggerDownload(url: string) {
   const link = document.createElement("a");
@@ -35,6 +36,7 @@ export default function DesignDetailClient({
   design: Design;
   related?: Design[];
 }) {
+  const { showViewCounts } = usePublicDisplaySettings();
   const searchParams = useSearchParams();
   const resumeReadPurchase = searchParams.get("purchase") === "read";
   const [showPurchase, setShowPurchase] = useState(resumeReadPurchase);
@@ -83,9 +85,11 @@ export default function DesignDetailClient({
               {productFree ? "Free" : formatKsh(design.downloadPrice)}
             </p>
             {design.description ? <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{design.description}</p> : null}
-            <p className="inline-flex items-center gap-1.5 text-xs text-slate-400">
-              <Eye className="h-3.5 w-3.5" /> {design.views.toLocaleString("en-KE")} views
-            </p>
+            {showViewCounts ? (
+              <p className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+                <Eye className="h-3.5 w-3.5" /> {design.views.toLocaleString("en-KE")} views
+              </p>
+            ) : null}
             <div>
               <ShareButton
                 title={design.title}

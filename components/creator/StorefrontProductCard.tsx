@@ -6,6 +6,7 @@ import Link from "next/link";
 import ShareButton from "@/components/share/ShareButton";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { StorefrontProduct } from "@/types/creator";
+import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext";
 
 const kindDetails = {
   course: { label: "Course", icon: BookOpen, href: (id: string) => `/courses/${id}` },
@@ -24,6 +25,7 @@ export default function StorefrontProductCard({
   creatorHandle: string;
   highlighted?: boolean;
 }) {
+  const { showViewCounts } = usePublicDisplaySettings();
   const details = kindDetails[product.kind];
   const Icon = details.icon;
   const anchor = `product-${product.kind}-${product.id}`;
@@ -60,7 +62,7 @@ export default function StorefrontProductCard({
           {product.originalPrice && product.originalPrice > product.price ? (
             <span className="text-xs text-slate-400 line-through">{formatKsh(product.originalPrice)}</span>
           ) : null}
-          {product.views > 0 ? (
+          {showViewCounts && product.views > 0 ? (
             <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400"><Eye className="h-3.5 w-3.5" />{product.views.toLocaleString("en-KE")}</span>
           ) : null}
         </div>

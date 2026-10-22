@@ -8,8 +8,10 @@ import CatalogFilterBar from "@/components/catalog/CatalogFilterBar";
 import DesignCard from "@/components/design/DesignCard";
 import { listDesigns } from "@/services/designService";
 import { Design } from "@/types/design";
+import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext";
 
 export default function DesignsPage() {
+  const { showViewCounts } = usePublicDisplaySettings();
   const [designs, setDesigns] = useState<Design[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -136,9 +138,11 @@ export default function DesignsPage() {
                 </div>
                 <div className="flex flex-1 flex-col gap-0.5 px-3 py-2">
                   <span className="line-clamp-1 text-sm font-semibold text-slate-900">{d.title}</span>
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                    <Eye className="h-3.5 w-3.5" /> {d.views.toLocaleString("en-KE")} views
-                  </span>
+                  {showViewCounts ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                      <Eye className="h-3.5 w-3.5" /> {d.views.toLocaleString("en-KE")} views
+                    </span>
+                  ) : null}
                 </div>
               </Link>
             ))}

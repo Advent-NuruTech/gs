@@ -17,6 +17,7 @@ import { WealthProduct } from "@/types/wealth";
 import { WealthAccessMode } from "@/types/wealthOrder";
 import ShareButton from "@/components/share/ShareButton";
 import { useCreatorSharePath } from "@/hooks/useCreatorSharePath";
+import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext";
 
 function triggerDownload(url: string) {
   const link = document.createElement("a");
@@ -35,6 +36,7 @@ export default function WealthDetailClient({
   product: WealthProduct;
   related?: WealthProduct[];
 }) {
+  const { showViewCounts } = usePublicDisplaySettings();
   const searchParams = useSearchParams();
   const resumeReadPurchase = searchParams.get("purchase") === "read";
   const [showPurchase, setShowPurchase] = useState(resumeReadPurchase);
@@ -83,9 +85,11 @@ export default function WealthDetailClient({
               {productFree ? "Free" : formatKsh(product.downloadPrice)}
             </p>
             {product.description ? <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{product.description}</p> : null}
-            <p className="inline-flex items-center gap-1.5 text-xs text-slate-400">
-              <Eye className="h-3.5 w-3.5" /> {product.views.toLocaleString("en-KE")} views
-            </p>
+            {showViewCounts ? (
+              <p className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+                <Eye className="h-3.5 w-3.5" /> {product.views.toLocaleString("en-KE")} views
+              </p>
+            ) : null}
             <div>
               <ShareButton
                 title={product.title}

@@ -8,8 +8,10 @@ import CatalogFilterBar from "@/components/catalog/CatalogFilterBar";
 import WealthCard from "@/components/wealth/WealthCard";
 import { listWealthProducts } from "@/services/wealthService";
 import { WealthProduct } from "@/types/wealth";
+import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext";
 
 export default function WealthAcademyPage() {
+  const { showViewCounts } = usePublicDisplaySettings();
   const [products, setProducts] = useState<WealthProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -137,9 +139,11 @@ export default function WealthAcademyPage() {
                 </div>
                 <div className="flex flex-1 flex-col gap-0.5 px-3 py-2">
                   <span className="line-clamp-1 text-sm font-semibold text-slate-900">{p.title}</span>
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                    <Eye className="h-3.5 w-3.5" /> {p.views.toLocaleString("en-KE")} views
-                  </span>
+                  {showViewCounts ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                      <Eye className="h-3.5 w-3.5" /> {p.views.toLocaleString("en-KE")} views
+                    </span>
+                  ) : null}
                 </div>
               </Link>
             ))}

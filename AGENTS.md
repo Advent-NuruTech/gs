@@ -76,7 +76,12 @@ npm run lint
 ## Homepage motion
 
 - The homepage category rail auto-loops on narrow screens, pauses for 30 seconds after touch, pointer, wheel, or keyboard focus interaction, and remains still when reduced motion is requested. Keep duplicate rail items hidden from assistive technology and keyboard navigation.
-- Homepage hero copy and footer “Powered by Advent NuruTech Services” text type in a repeating cycle. Show the full text without animation for users who request reduced motion.
+- The homepage hero uses four project-local portrait banners in `public/images/hero`, cross-fades them every 6.5 seconds, pauses during pointer or keyboard interaction, exposes slide and pause controls, and remains still when reduced motion is requested. The responsive layout keeps the copy in a raised white card and uses a mobile-safe crop. Homepage hero copy and footer “Powered by Advent NuruTech Services” text type in a repeating cycle; show the full text without animation for users who request reduced motion.
+
+## Public display settings
+
+- Migration `0022_public_display_settings.sql` adds the public-readable, admin-writable global display setting. Apply it before deploying this feature.
+- Administrators control public view-count visibility at `/dashboard/admin/display-settings`. When disabled, view counters are omitted completely from public Digital Product and Wealth Academy cards, detail pages, catalog highlights, and creator storefronts. View tracking and internal admin/creator analytics continue unchanged, so the setting can be re-enabled without losing data.
 
 ## Project memory maintenance
 

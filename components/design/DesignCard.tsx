@@ -5,6 +5,7 @@ import { Download, Eye, Share2, Sparkles } from "lucide-react";
 
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { Design } from "@/types/design";
+import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext";
 
 /**
  * A masonry-friendly digital-product tile. The image is shown at its natural aspect
@@ -12,6 +13,7 @@ import { Design } from "@/types/design";
  * detail page where the download / customization flows begin.
  */
 export default function DesignCard({ design, hidePrice = false }: { design: Design; hidePrice?: boolean }) {
+  const { showViewCounts } = usePublicDisplaySettings();
   const canDownload = !hidePrice && Number(design.downloadPrice || 0) > 0;
   const canCustomize = design.customizationEnabled && !hidePrice && Number(design.customizationPrice || 0) > 0;
   const ratio =
@@ -92,10 +94,12 @@ export default function DesignCard({ design, hidePrice = false }: { design: Desi
           >
             <Share2 className="h-3.5 w-3.5" />
           </button>
-          <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-            <Eye className="h-3.5 w-3.5" />
-            {design.views.toLocaleString("en-KE")}
-          </span>
+          {showViewCounts ? (
+            <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+              <Eye className="h-3.5 w-3.5" />
+              {design.views.toLocaleString("en-KE")}
+            </span>
+          ) : null}
         </div>
       </div>
     </article>

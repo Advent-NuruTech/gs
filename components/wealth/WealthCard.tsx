@@ -5,6 +5,7 @@ import { Download, Eye, Share2, Sparkles } from "lucide-react";
 
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { WealthProduct } from "@/types/wealth";
+import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext";
 
 /**
  * A masonry-friendly wealth-resource tile. The image is shown at its natural
@@ -12,6 +13,7 @@ import { WealthProduct } from "@/types/wealth";
  * detail page where the access / personalization flows begin.
  */
 export default function WealthCard({ product, hidePrice = false }: { product: WealthProduct; hidePrice?: boolean }) {
+  const { showViewCounts } = usePublicDisplaySettings();
   const canDownload = !hidePrice && Number(product.downloadPrice || 0) > 0;
   const canCustomize = product.customizationEnabled && !hidePrice && Number(product.customizationPrice || 0) > 0;
   const ratio =
@@ -92,10 +94,12 @@ export default function WealthCard({ product, hidePrice = false }: { product: We
           >
             <Share2 className="h-3.5 w-3.5" />
           </button>
-          <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-            <Eye className="h-3.5 w-3.5" />
-            {product.views.toLocaleString("en-KE")}
-          </span>
+          {showViewCounts ? (
+            <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+              <Eye className="h-3.5 w-3.5" />
+              {product.views.toLocaleString("en-KE")}
+            </span>
+          ) : null}
         </div>
       </div>
     </article>

@@ -1,54 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, Compass, Download, Flame, Layers3, Sparkles } from "lucide-react";
+import { ArrowRight, Compass, Download, Flame, Layers3 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import CourseCard from "@/components/course/CourseCard";
 import DesignCard from "@/components/design/DesignCard";
+import HomeHero from "@/components/marketing/HomeHero";
 import { useAuth } from "@/hooks/useAuth";
 import { useCourse } from "@/hooks/useCourse";
 import { listDesigns } from "@/services/designService";
 import { Design } from "@/types/design";
 
 const TAKE = 12;
-const HERO_COPY = "Discover practical courses and digital resources made to move your goals forward.";
-
-function TypewriterCopy() {
-  const [copy, setCopy] = useState("");
-
-  useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) {
-      setCopy(HERO_COPY);
-      return;
-    }
-
-    let timer: ReturnType<typeof setTimeout>;
-    let index = 0;
-    let deleting = false;
-    const tick = () => {
-      index += deleting ? -1 : 1;
-      setCopy(HERO_COPY.slice(0, index));
-      if (!deleting && index === HERO_COPY.length) {
-        deleting = true;
-        timer = setTimeout(tick, 1800);
-      } else if (deleting && index === 0) {
-        deleting = false;
-        timer = setTimeout(tick, 500);
-      } else {
-        timer = setTimeout(tick, deleting ? 22 : 38);
-      }
-    };
-    timer = setTimeout(tick, 200);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return <p className="mt-5 min-h-[3.5rem] max-w-xl text-base leading-7 text-blue-100 sm:min-h-7 sm:text-lg" aria-label={HERO_COPY}>
-    <span aria-hidden="true">{copy}</span><span className="ml-0.5 animate-pulse text-white" aria-hidden="true">|</span>
-  </p>;
-}
-
 function CategoryRail({ categories, activeCategory, onSelect }: { categories: string[]; activeCategory: string; onSelect: (category: string) => void }) {
   const railRef = useRef<HTMLDivElement>(null);
   const pauseUntilRef = useRef(0);
@@ -132,19 +96,8 @@ export default function HomePage() {
   const popularDesigns = useMemo(() => [...designs].sort((a, b) => (b.ordersCount * 3 + b.views) - (a.ordersCount * 3 + a.views)).slice(0, TAKE), [designs]);
   const newestCourses = useMemo(() => [...courses].sort((a, b) => Date.parse(b.createdAt ?? "") - Date.parse(a.createdAt ?? "")).slice(0, TAKE), [courses]);
   const libraryHref = profile ? (profile.role === "student" ? "/dashboard/student/my-courses" : `/dashboard/${profile.role}`) : "/login?redirect=%2Fdashboard%2Fstudent%2Fmy-courses";
-  const profileHref = profile ? `/dashboard/${profile.role}` : "/login";
-
   return <main className="mx-auto max-w-7xl space-y-12 px-2 pb-8 pt-3 sm:px-4 sm:pt-8 lg:space-y-16">
-    <section className="relative isolate overflow-hidden rounded-xl bg-indigo-700 px-4 py-8 text-white shadow-2xl shadow-indigo-950/20 sm:rounded-2xl sm:px-8 sm:py-12 lg:px-14">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_80%_10%,rgba(99,102,241,.55),transparent_42%),radial-gradient(ellipse_at_5%_100%,rgba(59,130,246,.3),transparent_45%)]" />
-      <div className="absolute -right-12 -top-24 -z-10 h-72 w-72 rounded-full border border-white/10 sm:right-12 sm:top-0 sm:h-96 sm:w-96" />
-      <div className="max-w-3xl">
-        <h1 className="mt-5 text-4xl font-black leading-[1.04] tracking-tight sm:text-6xl">Learn something.<br /><span className="bg-gradient-to-r from-blue-200 to-indigo-100 bg-clip-text text-transparent">Make something.</span></h1>
-        <TypewriterCopy />
-        <div className="mt-7 flex flex-wrap gap-3"><Link href="/courses" className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-3 font-bold text-white shadow-lg shadow-indigo-950/30 transition hover:bg-blue-400"><BookOpen className="h-5 w-5" />Explore resources</Link><Link href="/designs" className="inline-flex items-center gap-2 rounded-xl border !border-white !bg-white px-5 py-3 font-bold !text-blue-700 transition hover:!bg-blue-50"><Layers3 className="h-5 w-5" />Shop digital products</Link></div>
-        <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-300"><span>✓ Learn at your pace</span><span>✓ Instant digital access</span><span>✓ Made for real progress</span></div>
-      </div>
-    </section>
+    <HomeHero />
 
     <section aria-label="Browse categories">
       <SectionHeading eyebrow="Find your next thing" title="Explore categories" href="/courses" label="Browse all" />

@@ -707,6 +707,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           "Send platform announcements and scheduled or immediate email campaigns to all users or to a category.",
           "Read analytics, users, courses, payments, payouts, and reported problems from one dashboard.",
           "Turn Google or email sign-in on or off for the public pages.",
+          "Show or completely hide public view counters for Digital Products and Wealth Academy resources without stopping internal view tracking.",
         ],
       },
       {
