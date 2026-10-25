@@ -6,6 +6,7 @@ import {
   BarChart3,
   BookMarked,
   BookOpen,
+  ChevronDown,
   CircleUser,
   ClipboardCheck,
   CreditCard,
@@ -37,7 +38,7 @@ import {
 import { UserRole } from "@/types/user";
 import { useAuth } from "@/hooks/useAuth";
 import { getWealthPublicNavigationEnabled } from "@/services/wealthSettingsService";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface SidebarProps {
   role: UserRole;
@@ -51,6 +52,17 @@ interface NavLink {
   icon: LucideIcon;
 }
 
+interface NavGroup {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  links: NavLink[];
+}
+
+type NavItem = NavLink | NavGroup;
+
+const isNavGroup = (item: NavItem): item is NavGroup => "links" in item;
+
 const publicLinks: NavLink[] = [
   { href: "/", label: "Public Home", icon: House },
   { href: "/courses", label: "Browse Courses", icon: BookOpen },
@@ -58,65 +70,155 @@ const publicLinks: NavLink[] = [
   { href: "/wealth", label: "Browse Wealth Academy", icon: TrendingUp },
 ];
 
-const linkMap: Record<UserRole, NavLink[]> = {
+const linkMap: Record<UserRole, NavItem[]> = {
   student: [
     { href: "/dashboard/student", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/student/my-courses", label: "My Courses", icon: GraduationCap },
-    { href: "/dashboard/products", label: "My Digital Products", icon: Library },
-    { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
-    { href: "/dashboard/teacher/wealth", label: "Create Wealth Products", icon: PlusCircle },
-    { href: "/dashboard/student/live-classes", label: "Live Classes", icon: Video },
-    { href: "/dashboard/student/messages", label: "Messages", icon: MessageSquare },
-    { href: "/dashboard/student/announcements", label: "Announcements", icon: Megaphone },
-    //{ href: "/dashboard/student/chat", label: "Chat with AI" },
-    { href: "/tools", label: "Useful Tools", icon: Wrench },
-    { href: "/dashboard/student/report", label: "Report a Problem", icon: Flag },
-    { href: "/dashboard/account", label: "Account", icon: CircleUser },
-    ...publicLinks,
+    {
+      id: "student-products",
+      label: "My Products",
+      icon: Package,
+      links: [
+        { href: "/dashboard/student/my-courses", label: "My Courses", icon: GraduationCap },
+        { href: "/dashboard/products", label: "My Digital Products", icon: Library },
+        { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
+        { href: "/dashboard/teacher/wealth", label: "Create Wealth Products", icon: PlusCircle },
+      ],
+    },
+    {
+      id: "student-learning",
+      label: "Classes & Updates",
+      icon: Video,
+      links: [
+        { href: "/dashboard/student/live-classes", label: "Live Classes", icon: Video },
+        { href: "/dashboard/student/messages", label: "Messages", icon: MessageSquare },
+        { href: "/dashboard/student/announcements", label: "Announcements", icon: Megaphone },
+        //{ href: "/dashboard/student/chat", label: "Chat with AI" },
+      ],
+    },
+    {
+      id: "student-support",
+      label: "Help & Tools",
+      icon: Wrench,
+      links: [
+        { href: "/tools", label: "Useful Tools", icon: Wrench },
+        { href: "/dashboard/student/report", label: "Report a Problem", icon: Flag },
+      ],
+    },
+    {
+      id: "student-settings",
+      label: "Settings",
+      icon: SlidersHorizontal,
+      links: [{ href: "/dashboard/account", label: "Account", icon: CircleUser }],
+    },
+    { id: "student-explore", label: "Explore", icon: Globe2, links: publicLinks },
   ],
   teacher: [
     { href: "/dashboard/teacher", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/teacher/storefront", label: "My Storefront", icon: Store },
-    { href: "/dashboard/teacher/courses", label: "Courses", icon: BookOpen },
-    { href: "/dashboard/teacher/payouts", label: "Payout Details", icon: Wallet },
-    { href: "/dashboard/teacher/courses/create", label: "Create Course", icon: PlusCircle },
-    { href: "/dashboard/products", label: "My Digital Products", icon: Library },
-    { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
-    { href: "/dashboard/teacher/live-classes", label: "Live Classes", icon: Video },
-    { href: "/dashboard/teacher/messages", label: "Messages", icon: MessageSquare },
-    { href: "/dashboard/teacher/announcements", label: "Announcements", icon: Megaphone },
-    // { href: "/dashboard/teacher/chat", label: "Chat with AI" },
-    { href: "/dashboard/teacher/report", label: "Report a Problem", icon: Flag },
-    { href: "/dashboard/account", label: "Account", icon: CircleUser },
-    ...publicLinks,
+    {
+      id: "teacher-products",
+      label: "Products",
+      icon: Package,
+      links: [
+        { href: "/dashboard/teacher/storefront", label: "My Storefront", icon: Store },
+        { href: "/dashboard/teacher/courses", label: "Courses", icon: BookOpen },
+        { href: "/dashboard/teacher/courses/create", label: "Create Course", icon: PlusCircle },
+        { href: "/dashboard/products", label: "My Digital Products", icon: Library },
+        { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
+      ],
+    },
+    {
+      id: "teacher-orders",
+      label: "Orders & Payouts",
+      icon: ShoppingBag,
+      links: [{ href: "/dashboard/teacher/payouts", label: "Payout Details", icon: Wallet }],
+    },
+    {
+      id: "teacher-workspace",
+      label: "Classes & Updates",
+      icon: Video,
+      links: [
+        { href: "/dashboard/teacher/live-classes", label: "Live Classes", icon: Video },
+        { href: "/dashboard/teacher/messages", label: "Messages", icon: MessageSquare },
+        { href: "/dashboard/teacher/announcements", label: "Announcements", icon: Megaphone },
+        // { href: "/dashboard/teacher/chat", label: "Chat with AI" },
+      ],
+    },
+    {
+      id: "teacher-support",
+      label: "Help & Tools",
+      icon: Wrench,
+      links: [{ href: "/dashboard/teacher/report", label: "Report a Problem", icon: Flag }],
+    },
+    {
+      id: "teacher-settings",
+      label: "Settings",
+      icon: SlidersHorizontal,
+      links: [{ href: "/dashboard/account", label: "Account", icon: CircleUser }],
+    },
+    { id: "teacher-explore", label: "Explore", icon: Globe2, links: publicLinks },
   ],
   admin: [
     { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/admin/users", label: "Users", icon: CircleUser },
-    { href: "/dashboard/admin/creator-applications", label: "Creator Applications", icon: ClipboardCheck },
-    { href: "/dashboard/admin/creator-domains", label: "Creator Domains", icon: Globe2 },
-    { href: "/dashboard/admin/courses", label: "Courses", icon: BookOpen },
-    { href: "/dashboard/admin/courses/create", label: "Create Course", icon: PlusCircle },
-    { href: "/dashboard/admin/designs", label: "Digital Products", icon: Package },
-    { href: "/dashboard/admin/designs/orders", label: "Product Orders", icon: ShoppingBag },
-    { href: "/dashboard/admin/wealth", label: "Wealth Academy", icon: TrendingUp },
-    { href: "/dashboard/admin/wealth/orders", label: "Wealth Orders", icon: ShoppingBag },
-    { href: "/dashboard/products", label: "My Digital Products", icon: Library },
-    { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
-    { href: "/dashboard/admin/live-classes", label: "Live Classes", icon: Video },
-    { href: "/dashboard/admin/payments", label: "Payments", icon: CreditCard },
-    { href: "/dashboard/admin/creator-payouts", label: "Creator Payouts", icon: Wallet },
-    { href: "/dashboard/admin/analytics", label: "Analytics", icon: BarChart3 },
-    { href: "/dashboard/admin/announcements", label: "Announcements", icon: Megaphone },
-    { href: "/dashboard/admin/email-campaigns", label: "Email Campaigns", icon: Mail },
-    { href: "/dashboard/admin/reports", label: "Reports", icon: FileText },
-    { href: "/dashboard/admin/auth-settings", label: "Auth Settings", icon: KeyRound },
-    { href: "/dashboard/admin/display-settings", label: "Display Settings", icon: SlidersHorizontal },
-    { href: "/dashboard/admin/homepage-hero", label: "Homepage Hero", icon: Images },
-    { href: "/dashboard/admin/documentation", label: "Documentation", icon: BookMarked },
+    {
+      id: "admin-users",
+      label: "Users",
+      icon: CircleUser,
+      links: [
+        { href: "/dashboard/admin/users", label: "All Users", icon: CircleUser },
+        { href: "/dashboard/admin/creator-applications", label: "Creator Applications", icon: ClipboardCheck },
+        { href: "/dashboard/admin/creator-domains", label: "Creator Domains", icon: Globe2 },
+      ],
+    },
+    {
+      id: "admin-products",
+      label: "Products",
+      icon: Package,
+      links: [
+        { href: "/dashboard/admin/courses", label: "Courses", icon: BookOpen },
+        { href: "/dashboard/admin/courses/create", label: "Create Course", icon: PlusCircle },
+        { href: "/dashboard/admin/designs", label: "Digital Products", icon: Package },
+        { href: "/dashboard/admin/wealth", label: "Wealth Academy", icon: TrendingUp },
+        { href: "/dashboard/products", label: "My Digital Products", icon: Library },
+        { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
+      ],
+    },
+    {
+      id: "admin-orders",
+      label: "Orders",
+      icon: ShoppingBag,
+      links: [
+        { href: "/dashboard/admin/designs/orders", label: "Product Orders", icon: ShoppingBag },
+        { href: "/dashboard/admin/wealth/orders", label: "Wealth Orders", icon: ShoppingBag },
+        { href: "/dashboard/admin/payments", label: "Payments", icon: CreditCard },
+        { href: "/dashboard/admin/creator-payouts", label: "Creator Payouts", icon: Wallet },
+      ],
+    },
+    {
+      id: "admin-operations",
+      label: "Operations",
+      icon: BarChart3,
+      links: [
+        { href: "/dashboard/admin/live-classes", label: "Live Classes", icon: Video },
+        { href: "/dashboard/admin/analytics", label: "Analytics", icon: BarChart3 },
+        { href: "/dashboard/admin/announcements", label: "Announcements", icon: Megaphone },
+        { href: "/dashboard/admin/email-campaigns", label: "Email Campaigns", icon: Mail },
+        { href: "/dashboard/admin/reports", label: "Reports", icon: FileText },
+      ],
+    },
+    {
+      id: "admin-settings",
+      label: "Settings",
+      icon: SlidersHorizontal,
+      links: [
+        { href: "/dashboard/admin/auth-settings", label: "Auth Settings", icon: KeyRound },
+        { href: "/dashboard/admin/display-settings", label: "Display Settings", icon: SlidersHorizontal },
+        { href: "/dashboard/admin/homepage-hero", label: "Homepage Hero", icon: Images },
+        { href: "/dashboard/admin/documentation", label: "Documentation", icon: BookMarked },
+        { href: "/dashboard/account", label: "Account", icon: CircleUser },
+      ],
+    },
     //{ href: "/dashboard/admin/chat", label: "Chat with AI" },
-    { href: "/dashboard/account", label: "Account", icon: CircleUser },
-    ...publicLinks,
+    { id: "admin-explore", label: "Explore", icon: Globe2, links: publicLinks },
   ],
 };
 
@@ -129,6 +231,7 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
   const pathname = usePathname();
   const { profile } = useAuth();
   const [wealthPublicNavigation, setWealthPublicNavigation] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     let active = true;
@@ -140,25 +243,91 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
     };
   }, []);
 
-  const links = linkMap[role].filter((link) => {
-    if (link.href === "/wealth" && !wealthPublicNavigation) return false;
-    if (link.href === "/dashboard/teacher/wealth") {
-      return Boolean(profile?.role === "teacher" && profile.creatorStatus === "approved" && profile.wealthEnabled);
-    }
-    return true;
-  });
+  const links = useMemo(() => {
+    const shouldShowLink = (link: NavLink) => {
+      if (link.href === "/wealth" && !wealthPublicNavigation) return false;
+      if (link.href === "/dashboard/teacher/wealth") {
+        return Boolean(profile?.role === "teacher" && profile.creatorStatus === "approved" && profile.wealthEnabled);
+      }
+      return true;
+    };
+
+    return linkMap[role]
+      .map((item) => (isNavGroup(item) ? { ...item, links: item.links.filter(shouldShowLink) } : item))
+      .filter((item) => !isNavGroup(item) || item.links.length > 0);
+  }, [profile?.creatorStatus, profile?.role, profile?.wealthEnabled, role, wealthPublicNavigation]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  const renderLinks = () =>
-    links.map((link) => {
-      const active = isActive(link.href);
+  useEffect(() => {
+    const activeGroupIds = links
+      .filter(isNavGroup)
+      .filter((group) => group.links.some((link) => isActive(link.href)))
+      .map((group) => group.id);
+
+    if (activeGroupIds.length > 0) {
+      setOpenGroups((current) => {
+        const unopenedGroupIds = activeGroupIds.filter((groupId) => !current.has(groupId));
+        return unopenedGroupIds.length > 0 ? new Set([...current, ...unopenedGroupIds]) : current;
+      });
+    }
+  }, [pathname, links]);
+
+  const toggleGroup = (groupId: string) => {
+    setOpenGroups((current) => {
+      const next = new Set(current);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  };
+
+  const renderLinks = (onNavigate?: () => void) =>
+    links.map((item) => {
+      if (!isNavGroup(item)) {
+        const active = isActive(item.href);
+        return (
+          <Link key={item.href} href={item.href} onClick={onNavigate} className={linkClasses(active)} aria-current={active ? "page" : undefined}>
+            <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span className="min-w-0 truncate">{item.label}</span>
+          </Link>
+        );
+      }
+
+      const open = openGroups.has(item.id);
+      const groupActive = item.links.some((link) => isActive(link.href));
+
       return (
-        <Link key={link.href} href={link.href} className={linkClasses(active)} aria-current={active ? "page" : undefined}>
-          <link.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-          <span className="min-w-0 truncate">{link.label}</span>
-        </Link>
+        <div key={item.id} className="space-y-1">
+          <button
+            type="button"
+            onClick={() => toggleGroup(item.id)}
+            aria-expanded={open}
+            className={`flex w-full min-w-0 items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${
+              groupActive
+                ? "bg-blue-50 text-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
+                : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+            }`}
+          >
+            <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span className="min-w-0 flex-1 truncate">{item.label}</span>
+            <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+          </button>
+          {open ? (
+            <div className="ml-4 space-y-1 border-l border-slate-200 pl-2 dark:border-slate-800">
+              {item.links.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <Link key={link.href} href={link.href} onClick={onNavigate} className={linkClasses(active)} aria-current={active ? "page" : undefined}>
+                    <link.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="min-w-0 truncate">{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
       );
     });
 
@@ -166,7 +335,7 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
     <>
       <aside className="hidden w-64 shrink-0 self-start border-r border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950 lg:sticky lg:top-0 lg:block lg:h-screen lg:overflow-y-auto">
         <h2 className="mb-6 text-xl font-semibold text-slate-900 dark:text-white">AdventSkool</h2>
-        <nav className="space-y-1">{renderLinks()}</nav>
+        <nav className="space-y-1" aria-label="Dashboard navigation">{renderLinks()}</nav>
       </aside>
 
       {mobileOpen ? (
@@ -190,17 +359,7 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
                 Close
               </button>
             </div>
-            <nav className="space-y-1">
-              {links.map((link) => {
-                const active = isActive(link.href);
-                return (
-                  <Link key={link.href} href={link.href} onClick={onClose} className={linkClasses(active)} aria-current={active ? "page" : undefined}>
-                    <link.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    <span className="min-w-0 truncate">{link.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+            <nav className="space-y-1" aria-label="Dashboard navigation">{renderLinks(onClose)}</nav>
           </aside>
         </div>
       ) : null}
