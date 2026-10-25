@@ -49,6 +49,7 @@ export interface AdventPaySummary {
   pendingCount: number;
   overdueCount: number;
   nextDueDate?: string;
+  nextScheduledDueDate?: string;
 }
 
 export type AdventPayInvoiceFilter = "all" | "paid" | "pending" | "overdue" | "void";

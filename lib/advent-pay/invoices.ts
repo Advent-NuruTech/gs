@@ -2,6 +2,7 @@ import "server-only";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { verifyTransaction } from "@/lib/paystack/api";
+import { recurringPaymentMessage, syncAdventPayRecurringInvoices } from "@/lib/advent-pay/recurring";
 
 function receiptNumber() {
   return `APR-${new Date().getFullYear()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
@@ -31,11 +32,20 @@ export async function fulfillAdventPayInvoice(reference: string) {
   // Another verified path (webhook or redirect) may have won the race.
   if (!settledInvoice) return { ok: true, status: "paid", invoiceId: String(invoice.id), alreadyFulfilled: true };
 
+  let message = `Payment for invoice ${invoice.invoice_number} has been confirmed. Your receipt is ready.`;
+  if (invoice.billing_type === "recurring") {
+    try {
+      await syncAdventPayRecurringInvoices();
+      const seriesId = String(invoice.recurring_series_id ?? invoice.id);
+      const { data: recurringInvoices } = await admin.from("advent_pay_invoices").select("*").eq("recurring_series_id", seriesId);
+      message = `Payment for invoice ${invoice.invoice_number} has been confirmed. ${recurringPaymentMessage((recurringInvoices ?? []) as Record<string, unknown>[], invoice as Record<string, unknown>)}`;
+    } catch { /* Scheduling retries through cron or the next dashboard request. */ }
+  }
   try {
     await admin.from("notifications").insert({
       user_id: invoice.customer_id,
       title: "AdventPay payment received",
-      message: `Payment for invoice ${invoice.invoice_number} has been confirmed. Your receipt is ready.`,
+      message,
       link: "/adventpay/dashboard",
     });
   } catch { /* notification delivery must not reverse a settled payment */ }

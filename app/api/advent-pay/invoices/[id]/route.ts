@@ -36,6 +36,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const nextBillingType = input.billingType ?? current.billing_type;
   const nextInterval = input.recurrenceInterval === undefined ? current.recurrence_interval : input.recurrenceInterval;
   if (nextBillingType === "recurring" && !nextInterval) return NextResponse.json({ error: "Choose a recurrence interval for a recurring invoice." }, { status: 400 });
+  const nextSeriesId = nextBillingType === "recurring" ? current.recurring_series_id ?? crypto.randomUUID() : null;
+  const nextAnchorDate = nextBillingType === "recurring"
+    ? current.recurrence_anchor_date ?? input.dueDate ?? current.due_date
+    : null;
   const nextMethod = input.paymentMethod ?? current.payment_method;
   let tillSnapshot = {};
   if (nextMethod === "till" && input.paymentMethod === "till") {
@@ -50,6 +54,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     ...(input.paymentMethod !== undefined ? { payment_method: input.paymentMethod } : {}),
     ...(input.billingType !== undefined ? { billing_type: input.billingType } : {}),
     ...(input.billingType !== undefined || input.recurrenceInterval !== undefined ? { recurrence_interval: nextBillingType === "recurring" ? nextInterval : null } : {}),
+    ...(input.billingType !== undefined ? { recurring_series_id: nextSeriesId, recurrence_anchor_date: nextAnchorDate } : {}),
     ...(input.receiptReceivedFromName !== undefined ? { receipt_received_from_name: input.receiptReceivedFromName } : {}),
     ...(input.receiptReceivedFromEmail !== undefined ? { receipt_received_from_email: input.receiptReceivedFromEmail } : {}),
     ...(input.receiptNote !== undefined ? { receipt_note: input.receiptNote, receipt_updated_at: new Date().toISOString() } : {}),

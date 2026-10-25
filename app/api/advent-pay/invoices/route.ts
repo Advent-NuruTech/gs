@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getRequestUser } from "@/lib/api/requireUser";
+import { syncAdventPayRecurringInvoices } from "@/lib/advent-pay/recurring";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -51,6 +52,12 @@ export async function GET(request: NextRequest) {
   }
 
   const admin = getSupabaseAdminClient();
+  try {
+    // Also reconcile on a dashboard visit if the daily cron was delayed.
+    await syncAdventPayRecurringInvoices();
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Could not update recurring invoices." }, { status: 500 });
+  }
   const today = new Date().toISOString().slice(0, 10);
   let query = admin.from("advent_pay_invoices").select("*", { count: "exact" }).order("created_at", { ascending: false });
   if (user.role !== "admin") query = query.eq("customer_id", user.id);
@@ -92,6 +99,10 @@ export async function POST(request: NextRequest) {
     description: parsed.data.description, amount: parsed.data.amount, due_date: parsed.data.dueDate,
     payment_method: parsed.data.paymentMethod, billing_type: parsed.data.billingType,
     recurrence_interval: parsed.data.billingType === "recurring" ? parsed.data.recurrenceInterval : null,
+    ...(parsed.data.billingType === "recurring" ? {
+      recurring_series_id: crypto.randomUUID(),
+      recurrence_anchor_date: parsed.data.dueDate,
+    } : {}),
     receipt_received_from_name: String(customer.full_name ?? ""), receipt_received_from_email: String(customer.email ?? ""),
     created_by: user.id,
     ...(parsed.data.paymentMethod === "till" ? {
