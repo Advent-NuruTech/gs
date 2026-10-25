@@ -1,5 +1,7 @@
 export type AdventPayInvoiceStatus = "pending" | "paid" | "void" | "overdue";
 export type AdventPayPaymentMethod = "paystack" | "till";
+export type AdventPayBillingType = "one_time" | "recurring";
+export type AdventPayRecurrenceInterval = "weekly" | "monthly" | "quarterly" | "yearly";
 
 export interface AdventPayInvoice {
   id: string;
@@ -20,6 +22,11 @@ export interface AdventPayInvoice {
   manualPaymentReference?: string;
   paidAt?: string;
   receiptNumber?: string;
+  billingType: AdventPayBillingType;
+  recurrenceInterval?: AdventPayRecurrenceInterval;
+  receiptReceivedFromName: string;
+  receiptReceivedFromEmail: string;
+  receiptNote?: string;
   createdAt: string;
 }
 

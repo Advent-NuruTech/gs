@@ -34,9 +34,9 @@ export async function fulfillAdventPayInvoice(reference: string) {
   try {
     await admin.from("notifications").insert({
       user_id: invoice.customer_id,
-      title: "Advent Pay payment received",
+      title: "AdventPay payment received",
       message: `Payment for invoice ${invoice.invoice_number} has been confirmed. Your receipt is ready.`,
-      link: "/dashboard/advent-pay",
+      link: "/adventpay/dashboard",
     });
   } catch { /* notification delivery must not reverse a settled payment */ }
   return { ok: true, status: "paid", invoiceId: String(invoice.id), alreadyFulfilled: false };

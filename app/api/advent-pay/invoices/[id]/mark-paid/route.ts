@@ -21,7 +21,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!settledInvoice) return NextResponse.json({ ok: true, alreadyPaid: true });
   try {
-    await admin.from("notifications").insert({ user_id: invoice.customer_id, title: "Advent Pay payment confirmed", message: `Payment for invoice ${invoice.invoice_number} has been confirmed. Your receipt is ready.`, link: "/dashboard/advent-pay" });
+    await admin.from("notifications").insert({ user_id: invoice.customer_id, title: "AdventPay payment confirmed", message: `Payment for invoice ${invoice.invoice_number} has been confirmed. Your receipt is ready.`, link: "/adventpay/dashboard" });
   } catch { /* manual settlement remains recorded if notification is unavailable */ }
   return NextResponse.json({ ok: true });
 }

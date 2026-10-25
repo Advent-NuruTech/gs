@@ -22,7 +22,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const result = await initializeTransaction({
       email: String(invoice.customer_email || user.email), amountKobo: Math.round(Number(invoice.amount) * 100), reference,
-      callbackUrl: `${request.nextUrl.origin}/dashboard/advent-pay?reference=${reference}`,
+      callbackUrl: `${request.nextUrl.origin}/adventpay/dashboard?reference=${reference}`,
       metadata: { type: "advent_pay_invoice", invoiceId: invoice.id, invoiceNumber: invoice.invoice_number, customerId: invoice.customer_id },
     });
     const { error } = await admin.from("advent_pay_invoices").update({ paystack_reference: reference, paystack_access_code: result.accessCode }).eq("id", invoice.id).neq("status", "paid");

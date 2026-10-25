@@ -61,14 +61,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (!pathname.startsWith("/dashboard")) {
+  const isAdventPayProtectedRoute = pathname === "/adventpay/dashboard" || pathname.startsWith("/adventpay/dashboard/") || pathname === "/adventpay/admin" || pathname.startsWith("/adventpay/admin/");
+  if (!pathname.startsWith("/dashboard") && !isAdventPayProtectedRoute) {
     return response;
   }
 
   const role = request.cookies.get("adventskool_role")?.value;
 
   const redirectToLogin = () => {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL(pathname.startsWith("/adventpay") ? "/adventpay/login" : "/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     const redirect = NextResponse.redirect(loginUrl);
     response.cookies.getAll().forEach((c) => redirect.cookies.set(c));
@@ -83,6 +84,11 @@ export async function middleware(request: NextRequest) {
 
   if (!user || !role) {
     return redirectToLogin();
+  }
+
+  if (isAdventPayProtectedRoute) {
+    if (pathname.startsWith("/adventpay/admin") && role !== "admin") return redirectTo("/adventpay/dashboard");
+    return response;
   }
 
   if (pathname === "/dashboard") {
