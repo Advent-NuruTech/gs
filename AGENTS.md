@@ -85,6 +85,13 @@ npm run lint
 - Migration `0022_public_display_settings.sql` adds the public-readable, admin-writable global display setting. Apply it before deploying this feature.
 - Administrators control public view-count visibility at `/dashboard/admin/display-settings`. When disabled, view counters are omitted completely from public Digital Product and Wealth Academy cards, detail pages, catalog highlights, and creator storefronts. View tracking and internal admin/creator analytics continue unchanged, so the setting can be re-enabled without losing data.
 
+## Advent Pay invoicing
+
+- Advent Pay is the account-based invoicing module. The public `/advent-pay` page explains the service and requires users to sign in or register; authenticated users see their own invoices, pending balance, next due date, Till instructions where applicable, payment history, and post-settlement receipt downloads at `/dashboard/advent-pay`.
+- Administrators manage the module exclusively at `/dashboard/admin/advent-pay`: they set the Till name/number/instructions, create invoices for existing registered accounts, monitor the financial summary and invoice register, and manually confirm Till payments. Issuing and confirming an invoice creates an in-app notification for its customer.
+- Migration `0024_advent_pay.sql` creates `advent_pay_settings` and `advent_pay_invoices`; apply it before deployment. Till details are snapshotted onto each Till invoice so later settings edits never alter already-issued payment instructions. Amounts, status, payment references, and receipt IDs are server-managed; clients have read-only access to their own records.
+- Paystack Advent Pay transactions use `ap_` references. Customer checkout starts at `/api/advent-pay/invoices/[id]/pay`, returns to the Advent Pay dashboard, is verified server-side at `/api/advent-pay/verify`, and is also fulfilled through the existing signed Paystack webhook. A confirmed Paystack or admin-confirmed Till payment receives a receipt; receipts are downloadable HTML documents from `/api/advent-pay/invoices/[id]/receipt`. `PAYSTACK_SECRET_KEY` remains server-only.
+
 ## Project memory maintenance
 
 - Whenever a material change is made to product behavior, payments, authentication, data schema, third-party configuration, deployment, or operational setup, update this `AGENTS.md` in the same change with the current state, required configuration, and any rollout or safety notes.

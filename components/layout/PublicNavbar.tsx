@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   CircleUser,
+  CreditCard,
   Compass,
   House,
   Library,
@@ -37,6 +38,7 @@ const navLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
   { href: "/courses", label: "Courses", icon: BookOpen },
   { href: "/designs", label: "Digital Products", icon: Package },
   { href: "/wealth", label: "Wealth Academy", icon: TrendingUp },
+  { href: "/advent-pay", label: "Advent Pay", icon: CreditCard },
   { href: "/tools", label: "Tools", icon: Wrench },
   { href: "/about", label: "About", icon: Info },
   { href: "/become-a-creator", label: "Teach & sell", icon: GraduationCap },

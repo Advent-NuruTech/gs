@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 
 import { fulfillByReference } from "@/lib/paystack/fulfill";
 import { fulfillDesignOrder } from "@/lib/designs/fulfill";
+import { fulfillAdventPayInvoice } from "@/lib/advent-pay/invoices";
 
 export const runtime = "nodejs";
 
@@ -33,7 +34,9 @@ export async function POST(request: NextRequest) {
   const reference = event.data?.reference;
   if (event.event === "charge.success" && reference) {
     try {
-      if (reference.startsWith("dz_")) {
+      if (reference.startsWith("ap_")) {
+        await fulfillAdventPayInvoice(reference);
+      } else if (reference.startsWith("dz_")) {
         await fulfillDesignOrder(reference);
       } else {
         await fulfillByReference(reference);
