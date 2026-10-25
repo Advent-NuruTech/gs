@@ -6,9 +6,10 @@ export type AdventPayRecurrenceInterval = "weekly" | "monthly" | "quarterly" | "
 export interface AdventPayInvoice {
   id: string;
   invoiceNumber: string;
-  customerId: string;
+  customerId?: string;
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
   description: string;
   amount: number;
   currency: "KES";

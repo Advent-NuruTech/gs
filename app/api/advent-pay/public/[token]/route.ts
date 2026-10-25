@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { hashPublicPaymentToken } from "@/lib/advent-pay/publicLink";
+import { mobileMoneyTrackingEmail } from "@/lib/advent-pay/mobileMoney";
 import { chargeKenyanMobileMoney, initializeTransaction } from "@/lib/paystack/api";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -9,7 +10,7 @@ export const runtime = "nodejs";
 
 const paymentSchema = z.discriminatedUnion("method", [
   z.object({ method: z.literal("checkout"), email: z.string().trim().email().max(254) }),
-  z.object({ method: z.literal("mobile_money"), email: z.string().trim().email().max(254), phone: z.string().trim().regex(/^(?:\+254|254|0)(?:1|7)\d{8}$/, "Enter a Kenyan mobile number.") }),
+  z.object({ method: z.literal("mobile_money"), phone: z.string().trim().regex(/^(?:\+254|254|0)(?:1|7)\d{8}$/, "Enter a Kenyan mobile number."), provider: z.enum(["mpesa", "atl"]).default("mpesa") }),
 ]);
 const normalizePhone = (phone: string) => `+254${phone.replace(/^\+?254|^0/, "")}`;
 
@@ -45,7 +46,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const parsed = paymentSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Enter a valid email and Kenyan mobile number." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Enter the Paystack-required details for your chosen payment method." }, { status: 400 });
   const { token } = await params;
   const admin = getSupabaseAdminClient();
   const { data: invoice, error: lookupError } = await findPublicInvoice(token);
@@ -69,11 +70,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const lastPrompt = invoice.mobile_charge_last_at ? new Date(String(invoice.mobile_charge_last_at)).getTime() : 0;
     if (lastPrompt && Date.now() - lastPrompt < 30_000) return NextResponse.json({ error: "Please wait 30 seconds before sending another phone prompt." }, { status: 429 });
     const prompt = await chargeKenyanMobileMoney({
-      email: parsed.data.email, amountKobo: Math.round(Number(invoice.amount) * 100), reference,
-      phone: normalizePhone(parsed.data.phone), metadata,
+      email: mobileMoneyTrackingEmail(reference), amountKobo: Math.round(Number(invoice.amount) * 100), reference,
+      phone: normalizePhone(parsed.data.phone), provider: parsed.data.provider, metadata,
     });
     const { error } = await admin.from("advent_pay_invoices").update({
-      paystack_reference: prompt.reference, paystack_access_code: null, mobile_charge_last_at: new Date().toISOString(),
+      customer_phone: normalizePhone(parsed.data.phone), paystack_reference: prompt.reference, paystack_access_code: null, mobile_charge_last_at: new Date().toISOString(),
     }).eq("id", invoice.id).neq("status", "paid").neq("status", "void");
     if (error) throw new Error(error.message);
     return NextResponse.json({ message: prompt.displayText });

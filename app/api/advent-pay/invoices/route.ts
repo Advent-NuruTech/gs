@@ -21,8 +21,9 @@ const createSchema = z.object({
 
 function mapInvoice(row: Record<string, unknown>) {
   return {
-    id: String(row.id), invoiceNumber: String(row.invoice_number), customerId: String(row.customer_id),
+    id: String(row.id), invoiceNumber: String(row.invoice_number), customerId: row.customer_id ? String(row.customer_id) : undefined,
     customerName: String(row.customer_name ?? ""), customerEmail: String(row.customer_email ?? ""),
+    customerPhone: row.customer_phone ? String(row.customer_phone) : undefined,
     description: String(row.description), amount: Number(row.amount), currency: "KES", dueDate: String(row.due_date),
     status: String(row.status), paymentMethod: String(row.payment_method), tillName: String(row.till_name_snapshot ?? ""),
     tillNumber: String(row.till_number_snapshot ?? ""), tillInstructions: String(row.till_instructions_snapshot ?? ""),

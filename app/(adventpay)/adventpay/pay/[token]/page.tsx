@@ -23,11 +23,12 @@ export default function AdventPayPublicPaymentPage() {
   const reference = searchParams.get("reference");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [provider, setProvider] = useState<"mpesa" | "atl">("mpesa");
   const load = useCallback(() => apiRequest<{ invoice: AdventPayPublicInvoice }>(`/api/advent-pay/public/${encodeURIComponent(token)}`), [token]);
   const { data, isLoading, errorMessage, reload } = useAsyncData(load, [load]);
   const pay = useAsyncAction({
     action: async (method: "checkout" | "mobile_money") => apiRequest<PublicPaymentResponse>(`/api/advent-pay/public/${encodeURIComponent(token)}`, {
-      method: "POST", body: JSON.stringify(method === "checkout" ? { method, email } : { method, email, phone }),
+      method: "POST", body: JSON.stringify(method === "checkout" ? { method, email } : { method, phone, provider }),
     }),
     successMessage: (result) => result.message ?? "Opening secure Paystack checkout…",
     onSuccess: (result) => { if (result.authorizationUrl) window.location.assign(result.authorizationUrl); },
@@ -55,8 +56,8 @@ export default function AdventPayPublicPaymentPage() {
         <Input label="Email for this payment" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
         <Button type="submit" className="w-full" loading={pay.isLoading} loadingText="Opening checkout…"><CreditCard className="h-4 w-4" /> Pay securely with Paystack</Button>
       </form>
-      <div className="border-t border-slate-200 pt-5 dark:border-slate-700"><h2 className="font-semibold text-slate-950 dark:text-white">Prefer M-PESA?</h2><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Enter the M-PESA number to receive a prompt. Enter your PIN on your phone only—never here.</p><form className="mt-4 space-y-4" onSubmit={(event: FormEvent) => { event.preventDefault(); void pay.run("mobile_money"); }}><Input label="M-PESA phone number" type="tel" required value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+254712345678" /><Button type="submit" variant="secondary" className="w-full" loading={pay.isLoading} loadingText="Sending prompt…"><Smartphone className="h-4 w-4" /> Send M-PESA prompt</Button></form></div>
-      <p className="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400"><LockKeyhole className="mt-0.5 h-4 w-4 shrink-0" /> AdventPay never asks for or stores your M-PESA PIN.</p>
+      <div className="border-t border-slate-200 pt-5 dark:border-slate-700"><h2 className="font-semibold text-slate-950 dark:text-white">Prefer a phone prompt?</h2><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Enter the mobile-money number and network to receive a prompt. Enter your PIN on your phone only—never here.</p><form className="mt-4 space-y-4" onSubmit={(event: FormEvent) => { event.preventDefault(); void pay.run("mobile_money"); }}><Input label="Mobile-money phone number" type="tel" required value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+254712345678" /><label className="flex flex-col gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">Mobile-money network<select value={provider} onChange={(event) => setProvider(event.target.value as "mpesa" | "atl")} className="rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"><option value="mpesa">M-PESA (Safaricom)</option><option value="atl">Airtel Money</option></select></label><Button type="submit" variant="secondary" className="w-full" loading={pay.isLoading} loadingText="Sending prompt…"><Smartphone className="h-4 w-4" /> Send phone prompt</Button></form></div>
+      <p className="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400"><LockKeyhole className="mt-0.5 h-4 w-4 shrink-0" /> AdventPay never asks for or stores your mobile-money PIN.</p>
       </>}
     </div></CardBody></Card>
   </main>;

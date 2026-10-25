@@ -11,8 +11,9 @@ const editSchema = z.object({
   paymentMethod: z.enum(["paystack", "till"]).optional(),
   billingType: z.enum(["one_time", "recurring"]).optional(),
   recurrenceInterval: z.enum(["weekly", "monthly", "quarterly", "yearly"]).nullable().optional(),
-  receiptReceivedFromName: z.string().trim().min(1).max(180).optional(),
-  receiptReceivedFromEmail: z.string().trim().email().max(254).optional(),
+  // Walk-in links may deliberately have no payer details.
+  receiptReceivedFromName: z.string().trim().max(180).optional(),
+  receiptReceivedFromEmail: z.union([z.literal(""), z.string().trim().email().max(254)]).optional(),
   receiptNote: z.string().trim().max(1000).optional(),
 });
 

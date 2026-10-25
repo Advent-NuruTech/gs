@@ -33,6 +33,8 @@ export interface MobileMoneyChargeResult {
   displayText: string;
 }
 
+export type KenyanMobileMoneyProvider = "mpesa" | "atl";
+
 /**
  * Starts a Kenya M-PESA STK prompt. The customer's PIN is entered only on the
  * phone: it never passes through AdventSkool or this API.
@@ -42,6 +44,7 @@ export async function chargeKenyanMobileMoney(args: {
   amountKobo: number;
   reference: string;
   phone: string;
+  provider: KenyanMobileMoneyProvider;
   metadata?: Record<string, unknown>;
 }): Promise<MobileMoneyChargeResult> {
   const response = await fetch(`${PAYSTACK_BASE}/charge`, {
@@ -52,7 +55,7 @@ export async function chargeKenyanMobileMoney(args: {
       amount: args.amountKobo,
       reference: args.reference,
       currency: "KES",
-      mobile_money: { phone: args.phone, provider: "mpesa" },
+      mobile_money: { phone: args.phone, provider: args.provider },
       metadata: args.metadata ?? {},
     }),
   });
