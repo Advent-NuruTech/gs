@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       mobile_charge_last_at: new Date().toISOString(),
     }).eq("id", invoice.id);
     if (updateError) throw new Error(updateError.message);
-    return NextResponse.json({ invoice: responseInvoice(invoice as Record<string, unknown>), message: prompt.displayText }, { status: 201 });
+    return NextResponse.json({ invoice: responseInvoice(invoice as Record<string, unknown>), message: prompt.displayText, reference: prompt.reference }, { status: 201 });
   } catch (error) {
     // Retain a failed attempt for audit purposes but ensure it cannot be paid later.
     await admin.from("advent_pay_invoices").update({ status: "void" }).eq("id", invoice.id);

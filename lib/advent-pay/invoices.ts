@@ -51,3 +51,23 @@ export async function fulfillAdventPayInvoice(reference: string) {
   } catch { /* notification delivery must not reverse a settled payment */ }
   return { ok: true, status: "paid", invoiceId: String(invoice.id), alreadyFulfilled: false };
 }
+
+/**
+ * A short-lived dashboard fallback for asynchronous mobile-money payments.
+ * Webhooks remain the primary settlement route, but this closes the gap when
+ * a webhook is delayed or was configured after a payment prompt was sent.
+ */
+export async function reconcileRecentMobileMoneyPayments(invoices: Record<string, unknown>[]) {
+  const cutoff = Date.now() - 4 * 60_000;
+  const references = [...new Set(invoices.flatMap((invoice) => {
+    const promptedAt = invoice.mobile_charge_last_at ? new Date(String(invoice.mobile_charge_last_at)).getTime() : 0;
+    const reference = typeof invoice.paystack_reference === "string" ? invoice.paystack_reference : "";
+    return invoice.status === "pending" && invoice.payment_method === "paystack" && promptedAt >= cutoff && reference.startsWith("ap_")
+      ? [reference]
+      : [];
+  }))];
+
+  if (!references.length) return false;
+  const results = await Promise.allSettled(references.map((reference) => fulfillAdventPayInvoice(reference)));
+  return results.some((result) => result.status === "fulfilled" && result.value.ok && result.value.status === "paid");
+}

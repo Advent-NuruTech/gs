@@ -35,16 +35,19 @@ export async function POST(request: NextRequest) {
   if (event.event === "charge.success" && reference) {
     try {
       if (reference.startsWith("ap_")) {
-        await fulfillAdventPayInvoice(reference);
+        const result = await fulfillAdventPayInvoice(reference);
+        // A just-created phone prompt can very rarely receive its event before
+        // its reference update commits. Returning a non-2xx response lets
+        // Paystack retry rather than leaving a successful payment pending.
+        if (!result.ok && result.status !== "void") throw new Error(result.message ?? "Payment was not settled.");
       } else if (reference.startsWith("dz_")) {
         await fulfillDesignOrder(reference);
       } else {
         await fulfillByReference(reference);
       }
     } catch (error) {
-      // Acknowledge anyway so Paystack doesn't hammer retries on transient errors;
-      // the redirect verify path is a backstop.
       console.error("[paystack webhook] fulfillment error:", (error as Error).message);
+      return NextResponse.json({ error: "Payment fulfillment failed; retry requested." }, { status: 500 });
     }
   }
 

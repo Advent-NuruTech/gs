@@ -37,7 +37,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
     const { error } = await admin.from("advent_pay_invoices").update({ customer_phone: normalizePhone(parsed.data.phone), paystack_reference: prompt.reference, paystack_access_code: null, mobile_charge_last_at: new Date().toISOString() }).eq("id", invoice.id).neq("status", "paid");
     if (error) throw new Error(error.message);
-    return NextResponse.json({ message: prompt.displayText });
+    return NextResponse.json({ message: prompt.displayText, reference: prompt.reference });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Could not send the mobile-money prompt." }, { status: 502 });
   }

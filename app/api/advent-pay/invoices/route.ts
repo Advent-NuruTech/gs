@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getRequestUser } from "@/lib/api/requireUser";
+import { reconcileRecentMobileMoneyPayments } from "@/lib/advent-pay/invoices";
 import { syncAdventPayRecurringInvoices } from "@/lib/advent-pay/recurring";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -24,6 +25,7 @@ function mapInvoice(row: Record<string, unknown>) {
     id: String(row.id), invoiceNumber: String(row.invoice_number), customerId: row.customer_id ? String(row.customer_id) : undefined,
     customerName: String(row.customer_name ?? ""), customerEmail: String(row.customer_email ?? ""),
     customerPhone: row.customer_phone ? String(row.customer_phone) : undefined,
+    mobileChargeLastAt: row.mobile_charge_last_at ? String(row.mobile_charge_last_at) : undefined,
     description: String(row.description), amount: Number(row.amount), currency: "KES", dueDate: String(row.due_date),
     status: String(row.status), paymentMethod: String(row.payment_method), tillName: String(row.till_name_snapshot ?? ""),
     tillNumber: String(row.till_number_snapshot ?? ""), tillInstructions: String(row.till_instructions_snapshot ?? ""),
@@ -61,14 +63,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Could not update recurring invoices." }, { status: 500 });
   }
   const today = new Date().toISOString().slice(0, 10);
-  let query = admin.from("advent_pay_invoices").select("*", { count: "exact" }).order("created_at", { ascending: false });
-  if (user.role !== "admin") query = query.eq("customer_id", user.id);
-  if (status === "paid" || status === "void") query = query.eq("status", status);
-  if (status === "pending") query = query.eq("status", "pending").gte("due_date", today);
-  if (status === "overdue") query = query.neq("status", "paid").neq("status", "void").lt("due_date", today);
-  if (billingType !== "all") query = query.eq("billing_type", billingType);
-  const { data, error, count } = await query.range((page - 1) * pageSize, page * pageSize - 1);
+  const fetchPage = () => {
+    let query = admin.from("advent_pay_invoices").select("*", { count: "exact" }).order("created_at", { ascending: false });
+    if (user.role !== "admin") query = query.eq("customer_id", user.id);
+    if (status === "paid" || status === "void") query = query.eq("status", status);
+    if (status === "pending") query = query.eq("status", "pending").gte("due_date", today);
+    if (status === "overdue") query = query.neq("status", "paid").neq("status", "void").lt("due_date", today);
+    if (billingType !== "all") query = query.eq("billing_type", billingType);
+    return query.range((page - 1) * pageSize, page * pageSize - 1);
+  };
+  let { data, error, count } = await fetchPage();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // Mobile-money prompts complete asynchronously. Re-query only when this
+  // request successfully settled a very recent prompt.
+  if (await reconcileRecentMobileMoneyPayments((data ?? []) as Record<string, unknown>[])) {
+    ({ data, error, count } = await fetchPage());
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   const total = count ?? 0;
   return NextResponse.json({
     invoices: (data ?? []).map((row) => mapInvoice(row as Record<string, unknown>)),

@@ -10,6 +10,7 @@ export interface AdventPayInvoice {
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
+  mobileChargeLastAt?: string;
   description: string;
   amount: number;
   currency: "KES";
