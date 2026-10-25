@@ -27,4 +27,6 @@ export interface CreateUserInput {
   marketingSubscribed?: boolean;
   creatorApplication?: boolean;
   whatsapp?: string;
+  /** Safe in-app destination to use after the email-confirmation link. */
+  emailConfirmationRedirectPath?: string;
 }

@@ -15,11 +15,21 @@ import { useAuthMethodSettings } from "@/hooks/useAuthMethodSettings";
 import { getUserProfile, loginUser, registerUser } from "@/services/authService";
 
 const dashboardFor = (role: string) => role === "admin" ? "/adventpay/admin" : "/adventpay/dashboard";
+const isAdventPayPath = (value: string | null) => Boolean(value?.startsWith("/adventpay/") && !value.startsWith("//"));
+
+function syncDashboardCookie(userId: string, role: string) {
+  const maxAge = 60 * 60 * 24 * 365;
+  document.cookie = `adventskool_uid=${userId}; path=/; max-age=${maxAge}; samesite=lax`;
+  document.cookie = `adventskool_role=${role}; path=/; max-age=${maxAge}; samesite=lax`;
+}
 
 export default function AdventPayAuth({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter(); const searchParams = useSearchParams(); const { profile, loading: authLoading } = useAuth(); const methods = useAuthMethodSettings();
   const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [phone, setPhone] = useState(""); const [showPassword, setShowPassword] = useState(false); const [isLoading, setIsLoading] = useState(false); const [message, setMessage] = useState<{ kind: "error" | "success"; text: string } | null>(null);
-  const redirect = useMemo(() => { const value = searchParams.get("redirect"); return value?.startsWith("/") && !value.startsWith("//") ? value : null; }, [searchParams]);
+  const redirect = useMemo(() => {
+    const value = searchParams.get("redirect");
+    return isAdventPayPath(value) ? value : null;
+  }, [searchParams]);
   useEffect(() => { if (!authLoading && profile) router.replace(redirect ?? dashboardFor(profile.role)); }, [authLoading, profile, redirect, router]);
   const isSignup = mode === "signup";
   const valid = isSignup ? name.trim().length > 2 && email.includes("@") && password.length >= 6 : email.includes("@") && password.length >= 6;
@@ -27,13 +37,23 @@ export default function AdventPayAuth({ mode }: { mode: "login" | "signup" }) {
     event.preventDefault(); if (!valid || !methods?.emailEnabled) return; setIsLoading(true); setMessage(null);
     try {
       if (isSignup) {
-        const result = await registerUser({ displayName: name, email, phone, password, role: "student", marketingSubscribed: false });
+        const result = await registerUser({
+          displayName: name,
+          email,
+          phone,
+          password,
+          role: "student",
+          marketingSubscribed: false,
+          emailConfirmationRedirectPath: "/adventpay/dashboard",
+        });
         if (result.needsConfirmation) { setMessage({ kind: "success", text: `Your account is ready. Confirm the email sent to ${email}, then log in to AdventPay.` }); return; }
-        router.push(redirect ?? "/adventpay/dashboard");
+        syncDashboardCookie(result.userId, "student");
+        router.replace("/adventpay/dashboard");
       } else {
         const id = await loginUser(email, password); const account = await getUserProfile(id);
         if (!account) throw new Error("Your account profile could not be loaded.");
-        router.push(redirect ?? dashboardFor(account.role));
+        syncDashboardCookie(id, account.role);
+        router.replace(redirect ?? dashboardFor(account.role));
       }
     } catch (error) { setMessage({ kind: "error", text: error instanceof Error ? error.message : "We could not complete that request." }); }
     finally { setIsLoading(false); }

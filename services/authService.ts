@@ -46,6 +46,13 @@ export async function registerUser(input: CreateUserInput): Promise<RegisterResu
   if (input.creatorApplication && !/^254\d{9}$/.test(String(input.whatsapp ?? "").replace(/\D/g, ""))) {
     throw new Error("Enter one valid Kenyan WhatsApp number, including country code.");
   }
+  const confirmationPath = input.emailConfirmationRedirectPath;
+  const isSafeConfirmationPath = Boolean(
+    confirmationPath && confirmationPath.startsWith("/") && !confirmationPath.startsWith("//"),
+  );
+  const emailRedirectTo = isSafeConfirmationPath
+    ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(confirmationPath!)}`
+    : undefined;
   const { data, error } = await supabase.auth.signUp({
     email,
     password: input.password,
@@ -58,6 +65,7 @@ export async function registerUser(input: CreateUserInput): Promise<RegisterResu
         creator_application: input.creatorApplication === true,
         whatsapp: input.whatsapp ?? "",
       },
+      ...(emailRedirectTo ? { emailRedirectTo } : {}),
     },
   });
   if (error) throw new Error(error.message);
