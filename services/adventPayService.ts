@@ -11,6 +11,8 @@ export const saveAdventPaySettings = (data: AdventPaySettings) => apiRequest<Adv
 export const getAdventPaySummary = () => apiRequest<AdventPaySummary>("/api/advent-pay/summary");
 export const createAdventPayInvoice = (data: { customerId: string; description: string; amount: number; dueDate: string; paymentMethod: "paystack" | "till"; billingType: AdventPayBillingType; recurrenceInterval?: AdventPayRecurrenceInterval }) => apiRequest<{ invoice: AdventPayInvoice }>("/api/advent-pay/invoices", { method: "POST", body: JSON.stringify(data) });
 export const startAdventPayPayment = (id: string) => apiRequest<{ authorizationUrl: string }>(`/api/advent-pay/invoices/${id}/pay`, { method: "POST" });
+export const createAdventPayPublicLink = (id: string) => apiRequest<{ url: string }>(`/api/advent-pay/invoices/${id}/public-link`, { method: "POST" });
+export const sendAdventPayMobilePrompt = (id: string, phone: string) => apiRequest<{ message: string }>(`/api/advent-pay/invoices/${id}/mobile-money`, { method: "POST", body: JSON.stringify({ phone }) });
 export const markAdventPayInvoicePaid = (id: string, reference?: string) => apiRequest<{ ok: boolean }>(`/api/advent-pay/invoices/${id}/mark-paid`, { method: "POST", body: JSON.stringify({ reference }) });
 export const updateAdventPayInvoice = (id: string, data: Record<string, unknown>) => apiRequest<{ ok: boolean }>(`/api/advent-pay/invoices/${id}`, { method: "PATCH", body: JSON.stringify(data) });
 export const deleteAdventPayInvoice = (id: string) => apiRequest<{ ok: boolean }>(`/api/advent-pay/invoices/${id}`, { method: "DELETE" });

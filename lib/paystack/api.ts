@@ -27,6 +27,50 @@ export interface InitializeResult {
   reference: string;
 }
 
+export interface MobileMoneyChargeResult {
+  reference: string;
+  status: string;
+  displayText: string;
+}
+
+/**
+ * Starts a Kenya M-PESA STK prompt. The customer's PIN is entered only on the
+ * phone: it never passes through AdventSkool or this API.
+ */
+export async function chargeKenyanMobileMoney(args: {
+  email: string;
+  amountKobo: number;
+  reference: string;
+  phone: string;
+  metadata?: Record<string, unknown>;
+}): Promise<MobileMoneyChargeResult> {
+  const response = await fetch(`${PAYSTACK_BASE}/charge`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({
+      email: args.email,
+      amount: args.amountKobo,
+      reference: args.reference,
+      currency: "KES",
+      mobile_money: { phone: args.phone, provider: "mpesa" },
+      metadata: args.metadata ?? {},
+    }),
+  });
+  const payload = await response.json() as {
+    status: boolean;
+    message: string;
+    data?: { reference?: string; status?: string; display_text?: string };
+  };
+  if (!response.ok || !payload.status || !payload.data?.reference) {
+    throw new Error(payload.message || "Could not send the M-PESA prompt.");
+  }
+  return {
+    reference: payload.data.reference,
+    status: payload.data.status ?? "pending",
+    displayText: payload.data.display_text ?? "Complete the payment prompt on the phone.",
+  };
+}
+
 export async function initializeTransaction(args: InitializeArgs): Promise<InitializeResult> {
   const response = await fetch(`${PAYSTACK_BASE}/transaction/initialize`, {
     method: "POST",

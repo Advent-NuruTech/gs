@@ -33,6 +33,7 @@ function mapInvoice(row: Record<string, unknown>) {
     receiptReceivedFromName: String(row.receipt_received_from_name ?? row.customer_name ?? ""),
     receiptReceivedFromEmail: String(row.receipt_received_from_email ?? row.customer_email ?? ""),
     receiptNote: row.receipt_note ? String(row.receipt_note) : undefined,
+    publicPaymentLinkEnabled: Boolean(row.public_payment_link_enabled),
     createdAt: String(row.created_at),
   };
 }

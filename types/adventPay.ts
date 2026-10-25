@@ -27,7 +27,17 @@ export interface AdventPayInvoice {
   receiptReceivedFromName: string;
   receiptReceivedFromEmail: string;
   receiptNote?: string;
+  publicPaymentLinkEnabled?: boolean;
   createdAt: string;
+}
+
+export interface AdventPayPublicInvoice {
+  invoiceNumber: string;
+  description: string;
+  amount: number;
+  currency: "KES";
+  dueDate: string;
+  status: AdventPayInvoiceStatus;
 }
 
 export interface AdventPayCustomer {
