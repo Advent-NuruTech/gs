@@ -49,18 +49,18 @@ export default function AdventPayNotifications({ profile }: { profile: AppUser }
     </button>
     {open ? <>
       <button type="button" aria-label="Close notifications" className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(false)} />
-      <section className="absolute right-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900" aria-label="Notifications">
+      <section className="fixed inset-x-3 top-[4.5rem] z-50 mt-2 max-h-[calc(100dvh-5.5rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:max-h-none sm:w-[22rem]" aria-label="Notifications">
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 dark:border-slate-800">
-          <div><h2 className="font-semibold text-slate-950 dark:text-white">Notifications</h2><p className="text-xs text-slate-500 dark:text-slate-400">{unread.length ? `${unread.length} unread` : "You’re all caught up"}</p></div>
-          {unread.length ? <Button variant="secondary" size="sm" loading={markAllRead.isLoading} loadingText="Marking…" onClick={() => void markAllRead.run()}><CheckCheck className="h-4 w-4" /> Mark all read</Button> : null}
+          <div className="min-w-0"><h2 className="font-semibold text-slate-950 dark:text-white">Notifications</h2><p className="text-xs text-slate-500 dark:text-slate-400">{unread.length ? `${unread.length} unread` : "You’re all caught up"}</p></div>
+          {unread.length ? <Button className="shrink-0" variant="secondary" size="sm" loading={markAllRead.isLoading} loadingText="Marking…" onClick={() => void markAllRead.run()}><CheckCheck className="h-4 w-4" /> Mark all read</Button> : null}
         </div>
-        <div className="max-h-[min(28rem,65vh)] space-y-2 overflow-y-auto p-3">
+        <div className="max-h-[calc(100dvh-10.5rem)] space-y-2 overflow-y-auto p-3 sm:max-h-[min(28rem,65vh)]">
           {isLoading ? <StatusCard kind="loading" title="Loading notifications" description="Please wait a moment." /> : null}
           {errorMessage ? <StatusCard kind="error" title="Could not load notifications" description={errorMessage} actions={<Button variant="secondary" size="sm" onClick={reload}>Try again</Button>} /> : null}
           {markAllRead.status === "error" ? <StatusCard kind="error" title="Could not update notifications" description={markAllRead.errorMessage} /> : null}
           {!isLoading && !errorMessage && !notifications?.length ? <StatusCard kind="info" title="No notifications yet" description="Invoice and payment updates will appear here." /> : null}
-          {notifications?.map((notification) => <button key={notification.id} type="button" disabled={openNotification.isLoading} onClick={() => visitNotification(notification.id, notification.read, notification.link)} className={`w-full rounded-lg border p-3 text-left transition ${notification.read ? "border-slate-100 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800" : "border-sky-200 bg-sky-50 hover:bg-sky-100 dark:border-sky-900 dark:bg-sky-950/40 dark:hover:bg-sky-950/60"}`}>
-            <span className="flex min-w-0 items-start gap-2"><span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${notification.read ? "bg-transparent" : "bg-sky-600"}`} aria-hidden="true" /><span className="min-w-0"><span className="block font-semibold text-slate-950 dark:text-white">{notification.title}</span><span className="mt-1 block break-words text-sm text-slate-600 dark:text-slate-300">{notification.message}</span></span></span>
+          {notifications?.map((notification) => <button key={notification.id} type="button" disabled={openNotification.isLoading} onClick={() => visitNotification(notification.id, notification.read, notification.link)} className={`w-full min-w-0 rounded-lg border p-3 text-left transition ${notification.read ? "border-slate-100 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800" : "border-sky-200 bg-sky-50 hover:bg-sky-100 dark:border-sky-900 dark:bg-sky-950/40 dark:hover:bg-sky-950/60"}`}>
+            <span className="flex min-w-0 items-start gap-2"><span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${notification.read ? "bg-transparent" : "bg-sky-600"}`} aria-hidden="true" /><span className="min-w-0"><span className="block break-words font-semibold text-slate-950 dark:text-white">{notification.title}</span><span className="mt-1 block break-words text-sm text-slate-600 dark:text-slate-300">{notification.message}</span></span></span>
           </button>)}
         </div>
       </section>
