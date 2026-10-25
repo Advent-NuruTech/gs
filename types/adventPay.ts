@@ -48,4 +48,22 @@ export interface AdventPaySummary {
   paidCount: number;
   pendingCount: number;
   overdueCount: number;
+  nextDueDate?: string;
+}
+
+export type AdventPayInvoiceFilter = "all" | "paid" | "pending" | "overdue" | "void";
+
+export interface AdventPayInvoicePage {
+  invoices: AdventPayInvoice[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface AdventPayInvoiceQuery {
+  page?: number;
+  pageSize?: number;
+  status?: AdventPayInvoiceFilter;
+  billingType?: "all" | AdventPayBillingType;
 }

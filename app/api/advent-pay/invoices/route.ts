@@ -39,12 +39,35 @@ function mapInvoice(row: Record<string, unknown>) {
 export async function GET(request: NextRequest) {
   const user = await getRequestUser(request);
   if (!user) return NextResponse.json({ error: "Please sign in to view AdventPay." }, { status: 401 });
+  const { searchParams } = request.nextUrl;
+  const requestedPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const requestedPageSize = Number.parseInt(searchParams.get("pageSize") ?? "25", 10);
+  const page = Number.isFinite(requestedPage) ? Math.max(1, requestedPage) : 1;
+  const pageSize = Number.isFinite(requestedPageSize) ? Math.min(100, Math.max(10, requestedPageSize)) : 25;
+  const status = searchParams.get("status") ?? "all";
+  const billingType = searchParams.get("billingType") ?? "all";
+  if (!["all", "paid", "pending", "overdue", "void"].includes(status) || !["all", "one_time", "recurring"].includes(billingType)) {
+    return NextResponse.json({ error: "Invalid invoice filter." }, { status: 400 });
+  }
+
   const admin = getSupabaseAdminClient();
-  let query = admin.from("advent_pay_invoices").select("*").order("created_at", { ascending: false });
+  const today = new Date().toISOString().slice(0, 10);
+  let query = admin.from("advent_pay_invoices").select("*", { count: "exact" }).order("created_at", { ascending: false });
   if (user.role !== "admin") query = query.eq("customer_id", user.id);
-  const { data, error } = await query;
+  if (status === "paid" || status === "void") query = query.eq("status", status);
+  if (status === "pending") query = query.eq("status", "pending").gte("due_date", today);
+  if (status === "overdue") query = query.neq("status", "paid").neq("status", "void").lt("due_date", today);
+  if (billingType !== "all") query = query.eq("billing_type", billingType);
+  const { data, error, count } = await query.range((page - 1) * pageSize, page * pageSize - 1);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ invoices: (data ?? []).map((row) => mapInvoice(row as Record<string, unknown>)) });
+  const total = count ?? 0;
+  return NextResponse.json({
+    invoices: (data ?? []).map((row) => mapInvoice(row as Record<string, unknown>)),
+    page,
+    pageSize,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+  });
 }
 
 export async function POST(request: NextRequest) {

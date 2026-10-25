@@ -1,7 +1,10 @@
 import { apiRequest } from "@/lib/api/client";
-import type { AdventPayBillingType, AdventPayCustomer, AdventPayInvoice, AdventPayRecurrenceInterval, AdventPaySettings, AdventPaySummary } from "@/types/adventPay";
+import type { AdventPayBillingType, AdventPayCustomer, AdventPayInvoice, AdventPayInvoicePage, AdventPayInvoiceQuery, AdventPayRecurrenceInterval, AdventPaySettings, AdventPaySummary } from "@/types/adventPay";
 
-export const listAdventPayInvoices = async () => (await apiRequest<{ invoices: AdventPayInvoice[] }>("/api/advent-pay/invoices")).invoices;
+export const listAdventPayInvoices = async ({ page = 1, pageSize = 25, status = "all", billingType = "all" }: AdventPayInvoiceQuery = {}) => {
+  const search = new URLSearchParams({ page: String(page), pageSize: String(pageSize), status, billingType });
+  return apiRequest<AdventPayInvoicePage>(`/api/advent-pay/invoices?${search.toString()}`);
+};
 export const listAdventPayCustomers = async () => (await apiRequest<{ customers: AdventPayCustomer[] }>("/api/advent-pay/customers")).customers;
 export const getAdventPaySettings = () => apiRequest<AdventPaySettings>("/api/advent-pay/settings");
 export const saveAdventPaySettings = (data: AdventPaySettings) => apiRequest<AdventPaySettings>("/api/advent-pay/settings", { method: "PUT", body: JSON.stringify(data) });
