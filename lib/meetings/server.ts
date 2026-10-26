@@ -15,6 +15,8 @@ export interface MeetingWriteInput {
   startTime: string;
   endTime: string;
   timezone: string;
+  meetingUrl: string | null;
+  location: string;
   recurrenceRule: string | null;
   inviteeIds: string[];
 }
@@ -168,6 +170,17 @@ export function parseMeetingInput(body: Record<string, unknown>): MeetingWriteIn
     typeof body.recurrenceRule === "string" && body.recurrenceRule.startsWith("RRULE:")
       ? body.recurrenceRule
       : null;
+  const rawMeetingUrl = typeof body.meetingUrl === "string" ? body.meetingUrl.trim() : "";
+  if (rawMeetingUrl) {
+    try {
+      const url = new URL(rawMeetingUrl);
+      if (url.protocol !== "https:" && url.protocol !== "http:") {
+        return "The session link must use http or https.";
+      }
+    } catch {
+      return "Enter a valid session link.";
+    }
+  }
 
   return {
     title,
@@ -178,6 +191,8 @@ export function parseMeetingInput(body: Record<string, unknown>): MeetingWriteIn
     startTime: start.toISOString(),
     endTime: end.toISOString(),
     timezone: typeof body.timezone === "string" && body.timezone ? body.timezone : "Africa/Nairobi",
+    meetingUrl: rawMeetingUrl || null,
+    location: typeof body.location === "string" ? body.location.trim().slice(0, 200) : "",
     recurrenceRule,
     inviteeIds: Array.isArray(body.inviteeIds) ? body.inviteeIds.map(String).filter(Boolean) : [],
   };

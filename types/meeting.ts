@@ -16,8 +16,9 @@ export interface Meeting {
   endTime: string;
   timezone: string;
   recurrenceRule?: string;
-  googleEventId?: string;
-  googleMeetUrl?: string;
+  /** Optional provider-neutral URL supplied by the host for a virtual session. */
+  meetingUrl?: string;
+  location?: string;
   status: MeetingStatus;
   createdAt?: string;
 }
@@ -31,6 +32,8 @@ export interface CreateMeetingInput {
   startTime: string;
   endTime: string;
   timezone?: string;
+  meetingUrl?: string;
+  location?: string;
   /** e.g. 'RRULE:FREQ=WEEKLY;COUNT=8' for recurring classes */
   recurrenceRule?: string | null;
   /** profile ids, only for meetingType 'custom' */
@@ -43,13 +46,9 @@ export interface UpdateMeetingInput {
   startTime?: string;
   endTime?: string;
   timezone?: string;
+  meetingUrl?: string | null;
+  location?: string;
   recurrenceRule?: string | null;
-}
-
-export interface GoogleConnectionStatus {
-  connected: boolean;
-  email: string | null;
-  connectedAt: string | null;
 }
 
 export interface MeetingAttendanceRecord {

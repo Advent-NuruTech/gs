@@ -128,7 +128,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           {
             term: "Teachers (creators)",
             description:
-              "Publish courses with rich outlines, media, and assessments, sell downloadable digital products, schedule and host live classes through Google Calendar and Meet, and receive payments through a verified Paystack subaccount.",
+              "Publish courses with rich outlines, media, and assessments, sell downloadable digital products, schedule and host live classes through the built-in AdventSkool calendar, and receive payments through a verified Paystack subaccount.",
           },
           {
             term: "Administrators",
@@ -417,7 +417,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
         kind: "bullets",
         title: "Teach live",
         items: [
-          "Schedule one-off or repeating live classes through Google Calendar, which generate a Google Meet link automatically.",
+          "Schedule one-off or repeating live classes in the built-in AdventSkool calendar, with optional host-provided session links.",
           "Target a whole course, every learner, all teachers, all students, a custom list of invitees, or a single personal session.",
           "Record attendance automatically: first join, last join, join count, and total minutes attended.",
         ],

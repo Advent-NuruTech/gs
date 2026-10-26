@@ -46,7 +46,7 @@ const offerings = [
   {
     title: "For Teachers",
     description:
-      "Upload courses with rich outlines and media, schedule and host live classes via Google Calendar and Meet, and engage learners with structured assessments.",
+      "Upload courses with rich outlines and media, schedule and host live classes through AdventSkool's built-in calendar, and engage learners with structured assessments.",
   },
   {
     title: "For Administrators",

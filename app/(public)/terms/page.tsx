@@ -46,9 +46,9 @@ const sections = [
       "Refund eligibility is described on each course's page and at the time of purchase. Where required by applicable consumer protection law, you may be entitled to a statutory cooling-off period and refund rights, which these Terms do not limit or exclude. Subscriptions renew automatically unless cancelled before the renewal date; you may cancel at any time through your account settings, and cancellation takes effect at the end of the current billing period.",
   },
   {
-    title: "8. Live Classes & Third-Party Integrations",
+    title: "8. Live Classes & Session Links",
     content:
-      "The Platform may offer live classes and scheduling features that integrate with third-party services, including Google Calendar and Google Meet. Your use of those integrations is also subject to the terms and privacy policies of the relevant third-party provider. We are not responsible for the availability, performance, or content of third-party services. Use of Google services is additionally governed by Google's Terms of Service.",
+      "Live classes, meetings, invitations, reminders, attendance records, and calendar views are provided within AdventSkool. Hosts may add a link to an external session provider. If you open such a link, your use of that third-party service is subject to its own terms and privacy policy; AdventSkool is not responsible for its availability, performance, or content.",
   },
   {
     title: "9. User-Generated Content",

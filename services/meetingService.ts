@@ -1,7 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   CreateMeetingInput,
-  GoogleConnectionStatus,
   Meeting,
   MeetingAttendanceRecord,
   UpdateMeetingInput,
@@ -25,8 +24,8 @@ function mapMeeting(row: Record<string, unknown>): Meeting {
     endTime: String(row.end_time ?? ""),
     timezone: String(row.timezone ?? "Africa/Nairobi"),
     recurrenceRule: row.recurrence_rule ? String(row.recurrence_rule) : undefined,
-    googleEventId: row.google_event_id ? String(row.google_event_id) : undefined,
-    googleMeetUrl: row.google_meet_url ? String(row.google_meet_url) : undefined,
+    meetingUrl: row.meeting_url ? String(row.meeting_url) : undefined,
+    location: row.location ? String(row.location) : undefined,
     status: (row.status as Meeting["status"]) ?? "scheduled",
     createdAt: row.created_at ? String(row.created_at) : undefined,
   };
@@ -59,8 +58,9 @@ export async function listMyMeetings(options?: {
     .neq("status", "cancelled")
     .order("start_time", { ascending: true });
   if (!options?.includePast) {
-    // Keep meetings visible for 2h after their start so "live now" still shows.
-    query = query.gte("start_time", new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString());
+    // Recurring events may have started in the past but still have future occurrences.
+    const since = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    query = query.or(`start_time.gte.${since},recurrence_rule.not.is.null`);
   }
   if (options?.courseId) query = query.eq("course_id", options.courseId);
   const { data, error } = await query;
@@ -104,11 +104,11 @@ export async function listMeetingAttendance(
   });
 }
 
-// Writes (server API keeps Google Calendar in sync) ---------------------------
+// Writes (server API persists events in the AdventSkool calendar) ------------
 
 export async function createMeeting(input: CreateMeetingInput): Promise<{
   id: string;
-  meetUrl: string | null;
+  meetingUrl: string | null;
 }> {
   const response = await fetch("/api/meetings", {
     method: "POST",
@@ -116,7 +116,7 @@ export async function createMeeting(input: CreateMeetingInput): Promise<{
     body: JSON.stringify(input),
   });
   if (!response.ok) throw new Error(await parseError(response, "Could not create the meeting."));
-  const payload = (await response.json()) as { id: string; meetUrl: string | null };
+  const payload = (await response.json()) as { id: string; meetingUrl: string | null };
   return payload;
 }
 
@@ -137,51 +137,13 @@ export async function cancelMeeting(meetingId: string): Promise<void> {
   if (!response.ok) throw new Error(await parseError(response, "Could not cancel the meeting."));
 }
 
-/** Records attendance and returns the Meet URL to open. */
+/** Records attendance and returns the host-provided session URL. */
 export async function joinMeeting(meetingId: string): Promise<string> {
   const response = await fetch(`/api/meetings/${meetingId}/join`, {
     method: "POST",
     headers: await authHeaders(),
   });
   if (!response.ok) throw new Error(await parseError(response, "Could not join the meeting."));
-  const payload = (await response.json()) as { meetUrl: string };
-  return payload.meetUrl;
-}
-
-export async function syncMeetingAttendance(meetingId: string): Promise<{
-  participantsFound: number;
-  recordsUpdated: number;
-  note?: string;
-}> {
-  const response = await fetch(`/api/meetings/${meetingId}/attendance`, {
-    method: "POST",
-    headers: await authHeaders(),
-  });
-  if (!response.ok) throw new Error(await parseError(response, "Attendance sync failed."));
-  return (await response.json()) as {
-    participantsFound: number;
-    recordsUpdated: number;
-    note?: string;
-  };
-}
-
-// Google connection -----------------------------------------------------------
-
-export async function getGoogleStatus(): Promise<GoogleConnectionStatus> {
-  const response = await fetch("/api/google/status", { headers: await authHeaders() });
-  if (!response.ok) return { connected: false, email: null, connectedAt: null };
-  return (await response.json()) as GoogleConnectionStatus;
-}
-
-export async function disconnectGoogle(): Promise<void> {
-  const response = await fetch("/api/google/status", {
-    method: "DELETE",
-    headers: await authHeaders(),
-  });
-  if (!response.ok) throw new Error(await parseError(response, "Could not disconnect Google."));
-}
-
-/** Browser navigation that starts the Google consent flow. */
-export function startGoogleConnect(redirectPath: string): void {
-  window.location.href = `/api/google/oauth/start?redirect=${encodeURIComponent(redirectPath)}`;
+  const payload = (await response.json()) as { meetingUrl: string };
+  return payload.meetingUrl;
 }

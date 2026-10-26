@@ -36,9 +36,9 @@ const sections = [
       "Where the GDPR or similar laws apply, we process your personal data on the following legal bases: (a) performance of a contract — to provide the services you request; (b) consent — for example, for certain marketing communications and non-essential cookies, which you may withdraw at any time; (c) legitimate interests — to operate, secure, and improve the Platform, provided these are not overridden by your rights; and (d) legal obligation — to comply with applicable laws and regulatory requirements.",
   },
   {
-    title: "6. Google User Data & Limited Use",
+    title: "6. Google Sign-In Data",
     content:
-      "When you connect your Google account or sign in with Google, we access only the Google user data necessary to provide the requested features, such as your basic profile information and, for teachers and administrators who enable live classes, Google Calendar and Google Meet data used to create and manage class events. Advent Skool's use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements. We do not use Google user data for advertising, we do not sell it, and we do not transfer it to third parties except as necessary to provide or improve the requested features, to comply with applicable law, or as part of a merger or acquisition. You can revoke our access at any time via your Google Account security settings.",
+      "When you sign in with Google, we access only the basic identity data needed to create and maintain your AdventSkool account, such as your name, email address, and profile image where available. AdventSkool does not access, read, or write Google Calendar or Google Meet data. We do not use Google user data for advertising, sell it, or transfer it to third parties except as necessary to provide the sign-in feature, comply with applicable law, or as part of a merger or acquisition. You can revoke sign-in access at any time through your Google Account security settings.",
   },
   {
     title: "7. Payment Processing",

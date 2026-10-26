@@ -42,6 +42,14 @@ npm run lint
 - Wealth email templates (`wealthOrderAdminEmail`, `wealthOrderCompletedEmail`) live in `lib/email/templates.ts`. `PublicNavbar` (nav link + global search), `Footer`, `dashboard/Sidebar`, `app/sitemap.ts`, and `CatalogFilterBar` (emerald accent) are wired for wealth. `ShareButton.entityLabel` now also accepts `"Resource"`.
 - Categories live in `types/wealth.ts` (`WEALTH_CATEGORIES`) and cover foundations, mindset, budgeting/saving, debt freedom, investing basics, wealth generation/preservation, family wealth & legacy, estate/inheritance, eradicating generational poverty, financial literacy for kids, business, real estate, retirement, and faith & stewardship.
 
+## Native calendar and live classes
+
+- AdventSkool owns calendar events at the role-specific `/dashboard/*/live-classes` routes. Teachers schedule their own course live classes, administrators can also target roles or custom invitees, and students create personal reminders. Events are visible through RLS, with invitations, reschedules, cancellations, and 24-hour/one-hour reminders delivered in the in-app notification feed.
+- Migration `0032_native_calendar.sql` removes the old Google Calendar/Meet OAuth token vault, renames `google_meet_url` to the provider-neutral `meeting_url`, drops Google event/calendar identifiers, adds an optional event location, and creates idempotent reminder-delivery records. **Apply it before deploying this feature.** It intentionally deletes stored calendar OAuth credentials; Google Sign-In through Supabase remains unaffected.
+- Hosts may add any valid HTTP(S) session URL. A Join action records in-app attendance before opening it. The calendar renders one-off and supported daily/weekly repeat occurrences, and each visible event can be downloaded as an `.ics` calendar file from `/api/meetings/[id]/ics`.
+- Configure protected `GET`/`POST /api/cron/calendar-reminders` with `CRON_SECRET` every five minutes. The job uses delivery records to prevent duplicate 24-hour and one-hour reminders when executions retry.
+- Google Cloud configuration needs only Google Sign-In identity scopes (`openid`, `email`, `profile`). Do not configure Calendar or Meet scopes, APIs, or the retired `/api/google/oauth/*` redirect routes. See `docs/GOOGLE_SETUP.md`.
+
 ## Documentation handbook
 
 - The canonical internal documentation is the handbook at `/dashboard/admin/documentation`, admin-only (enforced by the `/dashboard/admin` prefix rule in `middleware.ts` plus `useRoleGuard(["admin"])` in `components/dashboard/HandbookViewer.tsx`). It explains what the platform is for, what is sold, how creators receive money, the operating model, policies, and FAQs, and it is downloadable as a PDF.

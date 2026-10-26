@@ -14,7 +14,7 @@ interface JoinMeetingButtonProps {
 
 /** Joinable from 15 minutes before start until 2 hours after start. */
 export function isJoinableNow(meeting: Meeting): boolean {
-  if (meeting.status !== "scheduled" || !meeting.googleMeetUrl) return false;
+  if (meeting.status !== "scheduled" || !meeting.meetingUrl) return false;
   const start = new Date(meeting.startTime).getTime();
   const now = Date.now();
   // Recurring meetings keep the original start date — always allow joining
@@ -24,22 +24,23 @@ export function isJoinableNow(meeting: Meeting): boolean {
 }
 
 /**
- * One-click join: records attendance through the API, then opens Google Meet.
+ * One-click join: records attendance through the API, then opens the host's
+ * provider-neutral session link.
  * Only rendered for users who can see the meeting (RLS already filtered).
  */
 export default function JoinMeetingButton({ meeting, className = "" }: JoinMeetingButtonProps) {
   const { pushToast } = useNotificationContext();
   const [busy, setBusy] = useState(false);
 
-  if (!meeting.googleMeetUrl || meeting.status !== "scheduled") return null;
+  if (!meeting.meetingUrl || meeting.status !== "scheduled") return null;
 
   const joinable = isJoinableNow(meeting);
 
   const handleJoin = async () => {
     setBusy(true);
     try {
-      const meetUrl = await joinMeeting(meeting.id);
-      window.open(meetUrl, "_blank", "noopener,noreferrer");
+      const meetingUrl = await joinMeeting(meeting.id);
+      window.open(meetingUrl, "_blank", "noopener,noreferrer");
     } catch (error) {
       pushToast(error instanceof Error ? error.message : "Could not join.", "error");
     } finally {
@@ -52,7 +53,7 @@ export default function JoinMeetingButton({ meeting, className = "" }: JoinMeeti
       type="button"
       onClick={handleJoin}
       disabled={busy || !joinable}
-      title={joinable ? "Open Google Meet" : "Available 15 minutes before start"}
+      title={joinable ? "Open session" : "Available 15 minutes before start"}
       className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
         joinable
           ? "bg-emerald-600 text-white hover:bg-emerald-700"

@@ -55,6 +55,8 @@ export default function MeetingScheduler({
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [meetingUrl, setMeetingUrl] = useState("");
   const [meetingType, setMeetingType] = useState<MeetingType>(
     role === "student" ? "reminder" : "live_class",
   );
@@ -79,6 +81,8 @@ export default function MeetingScheduler({
     if (editing) {
       setTitle(editing.title);
       setDescription(editing.description);
+      setLocation(editing.location ?? "");
+      setMeetingUrl(editing.meetingUrl ?? "");
       setMeetingType(editing.meetingType);
       setCourseId(editing.courseId ?? "");
       setStart(toLocalInputValue(editing.startTime));
@@ -93,6 +97,8 @@ export default function MeetingScheduler({
     } else {
       setTitle("");
       setDescription("");
+      setLocation("");
+      setMeetingUrl("");
       setMeetingType(role === "student" ? "reminder" : "live_class");
       setCourseId("");
       setStart(toLocalInputValue());
@@ -134,9 +140,11 @@ export default function MeetingScheduler({
           startTime: startDate.toISOString(),
           endTime: endDate.toISOString(),
           timezone,
+          location,
+          meetingUrl: meetingUrl || null,
           recurrenceRule: recurrence || null,
         });
-        pushToast("Meeting updated. Google Calendar invitations were refreshed.", "success");
+        pushToast("Calendar event updated. Participants have been notified.", "success");
       } else {
         const input: CreateMeetingInput = {
           title: title.trim(),
@@ -154,6 +162,8 @@ export default function MeetingScheduler({
           startTime: startDate.toISOString(),
           endTime: endDate.toISOString(),
           timezone,
+          location,
+          meetingUrl: meetingUrl || undefined,
           recurrenceRule: recurrence || null,
           inviteeIds: meetingType === "custom" ? inviteeIds : [],
         };
@@ -161,9 +171,9 @@ export default function MeetingScheduler({
         pushToast(
           isReminder
             ? "Reminder saved."
-            : created.meetUrl
-              ? "Meeting scheduled. Google Meet link is ready and invitations were sent."
-              : "Meeting scheduled.",
+            : created.meetingUrl
+              ? "Calendar event scheduled. Participants have been notified."
+              : "Calendar event scheduled. You can add a session link later.",
           "success",
         );
       }
@@ -231,6 +241,31 @@ export default function MeetingScheduler({
           />
         </div>
 
+        {!isReminder ? (
+          <>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Location (optional)</label>
+              <input
+                value={location}
+                onChange={(event) => setLocation(event.target.value)}
+                placeholder="e.g. Room 2 or Nairobi campus"
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Session link (optional)</label>
+              <input
+                type="url"
+                value={meetingUrl}
+                onChange={(event) => setMeetingUrl(event.target.value)}
+                placeholder="https://…"
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+              <p className="mt-1 text-xs text-slate-500">Add any secure video-session link. AdventSkool records attendance when participants join.</p>
+            </div>
+          </>
+        ) : null}
+
         {!editing && needsCourse && role !== "student" ? (
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">Course</label>
@@ -248,7 +283,7 @@ export default function MeetingScheduler({
               ))}
             </select>
             <p className="mt-1 text-xs text-slate-500">
-              Every enrolled student receives a Google Calendar invitation and sees the Join button.
+              Every enrolled student sees this event in AdventSkool and receives in-app notifications.
             </p>
           </div>
         ) : null}
