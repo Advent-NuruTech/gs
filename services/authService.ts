@@ -32,7 +32,7 @@ export interface RegisterResult {
 }
 
 /**
- * Registers a student/teacher. The `profiles` row is created automatically by
+ * Registers a student or creator. The `profiles` row is created automatically by
  * the `handle_new_user` DB trigger from the signup metadata. When the project
  * has "Confirm email" enabled, `session` is null until the user confirms.
  */

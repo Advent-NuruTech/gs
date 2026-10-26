@@ -9,6 +9,7 @@ import AuthShell from "@/components/auth/AuthShell";
 import Button from "@/components/ui/Button";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import Input from "@/components/ui/Input";
+import StatusCard from "@/components/ui/StatusCard";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useAuthMethodSettings } from "@/hooks/useAuthMethodSettings";
 import { registerUser } from "@/services/authService";
@@ -69,22 +70,36 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
         // account phone and WhatsApp contact instead of asking twice.
         phone: creatorMode ? normalizedWhatsapp : normalizedPhone,
         password,
-        role: "student",
+        // A direct creator registration must carry the creator role itself.
+        // The database trigger also uses creatorApplication to set the pending
+        // review status, but this keeps the auth metadata correct on every
+        // supported database version.
+        role: creatorMode ? "teacher" : "student",
         marketingSubscribed,
         creatorApplication: creatorMode,
         whatsapp: creatorMode ? normalizedWhatsapp : undefined,
+        emailConfirmationRedirectPath: creatorMode ? "/dashboard/teacher" : "/dashboard/student",
       });
       if (needsConfirmation) {
         pushToast(
-          `Account created. We sent a confirmation link to ${email}. Confirm it, then log in.`,
+          creatorMode
+            ? `Creator application submitted. We sent a confirmation link to ${email}. Confirm it, then log in while an administrator reviews your application.`
+            : `Account created. We sent a confirmation link to ${email}. Confirm it, then log in.`,
           "success",
         );
-        const afterLogin = redirectPath ?? (creatorMode ? "/dashboard/teacher" : null);
+        // Creator sign-up always continues in the creator workspace. In
+        // particular, do not send a new creator back to the public homepage.
+        const afterLogin = creatorMode ? "/dashboard/teacher" : (redirectPath ?? "/dashboard/student");
         router.push(`/login${afterLogin ? `?redirect=${encodeURIComponent(afterLogin)}` : ""}`);
         return;
       }
-      pushToast("Welcome! Your account has been created.", "success");
-      router.push(redirectPath ?? (creatorMode ? "/dashboard/teacher" : "/dashboard/student"));
+      pushToast(
+        creatorMode
+          ? "Creator application submitted. An administrator will review it."
+          : "Welcome! Your account has been created.",
+        "success",
+      );
+      router.push(creatorMode ? "/dashboard/teacher" : (redirectPath ?? "/dashboard/student"));
     } catch (error) {
       pushToast(
         error instanceof Error ? error.message : "Registration failed.",
@@ -121,18 +136,18 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
         >
           <div className="space-y-1 text-center">
               <h1 className="text-2xl font-bold text-slate-900">
-              {creatorMode ? "Create Creator Account" : "Create Student Account"}
+              {creatorMode ? "Apply for a Creator Account" : "Create Student Account"}
             </h1>
             <p className="text-sm text-slate-500">
-              {creatorMode ? "Create and publish courses and products " : "Start your structured learning journey today"}
+              {creatorMode ? "Submit your application for administrator review, then create and publish courses and products." : "Start your structured learning journey today"}
             </p>
           </div>
 
-          {authMethods?.googleEnabled ? (
+          {!creatorMode && authMethods?.googleEnabled ? (
             <GoogleSignInButton redirectPath={redirectPath} />
           ) : null}
 
-          {authMethods?.googleEnabled && authMethods.emailEnabled ? (
+          {!creatorMode && authMethods?.googleEnabled && authMethods.emailEnabled ? (
             <div className="flex items-center gap-3">
               <span className="h-px flex-1 bg-slate-200" />
               <span className="text-xs uppercase tracking-wide text-slate-400">or sign up with email</span>
@@ -330,7 +345,7 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                 Creating account...
               </span>
-            ) : creatorMode ? "Create Creator Account" : "Create Account"}
+            ) : creatorMode ? "Submit Creator Application" : "Create Account"}
           </Button>
             </>
           ) : null}
@@ -339,6 +354,14 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
             <p role="status" className="rounded-md border border-amber-200 bg-amber-50 p-3 text-center text-sm text-amber-800">
               Account creation is temporarily unavailable. Please try again later.
             </p>
+          ) : null}
+
+          {creatorMode && authMethods && !authMethods.emailEnabled ? (
+            <StatusCard
+              kind="warning"
+              title="Creator sign-up needs email"
+              description="Email sign-up must be enabled so we can collect and verify the required creator contact details."
+            />
           ) : null}
 
           {!authMethods ? <p className="text-center text-sm text-slate-500">Loading sign-up options...</p> : null}

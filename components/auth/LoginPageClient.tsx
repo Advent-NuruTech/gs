@@ -36,10 +36,18 @@ export default function LoginPageClient() {
     return requested;
   }, [searchParams]);
 
+  const postLoginPath = (role: "student" | "teacher" | "admin") => {
+    const dashboardPath = `/dashboard/${role}`;
+    // A creator should always enter their creator workspace after
+    // authentication. A root redirect is also never useful after login.
+    if (role === "teacher" || !redirectPath || redirectPath === "/") return dashboardPath;
+    return redirectPath;
+  };
+
   // Auto-redirect if already logged in
   useEffect(() => {
     if (authLoading || !profile) return;
-    router.replace(redirectPath ?? `/dashboard/${profile.role}`);
+    router.replace(postLoginPath(profile.role));
   }, [authLoading, profile, redirectPath, router]);
 
   // Load remembered email and user data
@@ -85,7 +93,7 @@ export default function LoginPageClient() {
       }
 
       pushToast(`Welcome back, ${userProfile.displayName || 'learner'}!`, "success");
-      router.push(redirectPath ?? `/dashboard/${userProfile.role}`);
+      router.push(postLoginPath(userProfile.role));
     } catch (error) {
       pushToast(
         error instanceof Error ? error.message : "Login failed.",

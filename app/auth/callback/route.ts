@@ -36,7 +36,11 @@ export async function GET(request: NextRequest) {
     .maybeSingle();
   const role = (profile?.role as string) ?? "student";
 
-  const response = NextResponse.redirect(new URL(safeNext ?? `/dashboard/${role}`, request.url));
+  // Never return an authenticated user to the public homepage. Creator
+  // accounts are teacher-role profiles and therefore land in their creator
+  // dashboard by default.
+  const destination = safeNext && safeNext !== "/" ? safeNext : `/dashboard/${role}`;
+  const response = NextResponse.redirect(new URL(destination, request.url));
   const maxAge = 60 * 60 * 24 * 365;
   response.cookies.set("adventskool_uid", data.user.id, { path: "/", maxAge, sameSite: "lax" });
   response.cookies.set("adventskool_role", role, { path: "/", maxAge, sameSite: "lax" });

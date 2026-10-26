@@ -54,9 +54,11 @@ export default function TeacherDashboardPage() {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl font-bold text-slate-900">Teacher Dashboard</h2>
-      <p className="text-slate-600">Manage your courses and lessons at scale.</p>
+      <h2 className="text-2xl font-bold text-slate-900">Creator Dashboard</h2>
+      <p className="text-slate-600">Manage your courses, products, and earnings in one place.</p>
       {errorMessage ? <StatusCard kind="error" title="Some overview details could not load" description={errorMessage} actions={<button type="button" onClick={reload} className="text-sm font-semibold underline">Try again</button>} /> : null}
+      {profile?.creatorStatus === "pending" ? <StatusCard kind="info" title="Creator application in review" description="Your application has been sent to the administrators. They must approve your creator account before payout routing can be enabled." /> : null}
+      {profile?.creatorStatus === "rejected" ? <StatusCard kind="warning" title="Creator application not approved" description="Contact AdventSkool support if you would like to discuss the decision." /> : null}
       {needsPayout ? <Link href="/dashboard/teacher/payouts" className="block"><StatusCard kind="warning" title="Add your payout details" description="You have published a product but have not set up a payout account yet. Add payout details to receive your share of future sales." /></Link> : null}
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
         <Link href="/dashboard/teacher/courses" className="block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" aria-label={`View ${courses.length} courses`}>

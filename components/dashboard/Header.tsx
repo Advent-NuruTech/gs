@@ -23,6 +23,13 @@ interface HeaderProps {
   onMenuClick?: () => void;
 }
 
+function accountRoleLabel(role: "student" | "teacher" | "admin" | undefined) {
+  if (role === "teacher") return "Creator";
+  if (role === "student") return "Student";
+  if (role === "admin") return "Admin";
+  return "Guest";
+}
+
 const ADMIN_SEARCH_LINKS: Array<{ label: string; href: string; keywords: string[] }> = [
   { label: "Admin Overview", href: "/dashboard/admin", keywords: ["overview", "home", "dashboard"] },
   { label: "Users", href: "/dashboard/admin/users", keywords: ["users", "students", "teachers", "admins"] },
@@ -172,7 +179,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           </svg>
         </button>
         <div className="min-w-0">
-          <p className="truncate text-xs uppercase tracking-wide text-slate-500">{profile?.role ?? "guest"}</p>
+          <p className="truncate text-xs uppercase tracking-wide text-slate-500">{accountRoleLabel(profile?.role)}</p>
           <h1 className="truncate text-lg font-semibold text-slate-900">{profile?.displayName ?? "Dashboard"}</h1>
         </div>
       </div>
