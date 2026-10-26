@@ -84,7 +84,7 @@ export default function PdfPreview({ product, onUnlock }: Props) {
                   : `Pay ${formatKsh(product.downloadPrice)} to read the full resource.`}
               </p>
             </div>
-            <Button onClick={onUnlock}>
+            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={onUnlock}>
               {isFree ? "Read the full resource — Free" : `Read for ${formatKsh(product.downloadPrice)}`}
             </Button>
           </div>

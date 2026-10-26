@@ -15,7 +15,7 @@ export default function CreatorProfile({ creator }: { creator: CreatorStorefront
     <div className="creator-profile min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-white">
       <header className="border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
         <div className="mx-auto flex min-h-20 max-w-5xl items-center px-4 sm:px-6">
-          <Link href={storefrontPath} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:text-slate-200 dark:hover:bg-blue-950 dark:hover:text-blue-100">
+          <Link href={storefrontPath} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:text-slate-200 dark:hover:bg-emerald-950 dark:hover:text-emerald-100">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back to store
           </Link>
@@ -41,7 +41,7 @@ export default function CreatorProfile({ creator }: { creator: CreatorStorefront
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Link href={storefrontPath} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Visit store</Link>
+                <Link href={storefrontPath} className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500">Visit store</Link>
                 <ShareButton title={`${creator.name}'s profile`} entityLabel="Profile" path={`${siteUrl}${storefrontPath}/profile`} className="rounded-xl px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
               </div>
             </div>

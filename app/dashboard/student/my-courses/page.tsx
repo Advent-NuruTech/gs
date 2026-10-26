@@ -140,7 +140,9 @@ export default function MyCoursesPage() {
                   <p className="text-sm text-slate-600">Progress: {enrollment.progress}%</p>
                   <Link
                     href={href}
-                    className="mt-2 inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                    className={`mt-2 inline-flex rounded-md px-3 py-2 text-sm font-semibold text-white ${
+                      isRevised ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"
+                    }`}
                   >
                     {isRevised ? "Revised" : "Continue"}
                   </Link>
@@ -163,7 +165,7 @@ export default function MyCoursesPage() {
                 <p className="text-sm text-emerald-800">You have completed this course.</p>
                 <Link
                   href={`/dashboard/student/my-courses/${enrollment.courseId}`}
-                  className="mt-2 inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                  className="mt-2 inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
                 >
                   Revise
                 </Link>

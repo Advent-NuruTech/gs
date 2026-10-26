@@ -145,7 +145,9 @@ export default function StudentDashboardPage() {
                 <ProgressBar value={enrollment.progress} />
                 <Link
                   href={href}
-                  className="inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                  className={`inline-flex rounded-md px-3 py-2 text-sm font-semibold text-white ${
+                    isRevised ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"
+                  }`}
                 >
                   {isRevised ? "Revise" : "Continue"}
                 </Link>
@@ -161,7 +163,7 @@ export default function StudentDashboardPage() {
               <ProgressBar value={100} />
               <Link
                 href={`/dashboard/student/my-courses/${enrollment.courseId}`}
-                className="inline-flex rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                className="inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
               >
                 Revise
               </Link>

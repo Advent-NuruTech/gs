@@ -123,7 +123,7 @@ export default function AdminLoginPageClient() {
           <Button
             type="submit"
             disabled={loading || !isValid}
-            className="w-full bg-blue-600 hover:bg-blue-700"
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
           >
             {loading ? "Signing in…" : "Sign in to Admin"}
           </Button>

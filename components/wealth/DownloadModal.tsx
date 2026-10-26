@@ -136,7 +136,7 @@ export default function DownloadModal({
               <p className="font-semibold">Sign in to build your wealth library</p>
               <p className="mt-1 text-xs text-amber-800">Your purchase will appear in your dashboard so you can return and keep reading.</p>
               <div className="mt-3 flex gap-2">
-                <Link href={`/login?redirect=${encodeURIComponent(returnPath)}`} className="rounded-md bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700">
+                <Link href={`/login?redirect=${encodeURIComponent(returnPath)}`} className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-bold text-white">
                   Sign in
                 </Link>
                 <Link href={`/register?redirect=${encodeURIComponent(returnPath)}`} className="rounded-md border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-700">
@@ -154,7 +154,7 @@ export default function DownloadModal({
         </div>
 
         <div className="space-y-3 border-t border-slate-200 px-6 py-4">
-          <Button type="submit" className="w-full" disabled={submitting || (accessMode === "read_online" && !profile)}>
+          <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={submitting || (accessMode === "read_online" && !profile)}>
             <span className="inline-flex items-center justify-center gap-2">
               {submitting ? <Lock className="h-4 w-4" /> : accessMode === "read_online" ? <BookOpen className="h-4 w-4" /> : <Download className="h-4 w-4" />}
               {submitting

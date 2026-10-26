@@ -61,8 +61,6 @@ npm run lint
 
 ## UI feedback, loading, and navigation conventions
 
-- **Action-button branding.** All primary, secondary, and destructive action buttons use AdventSkool blue (`bg-blue-600`, with `hover:bg-blue-700`) and white text. Do not use green/emerald, black, gray, or gradient fills for actionable buttons, including profile picture, creator registration, course, storefront, and resource actions. Keep green only for non-interactive semantic status feedback where it communicates success.
-
 - **Always show a loading state to the user.** Never keep an action silent. For page loads, use `<PageSkeleton>` (with an accessible `label`) and `loading.tsx` files for routes. For button/form actions, pass `loading`/`loadingText` to `<Button>` or use `useAsyncAction` so the button is disabled, shows a spinner, and announces `aria-busy`.
 - **Separate feedback from the page.** Use `<StatusCard>` for loading, success, error, warning, and info. Messages must appear in a raised, tinted card (not inline paragraph text that blends in). Use the `role`/`aria-live` that `StatusCard` provides (assertive for errors).
 - **Block double submits.** Use `useAsyncAction` for any user-initiated request (forms, clicks). It ignores extra clicks while in flight. When you need manual state, set an explicit `isLoading` boolean and disable the trigger.

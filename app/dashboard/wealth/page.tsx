@@ -35,7 +35,7 @@ export default async function MyWealthPage() {
           <TrendingUp className="mx-auto h-10 w-10 text-slate-400" />
           <h2 className="mt-3 font-bold text-slate-900">Your wealth library is ready</h2>
           <p className="mt-1 text-sm text-slate-600">Resources purchased with {user.email} will appear here.</p>
-          <Link href="/wealth" className="mt-4 inline-flex rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
+          <Link href="/wealth" className="mt-4 inline-flex rounded-md bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700">
             Browse Wealth Academy
           </Link>
         </div>
@@ -56,7 +56,7 @@ export default async function MyWealthPage() {
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <Link href={`/dashboard/wealth/${resource.orderId}/read`} className="inline-flex items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-bold text-white hover:bg-blue-700">
+                  <Link href={`/dashboard/wealth/${resource.orderId}/read`} className="inline-flex items-center justify-center gap-1.5 rounded-md bg-emerald-600 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-700">
                     <BookOpen className="h-4 w-4" /> Read online
                   </Link>
                   <a href={`/api/wealth/download?productId=${encodeURIComponent(resource.productId)}&reference=${encodeURIComponent(resource.reference)}`} className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">

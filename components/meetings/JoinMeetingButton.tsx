@@ -56,7 +56,7 @@ export default function JoinMeetingButton({ meeting, className = "" }: JoinMeeti
       title={joinable ? "Open session" : "Available 15 minutes before start"}
       className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
         joinable
-          ? "bg-blue-600 text-white hover:bg-blue-700"
+          ? "bg-emerald-600 text-white hover:bg-emerald-700"
           : "bg-slate-100 text-slate-500"
       } ${className}`}
     >

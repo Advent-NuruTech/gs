@@ -111,7 +111,7 @@ export default function WealthDetailClient({
               <p className="text-xs text-slate-600 dark:text-slate-300">Pay once, then download it or keep it in your dashboard to read online.</p>
               {productFree || revealed === "purchase" ? (
                 <div className="grid grid-cols-2 gap-2">
-                  <Button onClick={() => openPurchase("read_online")}>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={() => openPurchase("read_online")}>
                     <span className="inline-flex items-center gap-1.5"><BookOpen className="h-4 w-4" /> Read Online</span>
                   </Button>
                   {productFree ? (
@@ -141,11 +141,11 @@ export default function WealthDetailClient({
                 </div>
                 <p className="text-xs text-slate-500">Have our team tailor a plan or resource to your goals, family, or business.</p>
                 {customizeFree ? (
-                  <Button className="w-full" onClick={() => setShowCustomize(true)}>
+                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomize(true)}>
                     Request Personalization — Free
                   </Button>
                 ) : revealed === "customize" ? (
-                  <Button className="w-full" onClick={() => setShowCustomize(true)}>
+                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomize(true)}>
                     Personalize for {formatKsh(product.customizationPrice)}
                   </Button>
                 ) : (
@@ -181,7 +181,7 @@ export default function WealthDetailClient({
           </div>
           <Button
             type="button"
-            className="shrink-0 gap-2 px-6 py-3 text-base"
+            className="shrink-0 gap-2 bg-emerald-600 px-6 py-3 text-base hover:bg-emerald-700"
             onClick={() => openPurchase("download")}
           >
             <ShoppingCart className="h-4 w-4" /> Checkout

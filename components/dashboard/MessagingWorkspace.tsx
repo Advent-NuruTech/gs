@@ -334,7 +334,7 @@ export default function MessagingWorkspace({ role }: MessagingWorkspaceProps) {
               <button
                 type="submit"
                 disabled={!draft.trim() || sending}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white transition hover:bg-blue-700 disabled:opacity-50"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-white transition hover:bg-green-700 disabled:opacity-50"
                 aria-label="Send message"
               >
                 ➤

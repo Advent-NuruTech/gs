@@ -184,7 +184,7 @@ export default function CustomizeModal({ product, open, onClose }: Props) {
             <span className="font-semibold text-slate-900">Personalization fee</span>
             <span className="font-bold text-emerald-600">{isFree ? "Free" : formatKsh(fee)}</span>
           </div>
-          <Button type="button" className="w-full" disabled={submitting || uploading} onClick={handleSubmit}>
+          <Button type="button" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={submitting || uploading} onClick={handleSubmit}>
             <span className="inline-flex items-center justify-center gap-2">
               <Lock className="h-4 w-4" />
               {submitting
