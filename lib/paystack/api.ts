@@ -181,6 +181,61 @@ export async function updateSubaccountCommission(subaccountCode: string, platfor
   });
 }
 
+interface PaystackSubaccount {
+  id: number;
+  subaccount_code: string;
+}
+
+export interface PaystackSettlement {
+  id: number;
+  status: string;
+  settlement_date?: string | null;
+  createdAt?: string | null;
+}
+
+export interface PaystackSettlementTransaction {
+  reference: string;
+}
+
+async function listPaystackPages<T>(path: string): Promise<T[]> {
+  const results: T[] = [];
+  const perPage = 100;
+  // Paystack's helper returns the response data but not pagination metadata.
+  // Stop at the first short page; the generous guard prevents an accidental
+  // infinite loop if an upstream response becomes malformed.
+  for (let page = 1; page <= 1000; page += 1) {
+    const separator = path.includes("?") ? "&" : "?";
+    const rows = await paystackRequest<T[]>(`${path}${separator}perPage=${perPage}&page=${page}`);
+    results.push(...rows);
+    if (rows.length < perPage) return results;
+  }
+  throw new Error("Paystack returned too many paginated settlement records.");
+}
+
+/**
+ * Settlements are the source of truth for whether Paystack has actually sent a
+ * split share to a creator's bank account. A successful customer charge alone
+ * only proves that Paystack accepted the split instruction.
+ */
+export async function getPaystackSubaccountId(subaccountCode: string): Promise<number> {
+  const subaccount = await paystackRequest<PaystackSubaccount>(`/subaccount/${encodeURIComponent(subaccountCode)}`);
+  if (!Number.isSafeInteger(subaccount.id)) throw new Error("Paystack did not return a valid subaccount ID.");
+  return subaccount.id;
+}
+
+export async function listSuccessfulSettlements(subaccountId: number): Promise<PaystackSettlement[]> {
+  return listPaystackPages<PaystackSettlement>(
+    `/settlement?status=success&subaccount=${encodeURIComponent(String(subaccountId))}`,
+  );
+}
+
+export async function listSettlementTransactions(settlementId: number): Promise<PaystackSettlementTransaction[]> {
+  const transactions = await listPaystackPages<PaystackSettlementTransaction>(
+    `/settlement/${encodeURIComponent(String(settlementId))}/transactions`,
+  );
+  return transactions.filter((transaction) => typeof transaction.reference === "string" && transaction.reference.length > 0);
+}
+
 export interface VerifyResult {
   status: string; // "success", "failed", ...
   amount: number; // in kobo

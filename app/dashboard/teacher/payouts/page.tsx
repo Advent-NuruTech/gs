@@ -38,6 +38,7 @@ type Earning = {
   payout_status: string;
   settlement_mode: string;
   payment_reference: string | null;
+  settled_at: string | null;
   created_at: string;
 };
 
@@ -125,6 +126,9 @@ export default function TeacherPayoutsPage() {
   const routed = earnings
     .filter((row) => row.payout_status === "routed")
     .reduce((sum, row) => sum + Number(row.creator_amount), 0);
+  const paid = earnings
+    .filter((row) => row.payout_status === "paid")
+    .reduce((sum, row) => sum + Number(row.creator_amount), 0);
   const commissionPercent = data?.commission?.commission_percent ?? 10;
   const creatorBearsFee = (data?.commission?.fee_mode ?? "exclusive") === "exclusive";
   const status = (payout ? VERIFICATION_COPY[payout.verification_status] : undefined) ?? NOT_SET_UP;
@@ -164,14 +168,14 @@ export default function TeacherPayoutsPage() {
         />
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <StatCard
           label="Your commission"
           value={`${commissionPercent}%`}
           hint={creatorBearsFee ? "You also bear the Paystack fee" : "AdventSkool bears the Paystack fee"}
           icon={<Percent className="h-4 w-4" aria-hidden="true" />}
         />
-        <StatCard label="Recorded earnings" value={formatKsh(total)} icon={<TrendingUp className="h-4 w-4" aria-hidden="true" />} />
+        <StatCard label="Total earnings" value={formatKsh(total)} icon={<TrendingUp className="h-4 w-4" aria-hidden="true" />} />
         <StatCard
           label="Waiting for payment"
           value={formatKsh(pending)}
@@ -182,7 +186,13 @@ export default function TeacherPayoutsPage() {
           label="Sent for payout"
           value={formatKsh(routed)}
           tone="positive"
-          hint="Accepted by Paystack for settlement"
+          hint="Awaiting Paystack settlement"
+        />
+        <StatCard
+          label="Paid by Paystack"
+          value={formatKsh(paid)}
+          tone="positive"
+          hint="Confirmed in Paystack settlement"
         />
       </div>
 
@@ -266,6 +276,7 @@ export default function TeacherPayoutsPage() {
 }
 
 function EarningStatusBadge({ payoutStatus }: { payoutStatus: string }) {
+  if (payoutStatus === "paid") return <Badge tone="emerald">Paid</Badge>;
   if (payoutStatus === "routed") return <Badge tone="emerald">Sent for payout</Badge>;
   if (payoutStatus === "pending") return <Badge tone="amber">Waiting for payment</Badge>;
   return <Badge tone="slate">{payoutStatus || "Unknown"}</Badge>;

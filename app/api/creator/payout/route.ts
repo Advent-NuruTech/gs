@@ -2,15 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { getRequestUser } from "@/lib/api/requireUser";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createKenyanSubaccount, listKenyanBanks } from "@/lib/paystack/api";
+import { syncCreatorPayoutSettlements } from "@/lib/paystack/creatorPayoutSettlements";
 
 export async function GET(request: NextRequest) {
   const user = await getRequestUser(request);
   if (!user || user.role !== "teacher") return NextResponse.json({ error: "Teachers only." }, { status: 403 });
   const db = getSupabaseAdminClient();
+  // A dashboard visit is an additional backstop if the scheduled reconciliation
+  // was delayed. Payout data must still be available if Paystack is temporarily
+  // unavailable, so the cron remains the authoritative retry mechanism.
+  try {
+    await syncCreatorPayoutSettlements(user.id);
+  } catch {
+    // Leave the last known ledger state intact; a later cron run will retry.
+  }
   const [{ data: payout }, { data: commission }, { data: earnings }] = await Promise.all([
     db.from("creator_payout_profiles").select("creator_id,account_holder_name,bank_name,bank_code,account_last4,phone_number,verification_status,payout_status,updated_at").eq("creator_id", user.id).maybeSingle(),
     db.from("creator_commission_settings").select("commission_percent,fee_mode").eq("creator_id", user.id).maybeSingle(),
-    db.from("creator_earnings").select("gross_amount,commission_percent,fee_mode,platform_commission,creator_amount,provider_fee,payout_status,settlement_mode,payment_reference,created_at").eq("creator_id", user.id).order("created_at", { ascending: false }),
+    db.from("creator_earnings").select("gross_amount,commission_percent,fee_mode,platform_commission,creator_amount,provider_fee,payout_status,settlement_mode,payment_reference,settled_at,created_at").eq("creator_id", user.id).order("created_at", { ascending: false }),
   ]);
   const { data: defaults } = await db.from("platform_payment_settings").select("default_commission_percent,default_fee_mode").eq("id", true).maybeSingle();
   return NextResponse.json({ payout, commission: commission ?? defaults ?? { commission_percent: 10, fee_mode: "exclusive" }, earnings: earnings ?? [] });
