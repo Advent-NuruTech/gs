@@ -17,9 +17,9 @@ const ACCENTS: Record<Accent, { focus: string; selected: string; hover: string }
     hover: "hover:bg-indigo-50 hover:text-indigo-700",
   },
   emerald: {
-    focus: "focus-within:border-emerald-500 focus-within:ring-emerald-100",
-    selected: "bg-emerald-600 text-white hover:bg-emerald-700",
-    hover: "hover:bg-emerald-50 hover:text-emerald-700",
+    focus: "focus-within:border-blue-500 focus-within:ring-blue-100",
+    selected: "bg-blue-600 text-white hover:bg-blue-700",
+    hover: "hover:bg-blue-50 hover:text-blue-700",
   },
 };
 

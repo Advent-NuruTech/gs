@@ -88,7 +88,7 @@ export default function AboutPage() {
             <Button>Browse Courses</Button>
           </Link>
           <Link href="/register">
-            <Button className="bg-emerald-600 text-white hover:bg-emerald-700">
+            <Button>
               Create an Account
             </Button>
           </Link>
@@ -201,7 +201,7 @@ export default function AboutPage() {
             <Button>Browse Courses</Button>
           </Link>
           <Link href="/register">
-            <Button className="bg-emerald-600 text-white hover:bg-emerald-700">
+            <Button>
               Get Started
             </Button>
           </Link>

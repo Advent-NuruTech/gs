@@ -103,7 +103,7 @@ function CreatorStorefrontEditor({ initialProfile }: { initialProfile: CreatorSt
           <h1 className="mt-1 text-3xl font-bold text-slate-950 dark:text-white">Your storefront</h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Everything except your name is optional. Empty details are not shown publicly.</p>
         </div>
-        {publicPath ? <Link href={publicPath} target="_blank" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-white">View storefront <ExternalLink className="h-4 w-4" /></Link> : null}
+        {publicPath ? <Link href={publicPath} target="_blank" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">View storefront <ExternalLink className="h-4 w-4" /></Link> : null}
       </div>
 
       <form className="space-y-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6" onSubmit={(event: FormEvent) => { event.preventDefault(); void saveAction.run(); }}>
@@ -117,7 +117,7 @@ function CreatorStorefrontEditor({ initialProfile }: { initialProfile: CreatorSt
               <ImagePlus className="h-4 w-4" /> {photoUrl ? "Replace picture" : "Add profile picture"}
               <input type="file" accept="image/*" className="hidden" onChange={handlePhoto} disabled={uploadAction.isLoading} />
             </label>
-            {photoUrl ? <Button variant="secondary" onClick={() => setPhotoUrl("")}><Trash2 className="h-4 w-4" />Remove</Button> : null}
+            {photoUrl ? <Button onClick={() => setPhotoUrl("")}><Trash2 className="h-4 w-4" />Remove</Button> : null}
           </div>
         </div>
         {uploadAction.isLoading ? <StatusCard kind="loading" title="Uploading profile picture" /> : null}

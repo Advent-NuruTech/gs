@@ -54,13 +54,13 @@ export default function TeacherCoursesPage() {
               <div className="mt-3 flex gap-2">
                 <Link
                   href={`/dashboard/teacher/courses/${course.id}/edit`}
-                  className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white"
+                  className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                 >
                   Edit Course
                 </Link>
                 <Link
                   href={`/courses/${course.id}`}
-                  className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
+                  className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                 >
                   Preview
                 </Link>

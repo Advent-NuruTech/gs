@@ -59,7 +59,7 @@ export default function AdminWealthPage() {
             <Button variant="secondary">View Orders</Button>
           </Link>
           <Link href="/dashboard/admin/wealth/create">
-            <Button className="bg-emerald-600 hover:bg-emerald-700">Add Resource</Button>
+            <Button>Add Resource</Button>
           </Link>
         </div>
       </div>

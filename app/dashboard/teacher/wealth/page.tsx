@@ -57,7 +57,7 @@ export default function TeacherWealthPage() {
           <p className="text-sm text-slate-600 dark:text-slate-300">Create and manage your Wealth Academy resources.</p>
         </div>
         <Link href="/dashboard/teacher/wealth/create">
-          <Button className="bg-emerald-600 hover:bg-emerald-700">Add Resource</Button>
+          <Button>Add Resource</Button>
         </Link>
       </div>
 

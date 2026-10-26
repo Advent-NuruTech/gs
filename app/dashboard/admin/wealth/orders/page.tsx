@@ -169,8 +169,8 @@ export default function AdminWealthOrdersPage() {
                   onClick={() => changeStatus(order, status)}
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition disabled:cursor-not-allowed ${
                     order.orderStatus === status
-                      ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-300 bg-white text-slate-700 hover:border-emerald-300 disabled:opacity-60"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-slate-300 bg-white text-slate-700 hover:border-blue-300 disabled:opacity-60"
                   }`}
                 >
                   {status.replace("_", " ")}

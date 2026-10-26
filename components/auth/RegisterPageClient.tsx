@@ -337,7 +337,7 @@ export default function RegisterPageClient({ creatorMode = false }: { creatorMod
               </div>
           <Button
             type="submit"
-            className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-11 w-full bg-blue-600 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
             disabled={loading || !isValid}
           >
             {loading ? (

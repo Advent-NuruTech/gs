@@ -91,12 +91,12 @@ function SuccessContent() {
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               {libraryUrl ? (
                 <Link href={libraryUrl}>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700"><span className="inline-flex items-center gap-2"><BookOpen className="h-4 w-4" /> Read online</span></Button>
+                  <Button><span className="inline-flex items-center gap-2"><BookOpen className="h-4 w-4" /> Read online</span></Button>
                 </Link>
               ) : null}
               {downloadUrl ? (
                 <a href={downloadUrl} download>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700"><span className="inline-flex items-center gap-2"><Download className="h-4 w-4" /> Download again</span></Button>
+                  <Button><span className="inline-flex items-center gap-2"><Download className="h-4 w-4" /> Download again</span></Button>
                 </a>
               ) : null}
               <Link href="/dashboard/wealth"><Button variant="secondary">My Wealth Library</Button></Link>
