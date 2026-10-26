@@ -129,8 +129,8 @@ export default function DesignUploadForm({ design }: Props) {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!profile || profile.role !== "admin") {
-      pushToast("Only admins can manage digital products.", "error");
+    if (!profile || (profile.role !== "admin" && profile.role !== "teacher")) {
+      pushToast("Creator or administrator access is required to manage digital products.", "error");
       return;
     }
     if (!title.trim() || !imageUrl) {
@@ -161,7 +161,13 @@ export default function DesignUploadForm({ design }: Props) {
         await createDesign({ ...payload, createdBy: profile.id });
         pushToast("Digital product published.", "success");
       }
-      router.push("/dashboard/admin/designs");
+      router.push(
+        profile.role === "teacher"
+          ? profile.handle
+            ? `/@${profile.handle}`
+            : "/dashboard/teacher/storefront"
+          : "/dashboard/admin/designs",
+      );
     } catch (error) {
       pushToast(error instanceof Error ? error.message : "Could not save digital product.", "error");
     } finally {

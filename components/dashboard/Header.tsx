@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Bell, CircleUser, Menu } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import { useAppRouter } from "@/hooks/useAppRouter";
@@ -158,7 +159,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
       {/* The bell stays on the same line as the menu button: the identity block
           truncates and the admin search drops to its own row below md. */}
       <div className="flex min-w-0 flex-wrap items-center gap-2 px-4 py-3 sm:gap-3 sm:px-6">
@@ -166,21 +167,19 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <button
           type="button"
           onClick={onMenuClick}
-          className="inline-flex shrink-0 items-center rounded-md border border-slate-300 px-2 py-1.5 text-sm font-semibold text-slate-700 lg:hidden"
+          className="inline-flex shrink-0 items-center rounded-md border border-slate-300 px-2 py-1.5 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200 lg:hidden"
           aria-label="Open menu"
         >
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
-            <path
-              d="M4 7h16M4 12h16M4 17h16"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
+          <Menu className="h-5 w-5" aria-hidden="true" />
         </button>
-        <div className="min-w-0">
-          <p className="truncate text-xs uppercase tracking-wide text-slate-500">{accountRoleLabel(profile?.role)}</p>
-          <h1 className="truncate text-lg font-semibold text-slate-900">{profile?.displayName ?? "Dashboard"}</h1>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+            <CircleUser className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{accountRoleLabel(profile?.role)}</p>
+            <h1 className="truncate text-lg font-semibold text-slate-900 dark:text-white">{profile?.displayName ?? "Dashboard"}</h1>
+          </div>
         </div>
       </div>
         {profile?.role === "admin" ? (
@@ -215,7 +214,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           </div>
         ) : null}
 
-        <div className="shrink-0">
+        <div className="hidden shrink-0 lg:block">
           <Button
             type="button"
             variant="secondary"
@@ -230,21 +229,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <div className="relative shrink-0">
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-2 text-sm font-semibold text-slate-700"
+            className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200"
             onClick={toggleNotifications}
             aria-label={unreadCount > 0 ? `Notifications with ${unreadCount} unread` : "Notifications"}
             aria-expanded={isNotificationOpen}
           >
-            <svg viewBox="0 0 24 24" className="h-4 w-4 text-slate-700" fill="none" aria-hidden="true">
-              <path
-                d="M15 17H5.2a1 1 0 0 1-.8-1.6l1.3-1.8V10a6 6 0 1 1 12 0v3.6l1.3 1.8a1 1 0 0 1-.8 1.6H15Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
+            <Bell className="h-4 w-4" aria-hidden="true" />
             {unreadCount > 0 ? (
               <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
                 {unreadCount}

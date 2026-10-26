@@ -19,6 +19,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Library,
+  LogOut,
   Mail,
   Megaphone,
   MessageSquare,
@@ -36,7 +37,10 @@ import {
 } from "lucide-react";
 
 import { UserRole } from "@/types/user";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppRouter } from "@/hooks/useAppRouter";
+import { useAsyncAction } from "@/hooks/useAsyncAction";
 import { getWealthPublicNavigationEnabled } from "@/services/wealthSettingsService";
 import { useEffect, useMemo, useState } from "react";
 
@@ -124,7 +128,7 @@ const linkMap: Record<UserRole, NavItem[]> = {
       links: [
         { href: "/dashboard/teacher/storefront", label: "My Storefront", icon: Store },
         { href: "/dashboard/teacher/courses", label: "Courses", icon: BookOpen },
-        { href: "/dashboard/teacher/courses/create", label: "Create Course", icon: PlusCircle },
+        { href: "/dashboard/teacher/designs/create", label: "Create Digital Product", icon: PlusCircle },
         { href: "/dashboard/products", label: "My Digital Products", icon: Library },
         { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
       ],
@@ -237,9 +241,17 @@ const linkClasses = (active: boolean) =>
 
 export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { profile } = useAuth();
+  const router = useAppRouter();
+  const { profile, logout } = useAuth();
   const [wealthPublicNavigation, setWealthPublicNavigation] = useState(false);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
+  const signOut = useAsyncAction({
+    action: async () => {
+      await logout();
+      onClose?.();
+      router.push("/login");
+    },
+  });
 
   useEffect(() => {
     let active = true;
@@ -252,6 +264,17 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
   }, []);
 
   const links = useMemo(() => {
+    const rolePublicLinks = role === "teacher"
+      ? publicLinks.map((link) => link.href === "/designs"
+        ? {
+            href: profile?.handle ? `/@${profile.handle}` : "/dashboard/teacher/storefront",
+            label: "Browse My Store",
+            icon: Store,
+          }
+        : link,
+      )
+      : publicLinks;
+
     const shouldShowLink = (link: NavLink) => {
       if (link.href === "/wealth" && !wealthPublicNavigation) return false;
       if (link.href === "/dashboard/teacher/wealth") {
@@ -261,9 +284,10 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
     };
 
     return linkMap[role]
+      .map((item) => isNavGroup(item) && item.id === "teacher-explore" ? { ...item, links: rolePublicLinks } : item)
       .map((item) => (isNavGroup(item) ? { ...item, links: item.links.filter(shouldShowLink) } : item))
       .filter((item) => !isNavGroup(item) || item.links.length > 0);
-  }, [profile?.creatorStatus, profile?.role, profile?.wealthEnabled, role, wealthPublicNavigation]);
+  }, [profile?.creatorStatus, profile?.handle, profile?.role, profile?.wealthEnabled, role, wealthPublicNavigation]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -368,6 +392,19 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
               </button>
             </div>
             <nav className="space-y-1" aria-label="Dashboard navigation">{renderLinks(onClose)}</nav>
+            <div className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-800">
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                loading={signOut.isLoading}
+                loadingText="Signing out…"
+                onClick={() => void signOut.run()}
+              >
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Log out
+              </Button>
+            </div>
           </aside>
         </div>
       ) : null}
