@@ -4,10 +4,10 @@ import { useState } from "react";
 
 const PREVIEW_WORDS = 20;
 
-export default function CreatorBio({ bio }: { bio: string }) {
+export default function CreatorBio({ bio, full = false }: { bio: string; full?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const words = bio.trim().split(/\s+/);
-  const canExpand = words.length > PREVIEW_WORDS;
+  const canExpand = !full && words.length > PREVIEW_WORDS;
   const text = canExpand && !expanded ? `${words.slice(0, PREVIEW_WORDS).join(" ")}…` : bio;
 
   return (

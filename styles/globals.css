@@ -54,12 +54,12 @@ body {
   color: var(--foreground);
 }
 
-/* Creator storefronts provide their own shop header and catalogue navigation. */
-.public-shell:has(.creator-storefront) > .public-global-header {
+/* Creator storefronts and creator profiles provide their own shop navigation. */
+.public-shell:has(.creator-storefront, .creator-profile) > .public-global-header {
   display: none;
 }
 
-.public-shell:has(.creator-storefront) > .public-content {
+.public-shell:has(.creator-storefront, .creator-profile) > .public-content {
   padding-bottom: 0;
 }
 

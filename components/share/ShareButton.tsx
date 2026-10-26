@@ -7,7 +7,7 @@ import { useNotificationContext } from "@/context/NotificationContext";
 
 interface ShareButtonProps {
   title: string;
-  entityLabel: "Course" | "Product" | "Resource";
+  entityLabel: "Course" | "Product" | "Resource" | "Profile";
   path: string;
   className?: string;
 }

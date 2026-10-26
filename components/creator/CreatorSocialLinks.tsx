@@ -8,8 +8,8 @@ const platforms = {
   facebook: { label: "Facebook", icon: Facebook, className: "bg-[#1877f2] hover:bg-[#166fe5]" },
   youtube: { label: "YouTube", icon: Youtube, className: "bg-[#ff0000] hover:bg-[#dc0000]" },
   linkedin: { label: "LinkedIn", icon: Linkedin, className: "bg-[#0a66c2] hover:bg-[#0958a8]" },
-  x: { label: "X", icon: AtSign, className: "bg-slate-950 hover:bg-slate-800 dark:ring-1 dark:ring-slate-700" },
-  tiktok: { label: "TikTok", icon: Music2, className: "bg-[#010101] hover:bg-slate-800 dark:ring-1 dark:ring-slate-700" },
+  x: { label: "X", icon: AtSign, className: "bg-slate-950 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white" },
+  tiktok: { label: "TikTok", icon: Music2, className: "bg-[#010101] hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white" },
 } as const;
 
 export default function CreatorSocialLinks({ links }: { links: SocialLinks }) {
