@@ -157,6 +157,15 @@ export default function PublicNavbar() {
   const libraryHref = profile
     ? "/dashboard/products"
     : "/login?redirect=%2Fdashboard%2Fproducts";
+  const resolvedNavLinks = navLinks.map((link) =>
+    link.href === "/designs" && profile?.role === "teacher"
+      ? {
+          ...link,
+          href: profile.handle ? `/@${profile.handle}` : "/dashboard/teacher/storefront",
+          label: "My Store",
+        }
+      : link,
+  );
 
   const closeSearch = () => {
     setSearchOpen(false);
@@ -217,7 +226,7 @@ export default function PublicNavbar() {
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4">
           <Link href="/" className="shrink-0 text-lg font-black tracking-tight text-slate-950 dark:text-white">Advent<span className="text-blue-600">Skool</span></Link>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-            {navLinks.filter((link) => link.href !== "/wealth" || wealthPublicNavigation).map((link) => {
+            {resolvedNavLinks.filter((link) => link.href !== "/wealth" || wealthPublicNavigation).map((link) => {
               const active = isNavActive(pathname, link.href);
               return (
                 <Link
@@ -281,7 +290,7 @@ export default function PublicNavbar() {
           <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu" className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-900"><X className="h-5 w-5" /></button>
         </div>
         <nav className="mt-5 flex flex-col gap-1" aria-label="Mobile navigation">
-          {navLinks.filter((link) => link.href !== "/wealth" || wealthPublicNavigation).map((link) => {
+          {resolvedNavLinks.filter((link) => link.href !== "/wealth" || wealthPublicNavigation).map((link) => {
             const active = isNavActive(pathname, link.href);
             return (
               <Link

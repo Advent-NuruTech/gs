@@ -95,18 +95,18 @@ export default function CreatorStorefront({
             </span>
           </Link>
 
-          <button type="button" onClick={() => setCategoriesOpen(true)} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 font-semibold text-slate-700 shadow-sm hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" aria-label="Open product categories">
+          <button type="button" onClick={() => setCategoriesOpen(true)} className="hidden h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 font-semibold text-slate-700 shadow-sm hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 lg:inline-flex" aria-label="Open product categories">
             <Menu className="h-5 w-5" />
-            <span className="hidden lg:inline">Categories</span>
+            <span>Categories</span>
           </button>
-          <Link href="/checkout" className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" aria-label={`Cart with ${cartItems.length} item${cartItems.length === 1 ? "" : "s"}`}>
+          <Link href="/checkout" className="relative hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 lg:inline-flex" aria-label={`Cart with ${cartItems.length} item${cartItems.length === 1 ? "" : "s"}`}>
             <ShoppingCart className="h-6 w-6" />
             {cartItems.length ? <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1 text-[11px] font-black text-white ring-2 ring-white dark:ring-slate-950">{cartItems.length}</span> : null}
           </Link>
           {authLoading ? (
-            <span className="h-11 w-11 shrink-0 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" aria-label="Loading account" />
+            <span className="hidden h-11 w-11 shrink-0 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800 lg:block" aria-label="Loading account" />
           ) : (
-            <Link href={dashboardHref} className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" aria-label={profile ? "Open my dashboard" : "Log in"}>
+            <Link href={dashboardHref} className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 lg:inline-flex" aria-label={profile ? "Open my dashboard" : "Log in"}>
               <CircleUser className="h-6 w-6" />
             </Link>
           )}
@@ -135,7 +135,7 @@ export default function CreatorStorefront({
         </nav>
       </aside>
 
-      <main className="mx-auto w-full max-w-7xl space-y-12 px-4 py-6 sm:px-6 sm:py-10">
+      <main className="mx-auto w-full max-w-7xl space-y-12 px-4 pb-28 pt-6 sm:px-6 sm:pb-28 sm:pt-10 lg:py-10">
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-7">
           <div className="flex min-w-0 flex-col gap-5 md:flex-row md:items-start">
             <div className="min-w-0 flex-1 space-y-3">
@@ -160,6 +160,25 @@ export default function CreatorStorefront({
           {recommendations.length ? productGrid(recommendations) : <StatusCard kind="info" title="More products coming soon" description="More courses and digital products will appear here as creators publish them." />}
         </section>
       </main>
+
+      <nav aria-label="Store navigation" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 p-1.5 shadow-[0_14px_38px_rgba(15,23,42,0.22)] backdrop-blur dark:border-slate-700/90 dark:bg-slate-950/95 lg:hidden">
+        <button type="button" onClick={() => setCategoriesOpen(true)} aria-expanded={categoriesOpen} className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-emerald-950 dark:hover:text-emerald-200">
+          <Menu className="h-5 w-5" aria-hidden="true" />
+          <span>Categories</span>
+        </button>
+        <Link href="/checkout" className="relative flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-emerald-950 dark:hover:text-emerald-200" aria-label={`Cart with ${cartItems.length} item${cartItems.length === 1 ? "" : "s"}`}>
+          <span className="relative"><ShoppingCart className="h-5 w-5" aria-hidden="true" />{cartItems.length ? <span className="absolute -right-3 -top-2 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-black text-white ring-2 ring-white dark:ring-slate-950">{cartItems.length}</span> : null}</span>
+          <span>Cart</span>
+        </Link>
+        {authLoading ? (
+          <span className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400" aria-label="Loading account"><span className="h-5 w-5 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" /><span>Profile</span></span>
+        ) : (
+          <Link href={dashboardHref} className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-emerald-950 dark:hover:text-emerald-200" aria-label={profile ? "Open my profile" : "Log in"}>
+            <CircleUser className="h-5 w-5" aria-hidden="true" />
+            <span>{profile ? "Profile" : "Log in"}</span>
+          </Link>
+        )}
+      </nav>
     </div>
   );
 }

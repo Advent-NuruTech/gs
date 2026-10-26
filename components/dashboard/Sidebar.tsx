@@ -276,7 +276,12 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
       : publicLinks;
 
     const shouldShowLink = (link: NavLink) => {
-      if (link.href === "/wealth" && !wealthPublicNavigation) return false;
+      if (link.href === "/wealth") {
+        return wealthPublicNavigation && (role !== "teacher" || Boolean(profile?.wealthEnabled));
+      }
+      if (link.href === "/dashboard/wealth" && role === "teacher") {
+        return Boolean(profile?.wealthEnabled);
+      }
       if (link.href === "/dashboard/teacher/wealth") {
         return Boolean(profile?.role === "teacher" && profile.creatorStatus === "approved" && profile.wealthEnabled);
       }

@@ -15,6 +15,15 @@ export default async function MyProductsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?redirect=/dashboard/products");
 
+  const { data: currentProfile } = await supabase
+    .from("profiles")
+    .select("role,handle")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isCreator = currentProfile?.role === "teacher";
+  const browseHref = isCreator && currentProfile?.handle ? `/@${currentProfile.handle}` : "/designs";
+  const browseLabel = isCreator ? "View My Online Store" : "Browse Digital Products";
+
   const products = await listOwnedDigitalProducts(user);
   const recommendations = await listRecommendedDesigns(
     products.map((product) => product.category),
@@ -35,8 +44,8 @@ export default async function MyProductsPage() {
           <Library className="mx-auto h-10 w-10 text-slate-400" />
           <h2 className="mt-3 font-bold text-slate-900">Your library is ready</h2>
           <p className="mt-1 text-sm text-slate-600">Products purchased with {user.email} will appear here.</p>
-          <Link href="/designs" className="mt-4 inline-flex rounded-md bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700">
-            Browse Digital Products
+          <Link href={browseHref} className="mt-4 inline-flex rounded-md bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700">
+            {browseLabel}
           </Link>
         </div>
       ) : (
@@ -76,8 +85,8 @@ export default async function MyProductsPage() {
               <h2 className="text-xl font-bold text-slate-900">You May Also Like</h2>
               <p className="mt-1 text-sm text-slate-600">More digital products related to your library.</p>
             </div>
-            <Link href="/designs" className="text-sm font-semibold text-indigo-700 hover:underline">
-              Browse all
+            <Link href={browseHref} className="text-sm font-semibold text-indigo-700 hover:underline">
+              {isCreator ? "View my store" : "Browse all"}
             </Link>
           </div>
           <div className="columns-2 gap-4 lg:columns-3">
