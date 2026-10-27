@@ -10,7 +10,7 @@ import { useNotificationContext } from "@/context/NotificationContext";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadAsset } from "@/lib/cloudinary/uploadImage";
 import { createDesign, listDesignCategories, updateDesign } from "@/services/designService";
-import { Design, DesignFileType, DESIGN_CATEGORIES } from "@/types/design";
+import { Design, DesignDeliveryMode, DesignFileType, DESIGN_CATEGORIES } from "@/types/design";
 
 interface Props {
   /** When provided, the form edits an existing design instead of creating one. */
@@ -58,6 +58,7 @@ export default function DesignUploadForm({ design }: Props) {
   const [fileUrl, setFileUrl] = useState(design?.fileUrl ?? design?.imageUrl ?? "");
   const [fileType, setFileType] = useState<DesignFileType>(design?.fileType ?? "image");
   const [pageCount, setPageCount] = useState<number | undefined>(design?.pageCount);
+  const [deliveryMode, setDeliveryMode] = useState<DesignDeliveryMode>(design?.deliveryMode ?? "download");
   const [dims, setDims] = useState<{ width?: number; height?: number }>({
     width: design?.imageWidth,
     height: design?.imageHeight,
@@ -149,6 +150,7 @@ export default function DesignUploadForm({ design }: Props) {
         fileUrl: fileUrl || imageUrl,
         fileType,
         pageCount: fileType === "pdf" ? pageCount : undefined,
+        deliveryMode,
         downloadPrice: Number(downloadPrice || 0),
         customizationEnabled,
         customizationPrice: Number(customizationPrice || 0),
@@ -296,6 +298,38 @@ export default function DesignUploadForm({ design }: Props) {
           ) : null}
         </div>
       </div>
+      <fieldset className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+        <legend className="px-1 text-sm font-semibold text-slate-800 dark:text-slate-100">Customer access</legend>
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 dark:border-slate-700 dark:has-[:checked]:border-indigo-400 dark:has-[:checked]:bg-indigo-950/50">
+          <input
+            type="radio"
+            name="deliveryMode"
+            value="download"
+            checked={deliveryMode === "download"}
+            onChange={() => setDeliveryMode("download")}
+            className="mt-0.5 h-4 w-4 accent-indigo-600"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">Allow download</span>
+            <span className="block text-xs font-normal text-slate-500 dark:text-slate-400">Customers may download the original product file or read it online.</span>
+          </span>
+        </label>
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 dark:border-slate-700 dark:has-[:checked]:border-indigo-400 dark:has-[:checked]:bg-indigo-950/50">
+          <input
+            type="radio"
+            name="deliveryMode"
+            value="online_only"
+            checked={deliveryMode === "online_only"}
+            onChange={() => setDeliveryMode("online_only")}
+            className="mt-0.5 h-4 w-4 accent-indigo-600"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">Online only</span>
+            <span className="block text-xs font-normal text-slate-500 dark:text-slate-400">Customers must sign in and can use the protected reader, but cannot download through AdventSkool.</span>
+          </span>
+        </label>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Online-only access blocks file downloads from AdventSkool. As with any content shown in a browser, it cannot prevent screenshots or copying visible material.</p>
+      </fieldset>
       <p className="text-xs text-slate-500">
         The product price is optional. <span className="font-semibold text-slate-700">Leave it empty to make the product free.</span>
         {customizationEnabled

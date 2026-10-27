@@ -1,6 +1,9 @@
 /** What kind of asset backs a design: a flat image or an uploaded PDF template. */
 export type DesignFileType = "image" | "pdf";
 
+/** How customers may receive a purchased digital product. */
+export type DesignDeliveryMode = "download" | "online_only";
+
 export interface Design {
   id: string;
   title: string;
@@ -15,6 +18,8 @@ export interface Design {
   fileType: DesignFileType;
   /** Total pages for a PDF template — drives the free quarter-of-pages preview. */
   pageCount?: number;
+  /** Whether the creator permits a file download or reader-only access. */
+  deliveryMode: DesignDeliveryMode;
   downloadPrice: number;
   /** Whether customers should see and use the customization option. */
   customizationEnabled: boolean;
@@ -37,6 +42,7 @@ export interface CreateDesignInput {
   fileUrl?: string;
   fileType?: DesignFileType;
   pageCount?: number;
+  deliveryMode?: DesignDeliveryMode;
   downloadPrice: number;
   customizationEnabled: boolean;
   customizationPrice: number;

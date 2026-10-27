@@ -47,6 +47,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Digital product not found." }, { status: 404 });
   }
 
+  if (design.delivery_mode === "online_only") {
+    return NextResponse.json(
+      { error: "This product is available to read online only and cannot be downloaded." },
+      { status: 403 },
+    );
+  }
+
   // Free designs are open; paid ones require a settled download order. Never
   // trust the client for pricing — read it from the design row.
   const price = Math.max(0, Number(design.download_price ?? 0));

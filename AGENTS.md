@@ -34,6 +34,11 @@ npm run lint
 
 ## Wealth Academy module
 
+## Digital Product delivery controls
+
+- Migration `0033_design_online_only_delivery.sql` adds the creator-controlled `delivery_mode` to Digital Products. Existing products default to `download`; a creator can choose `online_only` when creating or editing a product. Online-only purchases require a signed-in account, are stored as `read_online`, open in the buyer library reader, and are rejected by the download endpoint even when someone calls that endpoint directly. Apply migration 0033 before deploying this control.
+- This is a delivery control, not DRM: content displayed in a browser cannot be made impossible to screenshot, copy, or inspect. Do not claim that the setting prevents all copying or reverse engineering. Stronger rights protection requires separately configured private asset storage/expiring signed delivery and, where appropriate, legal terms/watermarking.
+
 - Wealth Academy is a full parallel digital marketplace alongside Digital Products (designs). It lives at `/wealth`, uses an **emerald** accent (designs use indigo), and teaches money mindset, wealth generation/preservation, family wealth, and eradicating generational poverty. It is intentionally isolated — it never reads or writes the design tables; only additive edits were made to shared files.
 - Backed by its own tables in `supabase/migrations/0019_wealth_academy.sql`: `wealth_products` and `wealth_orders`, plus enum `wealth_order_status`, RLS policies, and RPC `increment_wealth_product_views(uuid)`. Migration `0020_wealth_creator_access.sql` adds per-creator Wealth permission (off by default), creator-scoped RLS, and the admin-controlled public navigation setting. **Apply migrations 0019 and 0020 to Supabase before deploying.**
 - Public flow mirrors designs: catalog `app/(public)/wealth/page.tsx` → detail `app/(public)/wealth/[productId]/page.tsx` → `POST /api/wealth/checkout` (Paystack) → `POST /api/wealth/verify` (calls `fulfillWealthOrder`) → `GET /api/wealth/download` proxy and `GET /api/wealth/orders/[id]/status`; reader proxy `GET /api/wealth-products/[orderId]/read`. Purchased resources appear in the dashboard library `app/dashboard/wealth/page.tsx` with a reader at `app/dashboard/wealth/[orderId]/read/page.tsx`.

@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
 
   const designId = clean(body.designId, 64);
   const kind = body.kind === "download" ? "download" : "customization";
-  const accessMode = kind === "download" && body.accessMode === "read_online" ? "read_online" : "download";
   const fullName = clean(body.fullName, 160);
   const email = clean(body.email, 200);
   const phone = clean(body.phone, 40);
@@ -59,16 +58,6 @@ export async function POST(request: NextRequest) {
     data: { user },
   } = await serverClient.auth.getUser();
 
-  if (accessMode === "read_online" && !user) {
-    return NextResponse.json(
-      { error: "Please sign in or create an account to read this product online." },
-      { status: 401 },
-    );
-  }
-
-  // Online purchases belong to the authenticated account. This prevents a
-  // mistyped checkout email from hiding the product from the buyer's library.
-  const customerEmail = accessMode === "read_online" && user?.email ? user.email : email;
   const admin = getSupabaseAdminClient();
 
   // Trust the design row for pricing — never the client.
@@ -83,6 +72,31 @@ export async function POST(request: NextRequest) {
   if (!design || !design.published) {
     return NextResponse.json({ error: "Digital product not found." }, { status: 404 });
   }
+
+  // The creator controls whether the original file can leave AdventSkool.
+  // Never trust an access mode sent by the browser for an online-only product.
+  const onlineOnly = design.delivery_mode === "online_only";
+  const accessMode = kind === "download" && (onlineOnly || body.accessMode === "read_online")
+    ? "read_online"
+    : "download";
+
+  if (kind === "download" && onlineOnly && !user) {
+    return NextResponse.json(
+      { error: "Please sign in or create an account to access this online-only product." },
+      { status: 401 },
+    );
+  }
+
+  if (accessMode === "read_online" && !user) {
+    return NextResponse.json(
+      { error: "Please sign in or create an account to read this product online." },
+      { status: 401 },
+    );
+  }
+
+  // Online purchases belong to the authenticated account. This prevents a
+  // mistyped checkout email from hiding the product from the buyer's library.
+  const customerEmail = accessMode === "read_online" && user?.email ? user.email : email;
 
   // Each purchase is billed independently — download price OR customization fee,
   // never both. Download never carries a customization charge and vice versa.

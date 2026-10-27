@@ -47,6 +47,7 @@ export default function DesignDetailClient({
 
   const productFree = Number(design.downloadPrice || 0) <= 0;
   const customizeFree = Number(design.customizationPrice || 0) <= 0;
+  const onlineOnly = design.deliveryMode === "online_only";
 
   const openPurchase = (mode: ProductAccessMode) => {
     setAccessMode(mode);
@@ -108,21 +109,21 @@ export default function DesignDetailClient({
                   <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Free</span>
                 ) : null}
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-300">Pay once, then download it or keep it in your dashboard to read online.</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300">{onlineOnly ? "Sign in once, then keep it in your dashboard to read online." : "Pay once, then download it or keep it in your dashboard to read online."}</p>
               {productFree || revealed === "purchase" ? (
-                <div className="grid grid-cols-2 gap-2">
+                <div className={`grid gap-2 ${onlineOnly ? "grid-cols-1" : "grid-cols-2"}`}>
                   <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => openPurchase("read_online")}>
                     <span className="inline-flex items-center gap-1.5"><BookOpen className="h-4 w-4" /> Read Online</span>
                   </Button>
-                  {productFree ? (
+                  {!onlineOnly && productFree ? (
                     <Button variant="secondary" onClick={handleFreeDownload}>
                       <span className="inline-flex items-center gap-1.5"><Download className="h-4 w-4" /> Download</span>
                     </Button>
-                  ) : (
+                  ) : !onlineOnly ? (
                     <Button variant="secondary" onClick={() => openPurchase("download")}>
                       <span className="inline-flex items-center gap-1.5"><Download className="h-4 w-4" /> Download</span>
                     </Button>
-                  )}
+                  ) : null}
                 </div>
               ) : (
                 <Button variant="secondary" className="w-full" onClick={() => setRevealed("purchase")}>
@@ -182,9 +183,9 @@ export default function DesignDetailClient({
           <Button
             type="button"
             className="shrink-0 gap-2 bg-indigo-600 px-6 py-3 text-base hover:bg-indigo-700"
-            onClick={() => openPurchase("download")}
+            onClick={() => openPurchase(onlineOnly ? "read_online" : "download")}
           >
-            <ShoppingCart className="h-4 w-4" /> Checkout
+            {onlineOnly ? <BookOpen className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />} {onlineOnly ? "Read online" : "Checkout"}
           </Button>
         </div>
       </div>

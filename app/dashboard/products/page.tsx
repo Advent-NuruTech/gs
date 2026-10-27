@@ -36,7 +36,7 @@ export default async function MyProductsPage() {
       <div>
         <p className="text-sm font-semibold text-indigo-600">Your personal library</p>
         <h1 className="text-2xl font-bold text-slate-900">My Digital Products</h1>
-        <p className="mt-1 text-sm text-slate-600">Read your purchased products online or download them whenever you need them.</p>
+        <p className="mt-1 text-sm text-slate-600">Read your purchased products online. Downloads are available when the creator has enabled them.</p>
       </div>
 
       {products.length === 0 ? (
@@ -64,13 +64,15 @@ export default async function MyProductsPage() {
                     Purchased {product.purchasedAt ? new Date(product.purchasedAt).toLocaleDateString("en-KE") : ""} · {formatKsh(product.amount)}
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className={`grid gap-2 ${product.deliveryMode === "download" ? "grid-cols-2" : "grid-cols-1"}`}>
                   <Link href={`/dashboard/products/${product.orderId}/read`} className="inline-flex items-center justify-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-bold text-white hover:bg-indigo-700">
                     <BookOpen className="h-4 w-4" /> Read online
                   </Link>
-                  <a href={`/api/designs/download?designId=${encodeURIComponent(product.designId)}&reference=${encodeURIComponent(product.reference)}`} className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
-                    <Download className="h-4 w-4" /> Download
-                  </a>
+                  {product.deliveryMode === "download" ? (
+                    <a href={`/api/designs/download?designId=${encodeURIComponent(product.designId)}&reference=${encodeURIComponent(product.reference)}`} className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                      <Download className="h-4 w-4" /> Download
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </article>

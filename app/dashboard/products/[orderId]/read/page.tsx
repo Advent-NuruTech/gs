@@ -29,9 +29,11 @@ export default async function ProductReaderPage({ params }: { params: Promise<{ 
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-slate-900">{product.title}</h1>
         </div>
-        <a href={downloadUrl} className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
-          <Download className="h-4 w-4" /> Download
-        </a>
+        {product.deliveryMode === "download" ? (
+          <a href={downloadUrl} className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+            <Download className="h-4 w-4" /> Download
+          </a>
+        ) : null}
       </div>
 
       {product.fileType === "pdf" && totalPages > 0 ? (
@@ -56,7 +58,7 @@ export default async function ProductReaderPage({ params }: { params: Promise<{ 
           />
           {product.fileType === "pdf" ? (
             <p className="border-t border-slate-200 bg-white p-4 text-center text-sm text-slate-600">
-              This older PDF does not have page information yet. Use Download to access the complete file.
+              This older PDF does not have page information yet. Ask the creator to update the product file for online reading.
             </p>
           ) : null}
         </div>

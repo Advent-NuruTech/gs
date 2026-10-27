@@ -21,6 +21,7 @@ function mapDesign(data: Record<string, unknown>): Design {
     fileUrl: data.file_url ? String(data.file_url) : undefined,
     fileType: String(data.file_type ?? "image") === "pdf" ? "pdf" : "image",
     pageCount: data.page_count != null ? Number(data.page_count) : undefined,
+    deliveryMode: data.delivery_mode === "online_only" ? "online_only" : "download",
     downloadPrice: Number(data.download_price ?? 0),
     customizationEnabled: data.customization_enabled == null ? true : Boolean(data.customization_enabled),
     customizationPrice: Number(data.customization_price ?? 0),
@@ -46,6 +47,7 @@ export async function createDesign(input: CreateDesignInput): Promise<string> {
       file_url: input.fileUrl ?? input.imageUrl,
       file_type: input.fileType ?? "image",
       page_count: input.pageCount ?? null,
+      delivery_mode: input.deliveryMode === "online_only" ? "online_only" : "download",
       download_price: input.downloadPrice,
       customization_enabled: input.customizationEnabled,
       customization_price: input.customizationPrice,
@@ -122,6 +124,9 @@ export async function updateDesign(
   if (typeof updates.fileUrl === "string") payload.file_url = updates.fileUrl;
   if (typeof updates.fileType === "string") payload.file_type = updates.fileType;
   if (typeof updates.pageCount === "number") payload.page_count = updates.pageCount;
+  if (updates.deliveryMode === "download" || updates.deliveryMode === "online_only") {
+    payload.delivery_mode = updates.deliveryMode;
+  }
   if (typeof updates.downloadPrice === "number") payload.download_price = updates.downloadPrice;
   if (typeof updates.customizationEnabled === "boolean") payload.customization_enabled = updates.customizationEnabled;
   if (typeof updates.customizationPrice === "number") payload.customization_price = updates.customizationPrice;

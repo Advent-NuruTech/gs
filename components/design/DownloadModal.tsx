@@ -40,6 +40,7 @@ export default function DownloadModal({
   const customerName = fullName || profile?.displayName || "";
   const customerEmail = email || profile?.email || "";
   const customerPhone = phone || profile?.phone || "";
+  const onlineOnly = design.deliveryMode === "online_only";
   if (!open) return null;
 
   const handleSubmit = async (event: FormEvent) => {
@@ -96,12 +97,12 @@ export default function DownloadModal({
           <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-center">
             <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Product price</p>
             <p className="text-2xl font-black text-indigo-700">{formatKsh(price)}</p>
-            <p className="mt-1 text-xs text-slate-500">Pay once, then read online or download the full product.</p>
+            <p className="mt-1 text-xs text-slate-500">{onlineOnly ? "Sign in once, then keep reading it from your dashboard." : "Pay once, then read online or download the full product."}</p>
           </div>
 
           <fieldset className="space-y-2">
-            <legend className="text-sm font-semibold text-slate-800">How would you like to access it?</legend>
-            <div className="grid grid-cols-2 gap-2">
+            <legend className="text-sm font-semibold text-slate-800">{onlineOnly ? "How you can access it" : "How would you like to access it?"}</legend>
+            <div className={`grid gap-2 ${onlineOnly ? "grid-cols-1" : "grid-cols-2"}`}>
               <button
                 type="button"
                 onClick={() => setAccessMode("read_online")}
@@ -115,7 +116,7 @@ export default function DownloadModal({
                 <span className="block text-sm font-bold">Read online</span>
                 <span className="text-xs">Keep it in your dashboard</span>
               </button>
-              <button
+              {!onlineOnly ? <button
                 type="button"
                 onClick={() => setAccessMode("download")}
                 className={`rounded-xl border p-3 text-left transition ${
@@ -127,7 +128,7 @@ export default function DownloadModal({
                 <Download className="mb-2 h-5 w-5" />
                 <span className="block text-sm font-bold">Download</span>
                 <span className="text-xs">Save the full file</span>
-              </button>
+              </button> : null}
             </div>
           </fieldset>
 

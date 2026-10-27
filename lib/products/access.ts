@@ -15,6 +15,7 @@ export interface OwnedDigitalProduct {
   fileType: "image" | "pdf";
   pageCount?: number;
   category: string;
+  deliveryMode: "download" | "online_only";
 }
 
 function customerOwnsOrder(
@@ -49,6 +50,7 @@ async function hydrateOrder(order: Record<string, unknown>): Promise<OwnedDigita
     fileType: design.file_type === "pdf" ? "pdf" : "image",
     pageCount: design.page_count != null ? Number(design.page_count) : undefined,
     category: String(design.category ?? "Digital Product"),
+    deliveryMode: design.delivery_mode === "online_only" ? "online_only" : "download",
   };
 }
 
