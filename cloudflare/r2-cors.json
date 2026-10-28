@@ -5,6 +5,7 @@
       "allowed": {
         "origins": [
           "https://adventskool.co.ke",
+          "https://www.adventskool.co.ke",
           "http://localhost:3000"
         ],
         "methods": [
