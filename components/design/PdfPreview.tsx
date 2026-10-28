@@ -1,8 +1,10 @@
 "use client";
 
 import { Lock } from "lucide-react";
+import { useState } from "react";
 
 import PdfPageStack from "@/components/design/PdfPageStack";
+import PdfReader from "@/components/design/PdfReader";
 import Button from "@/components/ui/Button";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { freePreviewPageCount, pdfPageImageUrl } from "@/lib/designs/pdfPreview";
@@ -21,15 +23,17 @@ interface Props {
  * PDFs uploaded before page counts were captured).
  */
 export default function PdfPreview({ design, onUnlock }: Props) {
-  const total = Math.max(0, Math.floor(design.pageCount ?? 0));
+  const [actualTotal, setActualTotal] = useState<number | undefined>();
+  const total = Math.max(0, Math.floor(actualTotal ?? design.pageCount ?? 0));
   // The page transforms render off the original PDF (file_url), not the JPG
   // preview stored in image_url.
   const source = design.fileUrl || design.imageUrl;
+  const isR2 = source.includes("/api/storage/assets/");
   const freeCount = freePreviewPageCount(total);
   const isFree = Number(design.downloadPrice || 0) <= 0;
 
   // Unknown page count → keep the existing first-page-only preview.
-  if (!total || freeCount <= 0 || source.includes("/api/storage/assets/")) {
+  if ((!total || freeCount <= 0) && !isR2) {
     return (
       <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -52,19 +56,19 @@ export default function PdfPreview({ design, onUnlock }: Props) {
           PDF product
         </span>
         <span className="text-xs font-medium text-slate-500">
-          Free preview · {freeCount} of {total} page{total === 1 ? "" : "s"}
+          {total ? `Free preview · ${freeCount} of ${total} page${total === 1 ? "" : "s"}` : "Free preview"}
         </span>
       </div>
 
       {/* Free pages, stacked top-to-bottom like a document reader. */}
-      <PdfPageStack source={source} title={design.title} pageCount={freeCount} />
+      {isR2 ? <PdfReader source={`/api/designs/${encodeURIComponent(design.id)}/preview`} onTotalPages={setActualTotal} /> : <PdfPageStack source={source} title={design.title} pageCount={freeCount} />}
 
       {/* Paywall: blurred teaser of the next page + unlock CTA. */}
       {lockedCount > 0 ? (
         <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={pdfPageImageUrl(source, teaserPage)}
+            src={isR2 ? design.imageUrl : pdfPageImageUrl(source, teaserPage)}
             alt=""
             aria-hidden
             loading="lazy"

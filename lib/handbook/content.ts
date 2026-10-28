@@ -242,7 +242,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
         title: "Product listing",
         items: [
           "Title, optional description, category, and an optional cover image. When no cover is supplied, the product image or first PDF page becomes the cover.",
-          "The deliverable file, which is either an image or a PDF. New PDFs record a page count; Cloudflare-hosted PDFs show their cover as the public preview.",
+          "The deliverable file, which is either an image or a PDF. Visitors can preview the first quarter of a PDF before accessing the full product.",
           "A download price. Leaving it empty makes the product free.",
           "An optional customization fee, plus a toggle that decides whether buyers may request custom work on this product.",
         ],
