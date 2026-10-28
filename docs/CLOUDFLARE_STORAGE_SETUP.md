@@ -90,4 +90,6 @@ Existing products continue to work from Cloudinary. On either admin product list
 
 If any step before the URL switch fails, the live product keeps its old URLs. If Cloudinary cleanup fails, the product remains live from R2 and the UI reports that the old copy needs manual cleanup.
 
+The server sends a fixed `Content-Length` when copying to R2, and checks that the uploaded object can be read before switching the product. If an older PDF uses the same URL for its cover and deliverable, add a separate cover before syncing so the PDF is not made public.
+
 R2 single-request limits still apply to an account marked unlimited. Add multipart uploads before allowing objects that exceed R2's single-`PUT` limit.

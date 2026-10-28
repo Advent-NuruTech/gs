@@ -37,9 +37,14 @@ async function migrateSource(input: {
   if (assetIdFromReference(input.source)) return input.source;
   if (!/^https:\/\//i.test(input.source)) return input.source;
   const sourceUrl = signedDownloadUrl(input.source, input.fallbackName) ?? input.source;
-  const upstream = await fetch(sourceUrl, { cache: "no-store" });
+  const upstream = await fetch(sourceUrl, { cache: "no-store", headers: { "Accept-Encoding": "identity" } });
   if (!upstream.ok || !upstream.body) throw new Error("The existing file could not be read from its current host.");
-  const buffered = upstream.headers.get("content-length") ? null : await upstream.arrayBuffer();
+  // Fetch transparently decompresses encoded responses, so their Content-Length
+  // is not necessarily the number of bytes that will be sent to R2.
+  const encoding = upstream.headers.get("content-encoding");
+  const buffered = upstream.headers.get("content-length") && (!encoding || encoding.toLowerCase() === "identity")
+    ? null
+    : await upstream.arrayBuffer();
   const sizeBytes = buffered?.byteLength ?? Number(upstream.headers.get("content-length") ?? 0);
   if (!Number.isSafeInteger(sizeBytes) || sizeBytes <= 0) throw new Error("The existing file size could not be verified.");
   const limit = await getEffectiveUploadLimit(input.ownerId);
@@ -61,14 +66,18 @@ async function migrateSource(input: {
   const uploadUrl = createR2PresignedUrl({ method: "PUT", key: pending.objectKey, contentType, expiresSeconds: 15 * 60 });
   const init: RequestInit & { duplex?: "half" } = {
     method: "PUT",
-    headers: { "Content-Type": contentType },
+    headers: { "Content-Type": contentType, "Content-Length": String(sizeBytes) },
     body: buffered ?? upstream.body,
   };
   if (!buffered) init.duplex = "half";
   const uploaded = await fetch(uploadUrl, init);
-  if (!uploaded.ok) throw new Error("R2 rejected the migrated file.");
+  if (!uploaded.ok) throw new Error(`R2 rejected the migrated file (HTTP ${uploaded.status}). Please retry or check the storage configuration.`);
   await completePendingAsset(pending.id);
-  if (!await getR2SourceUrl(pending.reference, 120)) throw new Error("The migrated file could not be reopened from R2.");
+  const readUrl = await getR2SourceUrl(pending.reference, 120);
+  if (!readUrl) throw new Error("The migrated file could not be reopened from R2.");
+  const reopened = await fetch(readUrl, { cache: "no-store", headers: { Range: "bytes=0-0" } });
+  if (!reopened.ok || !reopened.body) throw new Error("The migrated file could not be reopened from R2.");
+  await reopened.body.cancel();
   return pending.reference;
 }
 
@@ -102,6 +111,9 @@ export async function POST(request: NextRequest) {
     let nextImage: string;
     let nextFile: string;
     if (oldImage === oldFile) {
+      if (product.file_type === "pdf") {
+        throw new Error("This PDF needs a separate cover image before it can be synced safely. Edit the product to add a cover, then sync again.");
+      }
       nextImage = await migrateSource({
         source: oldImage,
         ownerId,
