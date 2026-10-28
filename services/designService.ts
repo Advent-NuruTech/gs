@@ -124,6 +124,7 @@ export async function updateDesign(
   if (typeof updates.fileUrl === "string") payload.file_url = updates.fileUrl;
   if (typeof updates.fileType === "string") payload.file_type = updates.fileType;
   if (typeof updates.pageCount === "number") payload.page_count = updates.pageCount;
+  else if (updates.fileType === "image") payload.page_count = null;
   if (updates.deliveryMode === "download" || updates.deliveryMode === "online_only") {
     payload.delivery_mode = updates.deliveryMode;
   }

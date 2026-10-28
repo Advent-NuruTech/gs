@@ -29,7 +29,7 @@ export default function PdfPreview({ design, onUnlock }: Props) {
   const isFree = Number(design.downloadPrice || 0) <= 0;
 
   // Unknown page count → keep the existing first-page-only preview.
-  if (!total || freeCount <= 0) {
+  if (!total || freeCount <= 0 || source.includes("/api/storage/assets/")) {
     return (
       <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
         {/* eslint-disable-next-line @next/next/no-img-element */}

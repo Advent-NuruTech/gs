@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Download } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
-import PdfPageStack from "@/components/design/PdfPageStack";
+import PdfReader from "@/components/design/PdfReader";
 import { getOwnedDigitalProduct } from "@/lib/products/access";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -36,31 +36,26 @@ export default async function ProductReaderPage({ params }: { params: Promise<{ 
         ) : null}
       </div>
 
-      {product.fileType === "pdf" && totalPages > 0 ? (
+      {product.fileType === "pdf" ? (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
               PDF product
             </span>
             <span className="text-xs font-medium text-slate-500">
-              Full product · {totalPages} page{totalPages === 1 ? "" : "s"}
+              {totalPages > 0 ? `Full product · ${totalPages} page${totalPages === 1 ? "" : "s"}` : "Full product"}
             </span>
           </div>
-          <PdfPageStack source={product.fileUrl} title={product.title} pageCount={totalPages} />
+          <PdfReader source={readerUrl} />
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={product.fileType === "image" ? readerUrl : product.imageUrl}
+            src={readerUrl}
             alt={product.title}
             className="h-auto w-full object-contain"
           />
-          {product.fileType === "pdf" ? (
-            <p className="border-t border-slate-200 bg-white p-4 text-center text-sm text-slate-600">
-              This older PDF does not have page information yet. Ask the creator to update the product file for online reading.
-            </p>
-          ) : null}
         </div>
       )}
     </section>

@@ -35,6 +35,29 @@ function readDimensions(file: File): Promise<{ width: number; height: number }> 
   });
 }
 
+async function pdfCover(file: File): Promise<{ cover: File; width: number; height: number; pages: number }> {
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+  const task = pdfjs.getDocument({ data: await file.arrayBuffer() });
+  const document = await task.promise;
+  try {
+    const page = await document.getPage(1);
+    const original = page.getViewport({ scale: 1 });
+    const viewport = page.getViewport({ scale: Math.min(2, 1200 / original.width) });
+    const canvas = window.document.createElement("canvas");
+    canvas.width = Math.ceil(viewport.width);
+    canvas.height = Math.ceil(viewport.height);
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Could not create the PDF cover.");
+    await page.render({ canvas, canvasContext: context, viewport }).promise;
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
+    if (!blob) throw new Error("Could not create the PDF cover.");
+    return { cover: new File([blob], "pdf-cover.jpg", { type: "image/jpeg" }), width: canvas.width, height: canvas.height, pages: document.numPages };
+  } finally {
+    await task.destroy();
+  }
+}
+
 export default function DesignUploadForm({ design }: Props) {
   const router = useRouter();
   const { profile } = useAuth();
@@ -110,11 +133,20 @@ export default function DesignUploadForm({ design }: Props) {
     setUploading(true);
     setUploadError("");
     try {
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      const generated = isPdf ? await pdfCover(file) : null;
       const asset = await uploadAsset(file, "adventskool/designs", "deliverable");
+      if (!imageUrl) {
+        const coverFile = generated?.cover ?? file;
+        const coverAsset = await uploadAsset(coverFile, "adventskool/designs", "product_image");
+        const dimensions = generated ?? await readDimensions(file);
+        setImageUrl(coverAsset.url);
+        setDims({ width: dimensions.width || undefined, height: dimensions.height || undefined });
+      }
       setFileUrl(asset.url);
       setFileType(asset.isPdf ? "pdf" : "image");
       if (asset.isPdf) {
-        setPageCount(asset.pages || undefined);
+        setPageCount(generated?.pages);
       } else {
         setPageCount(undefined);
       }
@@ -207,7 +239,7 @@ export default function DesignUploadForm({ design }: Props) {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Digital Product Cover</p>
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Digital Product Cover (optional)</p>
         {imageUrl ? (
           <div className="relative inline-block">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -220,7 +252,7 @@ export default function DesignUploadForm({ design }: Props) {
           <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
         </label>
         <p className="text-xs text-slate-500">
-          This public image is shown in the marketplace. The original product file stays private until access is granted.
+          Leave this empty to use the first page of your PDF or your product image as the cover.
         </p>
         <p className="pt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Product File</p>
         <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 px-4 py-6 text-sm font-medium text-slate-600 transition hover:border-indigo-400 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-300">
@@ -229,6 +261,7 @@ export default function DesignUploadForm({ design }: Props) {
           <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleUpload} disabled={uploading} />
         </label>
         <p className="text-xs text-slate-500">Upload the image or PDF customers will receive or read online.</p>
+        {fileUrl && !uploading ? <StatusCard kind="success" title="Product file uploaded" description={fileType === "pdf" ? "Your PDF is ready to publish." : "Your product image is ready to publish."} /> : null}
         {uploadError ? <StatusCard kind="error" title="Upload failed" description={uploadError} /> : null}
       </div>
 
@@ -371,8 +404,8 @@ export default function DesignUploadForm({ design }: Props) {
         Publish to the digital products marketplace
       </label>
 
-      <Button type="submit" disabled={submitting || uploading}>
-        {submitting ? "Saving…" : editing ? "Save Changes" : "Publish Product"}
+      <Button type="submit" disabled={uploading} loading={submitting} loadingText="Saving…">
+        {editing ? "Save Changes" : "Publish Product"}
       </Button>
     </form>
   );
