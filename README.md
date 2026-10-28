@@ -1,12 +1,13 @@
 # AdventSkool LMS
 
-Production-ready, modular LMS built with Next.js App Router, Firebase Auth + Firestore (REST integration), and Cloudinary uploads.
+Production-ready, modular LMS built with Next.js App Router, application data services, and staged Cloudflare/Cloudinary media storage.
 
 ## Stack
 
 - Next.js App Router (React 19)
 - Firebase Auth + Firestore (via REST-compatible `firebase/*` local shim)
-- Cloudinary image uploads
+- Cloudflare D1 + private R2 for new Digital Product and Wealth Academy assets
+- Cloudinary for legacy product assets and remaining course/marketing media
 - TypeScript + ESLint
 
 ## Features
@@ -67,6 +68,8 @@ Required variables:
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
 - `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`
+
+New Digital Product and Wealth Academy uploads use Cloudflare D1 + R2. See [Cloudflare product storage setup](docs/CLOUDFLARE_STORAGE_SETUP.md) for the required private bucket, D1 migration, CORS policy, worker, environment variables, and gradual legacy sync procedure.
 
 ## Run
 

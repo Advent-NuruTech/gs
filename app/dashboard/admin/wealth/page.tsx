@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Eye, ShoppingBag } from "lucide-react";
+import { CloudUpload, Eye, ShoppingBag } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import StatusCard, { FeedbackKind } from "@/components/ui/StatusCard";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { formatKsh } from "@/lib/utils/formatCurrency";
@@ -14,7 +15,7 @@ import {
   getWealthPublicNavigationEnabled,
   setWealthPublicNavigationEnabled,
 } from "@/services/wealthSettingsService";
-import StatusCard from "@/components/ui/StatusCard";
+import { syncProductAssets } from "@/services/storageService";
 
 export default function AdminWealthPage() {
   const { isAllowed, loading: guardLoading } = useRoleGuard(["admin"]);
@@ -22,6 +23,7 @@ export default function AdminWealthPage() {
   const [products, setProducts] = useState<WealthProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [syncFeedback, setSyncFeedback] = useState<{ kind: FeedbackKind; title: string; description?: string } | null>(null);
   const [publicNavigation, setPublicNavigation] = useState(false);
   const [savingNavigation, setSavingNavigation] = useState(false);
 
@@ -107,6 +109,8 @@ export default function AdminWealthPage() {
         </div>
       </div>
 
+      {syncFeedback ? <StatusCard {...syncFeedback} onDismiss={() => setSyncFeedback(null)} /> : null}
+
       {loading ? <p>Loading wealth resources…</p> : null}
       {!loading && products.length === 0 ? (
         <p className="rounded-md border border-slate-200 bg-white p-4 text-slate-600">No wealth resources yet. Add your first one.</p>
@@ -161,6 +165,37 @@ export default function AdminWealthPage() {
                 <Link href={`/dashboard/admin/wealth/${product.id}/edit`}>
                   <Button type="button" variant="secondary" className="px-2.5 py-1 text-xs">Edit</Button>
                 </Link>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="px-2.5 py-1 text-xs"
+                  loading={busyId === product.id}
+                  loadingText="Syncing…"
+                  disabled={busyId === product.id}
+                  onClick={async () => {
+                    setBusyId(product.id);
+                    setSyncFeedback({ kind: "loading", title: `Syncing ${product.title}`, description: "Copying and verifying its files before switching storage." });
+                    try {
+                      const result = await syncProductAssets("wealth", product.id);
+                      const message = result.alreadySynced
+                          ? "This resource is already stored in Cloudflare."
+                          : result.legacyRemoved
+                            ? "Resource copied, verified, and moved to Cloudflare."
+                            : "Resource moved to Cloudflare; the old host copy could not be removed automatically.";
+                      setSyncFeedback({ kind: result.legacyRemoved || result.alreadySynced ? "success" : "warning", title: message });
+                      pushToast(message, result.legacyRemoved || result.alreadySynced ? "success" : "info");
+                      await load();
+                    } catch (error) {
+                      const message = error instanceof Error ? error.message : "Cloudflare sync failed.";
+                      setSyncFeedback({ kind: "error", title: "Cloudflare sync failed", description: message });
+                      pushToast(message, "error");
+                    } finally {
+                      setBusyId(null);
+                    }
+                  }}
+                >
+                  <CloudUpload className="h-3.5 w-3.5" /> Sync
+                </Button>
                 <Button
                   type="button"
                   variant="danger"

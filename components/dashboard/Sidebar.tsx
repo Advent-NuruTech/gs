@@ -13,6 +13,7 @@ import {
   FileText,
   Flag,
   GraduationCap,
+  HardDrive,
   Globe2,
   House,
   Images,
@@ -224,6 +225,7 @@ const linkMap: Record<UserRole, NavItem[]> = {
         { href: "/dashboard/admin/auth-settings", label: "Auth Settings", icon: KeyRound },
         { href: "/dashboard/admin/display-settings", label: "Display Settings", icon: SlidersHorizontal },
         { href: "/dashboard/admin/homepage-hero", label: "Homepage Hero", icon: Images },
+        { href: "/dashboard/admin/storage-settings", label: "Upload Storage", icon: HardDrive },
         { href: "/dashboard/admin/documentation", label: "Documentation", icon: BookMarked },
         { href: "/adventpay/dashboard", label: "My AdventPay", icon: CreditCard },
         { href: "/dashboard/account", label: "Account", icon: CircleUser },
@@ -292,7 +294,7 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
       .map((item) => isNavGroup(item) && item.id === "teacher-explore" ? { ...item, links: rolePublicLinks } : item)
       .map((item) => (isNavGroup(item) ? { ...item, links: item.links.filter(shouldShowLink) } : item))
       .filter((item) => !isNavGroup(item) || item.links.length > 0);
-  }, [profile?.creatorStatus, profile?.handle, profile?.role, profile?.wealthEnabled, role, wealthPublicNavigation]);
+  }, [profile, role, wealthPublicNavigation]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);

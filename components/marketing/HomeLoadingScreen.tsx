@@ -11,6 +11,6 @@ export default function HomeLoadingScreen() {
         </div>
         <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">A moment while we get things ready</p>
       </div>
-    </div>
+    </div>  
   );
 }

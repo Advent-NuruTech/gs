@@ -6,9 +6,10 @@ import { Loader2, Upload } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import StatusCard from "@/components/ui/StatusCard";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useAuth } from "@/hooks/useAuth";
-import { uploadAsset } from "@/lib/cloudinary/uploadImage";
+import { bindProductAssets, uploadAsset } from "@/lib/cloudflare/uploadAsset";
 import { createDesign, listDesignCategories, updateDesign } from "@/services/designService";
 import { Design, DesignDeliveryMode, DesignFileType, DESIGN_CATEGORIES } from "@/types/design";
 
@@ -68,6 +69,7 @@ export default function DesignUploadForm({ design }: Props) {
   const [customizationPrice, setCustomizationPrice] = useState(String(design?.customizationPrice ?? ""));
   const [published, setPublished] = useState(design?.published ?? true);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   // Pull categories already used by saved designs so manually-added ones persist
@@ -106,22 +108,40 @@ export default function DesignUploadForm({ design }: Props) {
     const file = event.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadError("");
     try {
-      const asset = await uploadAsset(file, "adventskool/designs");
-      setImageUrl(asset.previewUrl);
+      const asset = await uploadAsset(file, "adventskool/designs", "deliverable");
       setFileUrl(asset.url);
       setFileType(asset.isPdf ? "pdf" : "image");
       if (asset.isPdf) {
-        // PDFs report their page dimensions + total page count in the response.
-        setDims({ width: asset.width || undefined, height: asset.height || undefined });
         setPageCount(asset.pages || undefined);
       } else {
-        const d = await readDimensions(file);
-        setDims({ width: d.width || undefined, height: d.height || undefined });
         setPageCount(undefined);
       }
-    } catch {
-      pushToast("Upload failed. Try again.", "error");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Upload failed. Try again.";
+      setUploadError(message);
+      pushToast(message, "error");
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  const handleCoverUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const asset = await uploadAsset(file, "adventskool/designs", "product_image");
+      const d = await readDimensions(file);
+      setImageUrl(asset.url);
+      setDims({ width: d.width || undefined, height: d.height || undefined });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Cover upload failed. Try again.";
+      setUploadError(message);
+      pushToast(message, "error");
     } finally {
       setUploading(false);
       event.target.value = "";
@@ -134,8 +154,8 @@ export default function DesignUploadForm({ design }: Props) {
       pushToast("Creator or administrator access is required to manage digital products.", "error");
       return;
     }
-    if (!title.trim() || !imageUrl) {
-      pushToast("Add a title and upload the product image or PDF.", "error");
+    if (!title.trim() || !imageUrl || !fileUrl) {
+      pushToast("Add a title, cover image, and product file.", "error");
       return;
     }
     setSubmitting(true);
@@ -156,12 +176,19 @@ export default function DesignUploadForm({ design }: Props) {
         customizationPrice: Number(customizationPrice || 0),
         published,
       };
+      let savedId: string;
       if (editing && design) {
         await updateDesign(design.id, payload);
+        savedId = design.id;
         pushToast("Digital product updated.", "success");
       } else {
-        await createDesign({ ...payload, createdBy: profile.id });
+        savedId = await createDesign({ ...payload, createdBy: profile.id });
         pushToast("Digital product published.", "success");
+      }
+      try {
+        await bindProductAssets("design", savedId, [imageUrl, fileUrl || imageUrl]);
+      } catch {
+        pushToast("Product saved, but its storage metadata link is pending. Open and save it again after checking Cloudflare.", "info");
       }
       router.push(
         profile.role === "teacher"
@@ -180,27 +207,29 @@ export default function DesignUploadForm({ design }: Props) {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-slate-700">Digital Product Image or PDF</p>
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Digital Product Cover</p>
         {imageUrl ? (
           <div className="relative inline-block">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={imageUrl} alt="preview" className="max-h-72 w-auto rounded-lg border border-slate-200" />
-            {fileType === "pdf" ? (
-              <span className="absolute left-2 top-2 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-                PDF product
-              </span>
-            ) : null}
           </div>
         ) : null}
         <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 px-4 py-6 text-sm font-medium text-slate-600 transition hover:border-indigo-400 hover:text-indigo-600">
           {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-          {uploading ? "Uploading…" : imageUrl ? "Replace file" : "Upload product image or PDF"}
-          <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleUpload} disabled={uploading} />
+          {uploading ? "Uploading…" : imageUrl ? "Replace cover image" : "Upload cover image"}
+          <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
         </label>
         <p className="text-xs text-slate-500">
-          Upload a cover/image (JPG/PNG) or a <span className="font-semibold text-slate-700">PDF product</span>, including
-          an ebook, guide or workbook. PDFs show their first page as the preview and support online reading and download.
+          This public image is shown in the marketplace. The original product file stays private until access is granted.
         </p>
+        <p className="pt-2 text-sm font-medium text-slate-700 dark:text-slate-200">Product File</p>
+        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 px-4 py-6 text-sm font-medium text-slate-600 transition hover:border-indigo-400 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-300">
+          {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+          {uploading ? "Uploading…" : fileUrl ? `Replace ${fileType === "pdf" ? "PDF" : "product file"}` : "Upload product file"}
+          <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleUpload} disabled={uploading} />
+        </label>
+        <p className="text-xs text-slate-500">Upload the image or PDF customers will receive or read online.</p>
+        {uploadError ? <StatusCard kind="error" title="Upload failed" description={uploadError} /> : null}
       </div>
 
       <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Bold Tech Review Thumbnail" required />

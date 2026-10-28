@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Eye, ShoppingBag } from "lucide-react";
+import { CloudUpload, Eye, ShoppingBag } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import StatusCard, { FeedbackKind } from "@/components/ui/StatusCard";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import { deleteDesign, listDesigns, updateDesign } from "@/services/designService";
 import { Design } from "@/types/design";
+import { syncProductAssets } from "@/services/storageService";
 
 export default function AdminDesignsPage() {
   const { isAllowed, loading: guardLoading } = useRoleGuard(["admin"]);
@@ -17,6 +19,7 @@ export default function AdminDesignsPage() {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [syncFeedback, setSyncFeedback] = useState<{ kind: FeedbackKind; title: string; description?: string } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -64,6 +67,8 @@ export default function AdminDesignsPage() {
           <p className="text-xs text-slate-500">Total orders</p>
         </div>
       </div>
+
+      {syncFeedback ? <StatusCard {...syncFeedback} onDismiss={() => setSyncFeedback(null)} /> : null}
 
       {loading ? <p>Loading digital products…</p> : null}
       {!loading && designs.length === 0 ? (
@@ -119,6 +124,37 @@ export default function AdminDesignsPage() {
                 <Link href={`/dashboard/admin/designs/${design.id}/edit`}>
                   <Button type="button" variant="secondary" className="px-2.5 py-1 text-xs">Edit</Button>
                 </Link>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="px-2.5 py-1 text-xs"
+                  loading={busyId === design.id}
+                  loadingText="Syncing…"
+                  disabled={busyId === design.id}
+                  onClick={async () => {
+                    setBusyId(design.id);
+                    setSyncFeedback({ kind: "loading", title: `Syncing ${design.title}`, description: "Copying and verifying its files before switching storage." });
+                    try {
+                      const result = await syncProductAssets("design", design.id);
+                      const message = result.alreadySynced
+                          ? "This product is already stored in Cloudflare."
+                          : result.legacyRemoved
+                            ? "Product copied, verified, and moved to Cloudflare."
+                            : "Product moved to Cloudflare; the old host copy could not be removed automatically.";
+                      setSyncFeedback({ kind: result.legacyRemoved || result.alreadySynced ? "success" : "warning", title: message });
+                      pushToast(message, result.legacyRemoved || result.alreadySynced ? "success" : "info");
+                      await load();
+                    } catch (error) {
+                      const message = error instanceof Error ? error.message : "Cloudflare sync failed.";
+                      setSyncFeedback({ kind: "error", title: "Cloudflare sync failed", description: message });
+                      pushToast(message, "error");
+                    } finally {
+                      setBusyId(null);
+                    }
+                  }}
+                >
+                  <CloudUpload className="h-3.5 w-3.5" /> Sync
+                </Button>
                 <Button
                   type="button"
                   variant="danger"

@@ -1,5 +1,5 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { deleteCloudinaryImageByUrl } from "@/lib/cloudinary/deleteImage";
+import { deleteHostedAssetByUrl } from "@/lib/cloudflare/deleteAsset";
 import { CreateWealthProductInput, WealthProduct, WealthProductFilters } from "@/types/wealth";
 
 const supabase = getSupabaseBrowserClient();
@@ -150,11 +150,11 @@ export async function deleteWealthProduct(productId: string): Promise<void> {
   if (!data) throw new Error("You do not have permission to delete this wealth resource.");
 
   if (product?.imageUrl) {
-    await deleteCloudinaryImageByUrl(product.imageUrl).catch(() => {});
+    await deleteHostedAssetByUrl(product.imageUrl).catch(() => {});
   }
   // PDFs store the original deliverable separately from the preview image.
   if (product?.fileUrl && product.fileUrl !== product.imageUrl) {
-    await deleteCloudinaryImageByUrl(product.fileUrl).catch(() => {});
+    await deleteHostedAssetByUrl(product.fileUrl).catch(() => {});
   }
 }
 

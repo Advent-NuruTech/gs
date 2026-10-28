@@ -1,0 +1,26 @@
+{
+  "rules": [
+    {
+      "id": "adventskool-direct-product-uploads",
+      "allowed": {
+        "origins": [
+          "https://adventskool.co.ke",
+          "http://localhost:3000"
+        ],
+        "methods": [
+          "GET",
+          "PUT",
+          "HEAD"
+        ],
+        "headers": [
+          "Content-Type"
+        ]
+      },
+      "exposeHeaders": [
+        "ETag",
+        "Content-Length"
+      ],
+      "maxAgeSeconds": 3600
+    }
+  ]
+}

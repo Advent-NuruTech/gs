@@ -1,5 +1,5 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { deleteCloudinaryImageByUrl } from "@/lib/cloudinary/deleteImage";
+import { deleteHostedAssetByUrl } from "@/lib/cloudflare/deleteAsset";
 import { CreateDesignInput, Design, DesignFilters } from "@/types/design";
 
 const supabase = getSupabaseBrowserClient();
@@ -138,15 +138,18 @@ export async function updateDesign(
 
 export async function deleteDesign(designId: string): Promise<void> {
   const design = await getDesignById(designId);
+  const { error } = await supabase.from("designs").delete().eq("id", designId);
+  if (error) throw new Error(error.message);
+
+  // File cleanup happens only after the product row is gone. A failed database
+  // delete must never leave a live product pointing at a removed object.
   if (design?.imageUrl) {
-    await deleteCloudinaryImageByUrl(design.imageUrl).catch(() => {});
+    await deleteHostedAssetByUrl(design.imageUrl).catch(() => {});
   }
   // PDFs store the original deliverable separately from the preview image.
   if (design?.fileUrl && design.fileUrl !== design.imageUrl) {
-    await deleteCloudinaryImageByUrl(design.fileUrl).catch(() => {});
+    await deleteHostedAssetByUrl(design.fileUrl).catch(() => {});
   }
-  const { error } = await supabase.from("designs").delete().eq("id", designId);
-  if (error) throw new Error(error.message);
 }
 
 /** Best-effort atomic view increment (does not block rendering). */

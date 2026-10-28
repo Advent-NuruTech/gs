@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { signedDownloadUrl } from "@/lib/cloudinary/signedDownloadUrl";
+import { getAssetByReference, getR2SourceUrl } from "@/lib/cloudflare/assets";
 import { toWealthDownloadUrl } from "@/lib/wealth/downloadUrl";
 
 export const runtime = "nodejs";
@@ -19,14 +20,14 @@ export const runtime = "nodejs";
  *  - Paid files stay gated: a paid resource only streams with a settled order.
  */
 
-function safeFileName(title: string, deliverableUrl: string): string {
+function safeFileName(title: string, deliverableUrl: string, originalFileName?: string): string {
   const base =
     title
       .trim()
       .replace(/[^a-z0-9]+/gi, "_")
       .replace(/^_+|_+$/g, "")
       .slice(0, 80) || "wealth";
-  const ext = deliverableUrl.split("?")[0].match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase() ?? "";
+  const ext = (originalFileName ?? deliverableUrl).split("?")[0].match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase() ?? "";
   return ext ? `${base}.${ext}` : base;
 }
 
@@ -80,7 +81,8 @@ export async function GET(request: NextRequest) {
   const title = String(product.title ?? "wealth");
   // Prefer a signed URL (works for restricted PDFs); fall back to the unsigned
   // attachment URL when no API secret is configured.
-  const sourceUrl = signedDownloadUrl(deliverable, title) ?? toWealthDownloadUrl(deliverable, title);
+  const storedAsset = await getAssetByReference(deliverable);
+  const sourceUrl = await getR2SourceUrl(deliverable) ?? signedDownloadUrl(deliverable, title) ?? toWealthDownloadUrl(deliverable, title);
 
   let upstream: Response;
   try {
@@ -99,7 +101,7 @@ export async function GET(request: NextRequest) {
   headers.set("Content-Type", upstream.headers.get("content-type") ?? "application/octet-stream");
   const contentLength = upstream.headers.get("content-length");
   if (contentLength) headers.set("Content-Length", contentLength);
-  headers.set("Content-Disposition", `attachment; filename="${safeFileName(title, deliverable)}"`);
+  headers.set("Content-Disposition", `attachment; filename="${safeFileName(title, deliverable, storedAsset?.originalFileName)}"`);
   headers.set("Cache-Control", "private, no-store");
 
   return new NextResponse(upstream.body, { status: 200, headers });

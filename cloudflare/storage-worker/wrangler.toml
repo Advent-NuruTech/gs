@@ -1,0 +1,11 @@
+name = "adventskool-storage-metadata"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "adventskool-storage"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[vars]
+# Set STORAGE_SHARED_SECRET with `npx wrangler secret put STORAGE_SHARED_SECRET`.

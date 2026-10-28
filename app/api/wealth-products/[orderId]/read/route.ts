@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { signedDownloadUrl } from "@/lib/cloudinary/signedDownloadUrl";
+import { getR2SourceUrl } from "@/lib/cloudflare/assets";
 import { toWealthDownloadUrl } from "@/lib/wealth/downloadUrl";
 import { getOwnedWealthResource } from "@/lib/wealth/access";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -22,7 +23,7 @@ export async function GET(
   if (!resource) return NextResponse.json({ error: "Resource not found in your library." }, { status: 404 });
   if (!resource.fileUrl) return NextResponse.json({ error: "This resource has no readable file." }, { status: 404 });
 
-  const sourceUrl = signedDownloadUrl(resource.fileUrl, resource.title) ?? toWealthDownloadUrl(resource.fileUrl, resource.title);
+  const sourceUrl = await getR2SourceUrl(resource.fileUrl) ?? signedDownloadUrl(resource.fileUrl, resource.title) ?? toWealthDownloadUrl(resource.fileUrl, resource.title);
   const range = request.headers.get("range");
   let upstream: Response;
   try {

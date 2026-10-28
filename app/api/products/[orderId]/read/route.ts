@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { signedDownloadUrl } from "@/lib/cloudinary/signedDownloadUrl";
+import { getR2SourceUrl } from "@/lib/cloudflare/assets";
 import { toDownloadUrl } from "@/lib/designs/downloadUrl";
 import { getOwnedDigitalProduct } from "@/lib/products/access";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -22,7 +23,7 @@ export async function GET(
   if (!product) return NextResponse.json({ error: "Product not found in your library." }, { status: 404 });
   if (!product.fileUrl) return NextResponse.json({ error: "This product has no readable file." }, { status: 404 });
 
-  const sourceUrl = signedDownloadUrl(product.fileUrl, product.title) ?? toDownloadUrl(product.fileUrl, product.title);
+  const sourceUrl = await getR2SourceUrl(product.fileUrl) ?? signedDownloadUrl(product.fileUrl, product.title) ?? toDownloadUrl(product.fileUrl, product.title);
   const range = request.headers.get("range");
   let upstream: Response;
   try {
