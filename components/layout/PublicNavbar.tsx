@@ -40,7 +40,7 @@ const navLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
 ];
 
 /** Catalogue pages own their own filter bar, so the global search is hidden there. */
-const CATALOGUE_ROUTES = ["/courses", "/designs"];
+const CATALOGUE_ROUTES = ["/courses", "/designs", "/resources"];
 
 function isNavActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -306,7 +306,7 @@ export default function PublicNavbar() {
         <div className="mx-auto grid max-w-lg grid-cols-4 gap-1">
           {[
             { href: "/", label: "Home", icon: House },
-            { href: "/courses", label: "Resources", icon: Compass },
+            { href: "/resources", label: "Resources", icon: Compass },
             { href: libraryHref, label: "My Library", icon: Library },
             { href: profile ? dashboardHref : "/login", label: profile ? "Profile" : "Log in", icon: CircleUser },
           ].map((item) => {

@@ -275,8 +275,11 @@ export default function DesignUploadForm({ design }: Props) {
 
       {fileType === "pdf" && fileUrl ? (
         <div className="space-y-2">
-          <Input label="Preview pages (optional)" type="number" min="1" max={pageCount} step="1" value={previewPageCount} onChange={(e) => setPreviewPageCount(e.target.value)} />
-          <p className="text-xs text-slate-500 dark:text-slate-400">Leave empty to preview the first quarter of the PDF. {pageCount ? `This PDF has ${pageCount} pages.` : ""}</p>
+          <div className="flex items-end gap-3">
+            <div className="min-w-0 flex-1"><Input label="Preview pages (optional)" type="number" min="1" max={pageCount} step="1" value={previewPageCount} onChange={(e) => setPreviewPageCount(e.target.value)} /></div>
+            <span className="shrink-0 pb-2 text-sm font-medium text-slate-600 dark:text-slate-300">{pageCount ? `of ${pageCount} pages` : "Total pages unknown"}</span>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Leave empty to preview the first quarter of the PDF.</p>
         </div>
       ) : null}
 

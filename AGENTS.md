@@ -82,6 +82,8 @@ npm run lint
 
 ## Mobile layout and overflow
 
+- The public mobile Resources navigation opens `/resources`, a combined searchable catalogue of published courses and Digital Products.
+
 - Every dashboard page and shared header control must fit narrow phone viewports without horizontal page scrolling or clipping. Use `min-w-0` on flex/grid children that contain text, allow long labels and prices to wrap, and stack cards/actions when side-by-side content no longer fits.
 - Dashboard summary cards use at least two columns on mobile (three only where the content remains legible); choose the larger-screen column count for the overview and page context. Summary cards that represent a navigable total, such as total creator earnings, link to the relevant detailed view.
 - Search results and notification panels must stay within the viewport, scroll internally when their content is long, and wrap long notification text. Check responsive behavior at a narrow mobile width whenever changing dashboard listings or header controls.
