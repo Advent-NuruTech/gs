@@ -16,8 +16,10 @@ export interface Design {
   fileUrl?: string;
   /** "image" (default) or "pdf" — drives badges and download delivery. */
   fileType: DesignFileType;
-  /** Total pages for a PDF template — drives the free quarter-of-pages preview. */
+  /** Total pages for a PDF template — used to calculate the default free preview. */
   pageCount?: number;
+  /** Optional number of PDF pages available in the public preview. */
+  previewPageCount?: number | null;
   /** Whether the creator permits a file download or reader-only access. */
   deliveryMode: DesignDeliveryMode;
   downloadPrice: number;
@@ -42,6 +44,8 @@ export interface CreateDesignInput {
   fileUrl?: string;
   fileType?: DesignFileType;
   pageCount?: number;
+  /** Optional number of PDF pages available in the public preview. */
+  previewPageCount?: number | null;
   deliveryMode?: DesignDeliveryMode;
   downloadPrice: number;
   customizationEnabled: boolean;

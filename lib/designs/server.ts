@@ -24,6 +24,7 @@ function mapDesign(data: Record<string, unknown>): Design {
     fileUrl: data.file_url ? String(data.file_url) : undefined,
     fileType: String(data.file_type ?? "image") === "pdf" ? "pdf" : "image",
     pageCount: data.page_count != null ? Number(data.page_count) : undefined,
+    previewPageCount: data.preview_page_count != null ? Number(data.preview_page_count) : null,
     deliveryMode: data.delivery_mode === "online_only" ? "online_only" : "download",
     downloadPrice: Number(data.download_price ?? 0),
     customizationEnabled: data.customization_enabled == null ? true : Boolean(data.customization_enabled),

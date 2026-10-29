@@ -24,7 +24,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ des
     if (!response.ok) throw new Error("Unable to read PDF");
     const original = await PDFDocument.load(await response.arrayBuffer());
     const total = original.getPageCount();
-    const count = freePreviewPageCount(total);
+    const count = freePreviewPageCount(total, design.previewPageCount);
     if (!count) throw new Error("PDF has no pages");
     const preview = await PDFDocument.create();
     const pages = await preview.copyPages(original, Array.from({ length: count }, (_, index) => index));

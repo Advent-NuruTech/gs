@@ -137,7 +137,7 @@ export default function DesignsPage() {
                     src={d.imageUrl}
                     alt={d.title}
                     loading="lazy"
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                    className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.03]"
                   />
                   {d.fileType === "pdf" ? (
                     <span className="absolute right-2 top-2 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">

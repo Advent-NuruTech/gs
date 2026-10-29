@@ -82,13 +82,14 @@ export default function DesignUploadForm({ design }: Props) {
   const [fileUrl, setFileUrl] = useState(design?.fileUrl ?? design?.imageUrl ?? "");
   const [fileType, setFileType] = useState<DesignFileType>(design?.fileType ?? "image");
   const [pageCount, setPageCount] = useState<number | undefined>(design?.pageCount);
+  const [previewPageCount, setPreviewPageCount] = useState(String(design?.previewPageCount ?? ""));
   const [deliveryMode, setDeliveryMode] = useState<DesignDeliveryMode>(design?.deliveryMode ?? "download");
   const [dims, setDims] = useState<{ width?: number; height?: number }>({
     width: design?.imageWidth,
     height: design?.imageHeight,
   });
   const [downloadPrice, setDownloadPrice] = useState(String(design?.downloadPrice ?? ""));
-  const [customizationEnabled, setCustomizationEnabled] = useState(design?.customizationEnabled ?? true);
+  const [customizationEnabled, setCustomizationEnabled] = useState(design?.customizationEnabled ?? false);
   const [customizationPrice, setCustomizationPrice] = useState(String(design?.customizationPrice ?? ""));
   const [published, setPublished] = useState(design?.published ?? true);
   const [uploading, setUploading] = useState(false);
@@ -190,6 +191,12 @@ export default function DesignUploadForm({ design }: Props) {
       pushToast("Add a title, cover image, and product file.", "error");
       return;
     }
+    const previewPages = previewPageCount === "" ? null : Number(previewPageCount);
+    if (fileType === "pdf" && previewPages !== null && (!Number.isSafeInteger(previewPages) || previewPages < 1 || (pageCount && previewPages > pageCount))) {
+      setUploadError("Enter a whole number of preview pages between 1 and the total PDF pages.");
+      return;
+    }
+    setUploadError("");
     setSubmitting(true);
     try {
       const payload = {
@@ -202,6 +209,7 @@ export default function DesignUploadForm({ design }: Props) {
         fileUrl: fileUrl || imageUrl,
         fileType,
         pageCount: fileType === "pdf" ? pageCount : undefined,
+        previewPageCount: fileType === "pdf" ? previewPages : null,
         deliveryMode,
         downloadPrice: Number(downloadPrice || 0),
         customizationEnabled,
@@ -264,6 +272,13 @@ export default function DesignUploadForm({ design }: Props) {
         {fileUrl && !uploading ? <StatusCard kind="success" title="Product file uploaded" description={fileType === "pdf" ? "Your PDF is ready to publish." : "Your product image is ready to publish."} /> : null}
         {uploadError ? <StatusCard kind="error" title="Upload failed" description={uploadError} /> : null}
       </div>
+
+      {fileType === "pdf" && fileUrl ? (
+        <div className="space-y-2">
+          <Input label="Preview pages (optional)" type="number" min="1" max={pageCount} step="1" value={previewPageCount} onChange={(e) => setPreviewPageCount(e.target.value)} />
+          <p className="text-xs text-slate-500 dark:text-slate-400">Leave empty to preview the first quarter of the PDF. {pageCount ? `This PDF has ${pageCount} pages.` : ""}</p>
+        </div>
+      ) : null}
 
       <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Bold Tech Review Thumbnail" required />
 

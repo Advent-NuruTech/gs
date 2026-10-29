@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 
 type Accent = "blue" | "indigo" | "emerald";
@@ -110,9 +111,14 @@ export default function CatalogFilterBar({
     : `${resultCount.toLocaleString("en-KE")} ${itemLabel}`;
 
   return (
+    <>
+    {pickerOpen && createPortal(
+      <div aria-hidden="true" className="fixed inset-0 z-20 bg-slate-950/35 backdrop-blur-sm" />,
+      document.body,
+    )}
     <div
       ref={rootRef}
-      className={`z-30 -mx-4 border-y border-slate-200 bg-[var(--background)]/95 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 ${stickyOnMobile ? "sticky top-0 sm:top-16" : "sm:sticky sm:top-16"}`}
+      className={`z-30 -mx-4 border-y border-slate-200 bg-[var(--background)]/95 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 ${stickyOnMobile ? "sticky top-0" : "sm:sticky sm:top-16"}`}
     >
       <div className={`mx-auto flex gap-2.5 sm:items-center ${stickyOnMobile ? "flex-row items-center" : "flex-col sm:flex-row"} ${innerMaxWidth}`}>
         <div
@@ -224,5 +230,6 @@ export default function CatalogFilterBar({
         ) : null}
       </div>
     </div>
+    </>
   );
 }

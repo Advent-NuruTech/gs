@@ -17,7 +17,7 @@ interface Props {
 }
 
 /**
- * Renders the free portion of a PDF template — a quarter of its pages — then a
+ * Renders the free portion of a PDF template — the configured pages — then a
  * locked teaser of the next page behind a "pay to read more" paywall. Falls
  * back to the single-page preview image when the page count is unknown (legacy
  * PDFs uploaded before page counts were captured).
@@ -29,7 +29,7 @@ export default function PdfPreview({ design, onUnlock }: Props) {
   // preview stored in image_url.
   const source = design.fileUrl || design.imageUrl;
   const isR2 = source.includes("/api/storage/assets/");
-  const freeCount = freePreviewPageCount(total);
+  const freeCount = freePreviewPageCount(total, design.previewPageCount);
   const isFree = Number(design.downloadPrice || 0) <= 0;
 
   // Unknown page count → keep the existing first-page-only preview.

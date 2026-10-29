@@ -24,9 +24,10 @@ export function pdfPageImageUrl(pdfUrl: string, page: number): string {
  * rounded up, but always at least one page. Returns 0 when the page count is
  * unknown (legacy PDFs) so callers can fall back to the single-page preview.
  */
-export function freePreviewPageCount(totalPages?: number): number {
+export function freePreviewPageCount(totalPages?: number, previewPages?: number | null): number {
   const total = Math.max(0, Math.floor(totalPages ?? 0));
   if (total <= 0) return 0;
+  if (previewPages != null && Number.isInteger(previewPages) && previewPages > 0) return Math.min(total, previewPages);
   if (total === 1) return 1;
   return Math.max(1, Math.ceil(total / 4));
 }

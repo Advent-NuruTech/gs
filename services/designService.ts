@@ -21,6 +21,7 @@ function mapDesign(data: Record<string, unknown>): Design {
     fileUrl: data.file_url ? String(data.file_url) : undefined,
     fileType: String(data.file_type ?? "image") === "pdf" ? "pdf" : "image",
     pageCount: data.page_count != null ? Number(data.page_count) : undefined,
+    previewPageCount: data.preview_page_count != null ? Number(data.preview_page_count) : null,
     deliveryMode: data.delivery_mode === "online_only" ? "online_only" : "download",
     downloadPrice: Number(data.download_price ?? 0),
     customizationEnabled: data.customization_enabled == null ? true : Boolean(data.customization_enabled),
@@ -47,6 +48,7 @@ export async function createDesign(input: CreateDesignInput): Promise<string> {
       file_url: input.fileUrl ?? input.imageUrl,
       file_type: input.fileType ?? "image",
       page_count: input.pageCount ?? null,
+      preview_page_count: input.previewPageCount ?? null,
       delivery_mode: input.deliveryMode === "online_only" ? "online_only" : "download",
       download_price: input.downloadPrice,
       customization_enabled: input.customizationEnabled,
@@ -125,6 +127,7 @@ export async function updateDesign(
   if (typeof updates.fileType === "string") payload.file_type = updates.fileType;
   if (typeof updates.pageCount === "number") payload.page_count = updates.pageCount;
   else if (updates.fileType === "image") payload.page_count = null;
+  if (updates.previewPageCount !== undefined) payload.preview_page_count = updates.previewPageCount;
   if (updates.deliveryMode === "download" || updates.deliveryMode === "online_only") {
     payload.delivery_mode = updates.deliveryMode;
   }
