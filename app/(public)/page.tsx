@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import CourseCard from "@/components/course/CourseCard";
 import DesignCard from "@/components/design/DesignCard";
 import HomeHero from "@/components/marketing/HomeHero";
+import HomeMascots from "@/components/marketing/HomeMascots";
 import HomeLoadingScreen from "@/components/marketing/HomeLoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { useCourse } from "@/hooks/useCourse";
@@ -100,6 +101,7 @@ export default function HomePage() {
   if (loading || designsLoading) return <HomeLoadingScreen />;
   return <main className="mx-auto max-w-7xl space-y-12 px-2 pb-8 pt-3 sm:px-4 sm:pt-8 lg:space-y-16">
     <HomeHero />
+    <HomeMascots />
 
     <section aria-label="Browse categories">
       <SectionHeading eyebrow="Find your next thing" title="Explore categories" href="/courses" label="Browse all" />

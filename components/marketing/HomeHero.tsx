@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { getHomeHeroContent } from "@/services/homeHeroService";
 import { DEFAULT_HOME_HERO_SETTINGS, DEFAULT_HOME_HERO_SLIDES } from "@/types/hero";
-import styles from "./HomeHero.module.css";
 
 const HERO_COPY = "Discover practical courses and digital resources made to move your goals forward.";
 
@@ -128,12 +127,6 @@ export default function HomeHero() {
           Skills and resources for your next move.
         </h1>
         <TypewriterCopy />
-        <div className={styles.mascotScene} aria-hidden="true">
-          <div className={`${styles.mascotJourney} ${paused || interacting ? styles.mascotPaused : ""}`}>
-            <Image src="/images/homepage-mascots.webp" alt="" width={720} height={480} className={styles.mascots} />
-          </div>
-        </div>
-        <p className="mt-3 text-sm font-bold text-blue-700 dark:text-blue-300">Learn something. Earn something.</p>
         <div className="mt-5 flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 sm:text-sm">
           <span>✓ Learn at your pace</span>
           <span>✓ Instant access</span>
