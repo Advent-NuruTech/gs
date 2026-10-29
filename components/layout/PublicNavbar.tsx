@@ -28,6 +28,7 @@ import { useCourse } from "@/hooks/useCourse";
 import { listDesigns } from "@/services/designService";
 import { Design } from "@/types/design";
 import CartButton from "@/components/course/CartButton";
+import InstallAppButton from "@/components/ui/InstallAppButton";
 
 const navLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
   { href: "/", label: "Home", icon: House },
@@ -208,6 +209,7 @@ export default function PublicNavbar() {
           {showSearch ? (
             <div className="ml-auto hidden w-full max-w-sm md:block">{searchBox}</div>
           ) : null}
+          <div className="hidden lg:block"><InstallAppButton compact /></div>
           {authLoading ? (
             <span
               className={`${showSearch ? "" : "ml-auto "}hidden h-10 w-10 shrink-0 animate-pulse rounded-full bg-slate-200 md:block dark:bg-slate-800`}
@@ -244,7 +246,7 @@ export default function PublicNavbar() {
       </header>
 
       {menuOpen ? <div className="fixed inset-0 z-50 bg-slate-950/45" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
-      <aside className={`fixed inset-y-0 left-0 z-50 flex w-[min(86vw,22rem)] flex-col border-r border-slate-200 bg-[var(--background)] p-4 shadow-2xl transition-transform duration-300 dark:border-slate-800 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`} aria-hidden={!menuOpen}>
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-[min(86vw,22rem)] flex-col overflow-y-auto border-r border-slate-200 bg-[var(--background)] p-4 shadow-2xl transition-transform duration-300 dark:border-slate-800 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`} aria-hidden={!menuOpen}>
         <div className="flex items-center justify-between">
           <Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-black tracking-tight text-slate-950 dark:text-white">advent<span className="text-blue-600 dark:text-blue-400">skool</span></Link>
           <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu" className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-900"><X className="h-5 w-5" /></button>
@@ -294,6 +296,7 @@ export default function PublicNavbar() {
             </Link>
           )}
         </nav>
+        <div className="mt-4"><InstallAppButton /></div>
         <div className="mt-auto border-t border-slate-200 pt-4 dark:border-slate-800">
           <button type="button" onClick={toggleTheme} className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
             <span className="flex items-center gap-2">{dark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}{dark ? "Dark mode" : "Light mode"}</span>

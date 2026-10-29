@@ -70,6 +70,7 @@ npm run lint
 
 ## UI feedback, loading, and navigation conventions
 
+- AdventSkool's install action is available in the public navigation and every dashboard sidebar, including admin. A root-level provider captures the browser's install prompt; where a direct prompt is unavailable, the action explains how to use the browser's install or home-screen menu. The web app manifest and icons live under `public`, and installation requires browser support and a secure origin. It does not promise offline access.
 - **Always show a loading state to the user.** Never keep an action silent. For page loads, use `<PageSkeleton>` (with an accessible `label`) and `loading.tsx` files for routes. For button/form actions, pass `loading`/`loadingText` to `<Button>` or use `useAsyncAction` so the button is disabled, shows a spinner, and announces `aria-busy`.
 - **Separate feedback from the page.** Use `<StatusCard>` for loading, success, error, warning, and info. Messages must appear in a raised, tinted card (not inline paragraph text that blends in). Use the `role`/`aria-live` that `StatusCard` provides (assertive for errors).
 - **Block double submits.** Use `useAsyncAction` for any user-initiated request (forms, clicks). It ignores extra clicks while in flight. When you need manual state, set an explicit `isLoading` boolean and disable the trigger.
@@ -95,6 +96,8 @@ npm run lint
 - When touching theme styling, check the full affected screen and shared navigation, including mobile bottom navigation and dashboard sidebars/menus. Verify category/section headings, cards, footer attribution, cart, creator agreement, form controls, and overlays where present; do not fix only the first clipped or low-contrast word.
 
 ## Homepage motion
+
+- The homepage walking characters display rotating speech bubbles with up to 20 administrator-editable messages at `/dashboard/admin/display-settings`. Apply `supabase/migrations/0037_homepage_mascot_messages.sql` before deploying; the existing public-read/admin-update settings policies protect the messages. Default messages remain available if the settings cannot be loaded. The character pause control stops both walking and message rotation, and reduced-motion preferences keep them still.
 
 - The homepage category rail auto-loops on narrow screens, pauses for 30 seconds after touch, pointer, wheel, or keyboard focus interaction, and remains still when reduced motion is requested. Keep duplicate rail items hidden from assistive technology and keyboard navigation.
 - Migration `0023_homepage_hero.sql` adds the public-readable, admin-managed hero slide library and CTA settings; apply it before deploying hero management. The migration seeds the four project-local desktop/mobile pairs. Administrators manage the library at `/dashboard/admin/homepage-hero`, can upload or delete slides up to a database-enforced maximum of ten, and can edit both CTA labels and safe internal/HTTPS destinations. A final slide cannot be deleted until a replacement exists. New uploads use Cloudinary folders `adventskool/homepage-hero/desktop` and `.../mobile` and require separate wide desktop and 4:3 mobile assets to preserve quality.

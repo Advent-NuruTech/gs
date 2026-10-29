@@ -38,6 +38,7 @@ import {
 
 import { UserRole } from "@/types/user";
 import Button from "@/components/ui/Button";
+import InstallAppButton from "@/components/ui/InstallAppButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppRouter } from "@/hooks/useAppRouter";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
@@ -341,6 +342,7 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
       <aside className="hidden w-64 shrink-0 self-start border-r border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950 lg:sticky lg:top-0 lg:block lg:h-screen lg:overflow-y-auto">
         <h2 className="mb-6 text-xl font-semibold text-slate-900 dark:text-white">AdventSkool</h2>
         <nav className="space-y-1" aria-label="Dashboard navigation">{renderLinks()}</nav>
+        <div className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-800"><InstallAppButton /></div>
       </aside>
 
       {mobileOpen ? (
@@ -365,6 +367,7 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
               </button>
             </div>
             <nav className="space-y-1" aria-label="Dashboard navigation">{renderLinks(onClose)}</nav>
+            <div className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-800"><InstallAppButton /></div>
             <div className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-800">
               <Button
                 type="button"

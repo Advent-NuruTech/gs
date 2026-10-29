@@ -6,6 +6,7 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import StatusCard from "@/components/ui/StatusCard";
+import MascotMessagesEditor from "@/components/dashboard/MascotMessagesEditor";
 import { useAuth } from "@/hooks/useAuth";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -91,6 +92,7 @@ export default function DisplaySettingsPage() {
           </Button>
         </div>
       </div>
+      <MascotMessagesEditor />
     </section>
   );
 }
