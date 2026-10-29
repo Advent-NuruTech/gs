@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Eye, FileDown, Landmark } from "lucide-react";
+import { BookOpen, Eye, FileDown } from "lucide-react";
 import Link from "next/link";
 
 import ShareButton from "@/components/share/ShareButton";
@@ -11,7 +11,6 @@ import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext
 const kindDetails = {
   course: { label: "Course", icon: BookOpen, href: (id: string) => `/courses/${id}` },
   design: { label: "Digital product", icon: FileDown, href: (id: string) => `/designs/${id}` },
-  wealth: { label: "Wealth resource", icon: Landmark, href: (id: string) => `/wealth/${id}` },
 } as const;
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke").replace(/\/$/, "");
@@ -70,7 +69,7 @@ export default function StorefrontProductCard({
           <Link href={productHref} className="inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">
             View
           </Link>
-          <ShareButton title={product.title} entityLabel={product.kind === "course" ? "Course" : product.kind === "wealth" ? "Resource" : "Product"} path={sharePath} className="px-3 py-2 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
+          <ShareButton title={product.title} entityLabel={product.kind === "course" ? "Course" : "Product"} path={sharePath} className="px-3 py-2 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
         </div>
       </div>
     </article>

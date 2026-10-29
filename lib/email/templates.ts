@@ -192,65 +192,6 @@ export function designOrderCompletedEmail(p: DesignOrderCompletedPayload): Rende
   };
 }
 
-export interface WealthOrderAdminPayload {
-  customerName: string;
-  productTitle: string;
-  amount: string;
-  reference: string;
-  email: string;
-  phone: string;
-  whatsapp: string;
-}
-
-/** Sent to the admin when a paid Wealth Academy order comes in. */
-export function wealthOrderAdminEmail(p: WealthOrderAdminPayload): RenderedEmail {
-  const firstName = (p.customerName || "Someone").split(" ")[0];
-  const body = `
-    <p style="margin:0 0 8px;color:${BRAND_DARK};font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">New Wealth Academy order</p>
-    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:${TEXT};">${escapeHtml(firstName)} has ordered ${escapeHtml(p.productTitle)}</h1>
-    <p style="margin:0 0 12px;">Log in to the dashboard and review the request.</p>
-    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border:1px solid ${BORDER};border-radius:12px;margin:12px 0;">
-      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;">Customer</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;">${escapeHtml(p.customerName)}</td></tr>
-      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">Email</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.email)}</td></tr>
-      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">Phone</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.phone)}</td></tr>
-      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">WhatsApp</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.whatsapp)}</td></tr>
-      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">Amount paid</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.amount)}</td></tr>
-      <tr><td style="padding:10px 14px;color:${MUTED};font-size:13px;border-top:1px solid ${BORDER};">Reference</td><td style="padding:10px 14px;font-weight:600;color:${TEXT};font-size:13px;border-top:1px solid ${BORDER};">${escapeHtml(p.reference)}</td></tr>
-    </table>
-    ${ctaButton("Open Wealth Orders", `${APP_URL}/dashboard/admin/wealth/orders`)}`;
-  return {
-    subject: `New Wealth Academy order: ${p.productTitle}`,
-    html: baseEmail({
-      title: `New Wealth Academy order: ${p.productTitle}`,
-      preheader: `${firstName} ordered ${p.productTitle}`,
-      bodyHtml: body,
-    }),
-  };
-}
-
-export interface WealthOrderCompletedPayload {
-  customerName: string;
-  productTitle: string;
-}
-
-/** Sent to the customer when the admin marks their wealth order completed. */
-export function wealthOrderCompletedEmail(p: WealthOrderCompletedPayload): RenderedEmail {
-  const firstName = (p.customerName || "there").split(" ")[0];
-  const body = `
-    <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:${TEXT};">Your Wealth Academy order is ready 🎉</h1>
-    <p style="margin:0 0 12px;">Hi ${escapeHtml(firstName)},</p>
-    <p style="margin:0 0 12px;">Your order for <strong>${escapeHtml(p.productTitle)}</strong> is complete. Please check your email or WhatsApp for the final resource.</p>
-    <p style="margin:0;color:${MUTED};font-size:14px;">Thank you for building with AdventSkool Wealth Academy.</p>`;
-  return {
-    subject: `Your order is complete: ${p.productTitle}`,
-    html: baseEmail({
-      title: `Your order is complete`,
-      preheader: `${p.productTitle} is ready — check your email or WhatsApp`,
-      bodyHtml: body,
-    }),
-  };
-}
-
 /** Wraps admin-authored campaign HTML in the branded shell. */
 export function campaignEmail(opts: { subject: string; bodyHtml: string }): RenderedEmail {
   return {

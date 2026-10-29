@@ -1,6 +1,6 @@
 # Cloudflare product storage
 
-Digital Product and Wealth Academy uploads use Cloudflare D1 for file metadata and a private R2 bucket for the file bytes. Supabase continues to hold accounts, product commerce rows, orders, and payments during the staged migration. Product `image_url` and `file_url` values become stable AdventSkool `/api/storage/assets/{id}` references rather than exposing R2 credentials or object keys.
+Digital Product uploads use Cloudflare D1 for file metadata and a private R2 bucket for the file bytes. Supabase continues to hold accounts, product commerce rows, orders, and payments during the staged migration. Product `image_url` and `file_url` values become stable AdventSkool `/api/storage/assets/{id}` references rather than exposing R2 credentials or object keys.
 
 ## 1. Create Cloudflare resources
 
@@ -76,7 +76,7 @@ Keep all credentials server-side. None of these variables may use a `NEXT_PUBLIC
 
 ## 5. Gradual migration
 
-New Digital Product and Wealth uploads go directly to R2 after the server checks the effective account allowance. D1 first records a pending asset; completion performs an R2 `HEAD` check and marks it ready only when the size exactly matches.
+New Digital Product uploads go directly to R2 after the server checks the effective account allowance. D1 first records a pending asset; completion performs an R2 `HEAD` check and marks it ready only when the size exactly matches.
 
 Existing products continue to work from Cloudinary. On either admin product list, click **Sync** for one product at a time. Sync performs this order:
 

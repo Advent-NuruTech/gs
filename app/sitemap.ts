@@ -29,12 +29,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/wealth`,
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    },
-    {
       url: `${siteUrl}/adventpay`,
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
@@ -120,19 +114,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })) ?? [];
 
-  const { data: wealthProducts } = await supabase
-    .from("wealth_products")
-    .select("id, updated_at")
-    .eq("published", true);
-
-  const wealthRoutes =
-    wealthProducts?.map((product) => ({
-      url: `${siteUrl}/wealth/${product.id}`,
-      lastModified: product.updated_at ? new Date(product.updated_at) : new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    })) ?? [];
-
   let creatorRoutes: MetadataRoute.Sitemap = [];
   if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
     const { createClient } = await import("@supabase/supabase-js");
@@ -155,5 +136,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   }
 
-  return [...staticRoutes, ...courseRoutes, ...designRoutes, ...wealthRoutes, ...creatorRoutes];
+  return [...staticRoutes, ...courseRoutes, ...designRoutes, ...creatorRoutes];
 }

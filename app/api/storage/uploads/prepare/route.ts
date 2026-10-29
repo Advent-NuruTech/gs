@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
-  const productKind = body?.productKind === "wealth" ? "wealth" : body?.productKind === "design" ? "design" : null;
+  const productKind = body?.productKind === "design" ? "design" : null;
   const fileName = String(body?.fileName ?? "").trim().slice(0, 255);
   const contentType = String(body?.contentType ?? "").trim().toLowerCase();
   const purpose = body?.purpose === "product_image" ? "product_image" : body?.purpose === "deliverable" ? "deliverable" : null;

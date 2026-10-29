@@ -29,7 +29,7 @@ function fileNameFromUrl(url: string, fallback: string): string {
 async function migrateSource(input: {
   source: string;
   ownerId: string;
-  kind: "design" | "wealth";
+  kind: "design";
   purpose: "product_image" | "deliverable";
   visibility: "public" | "private";
   fallbackName: string;
@@ -85,12 +85,12 @@ export async function POST(request: NextRequest) {
   const adminUser = await getRequestUser(request);
   if (adminUser?.role !== "admin") return NextResponse.json({ error: "Administrator access is required." }, { status: 403 });
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
-  const kind = body?.kind === "wealth" ? "wealth" : body?.kind === "design" ? "design" : null;
+  const kind = body?.kind === "design" ? "design" : null;
   const productId = String(body?.productId ?? "");
   if (!kind || !productId) return NextResponse.json({ error: "Invalid product sync request." }, { status: 400 });
 
   const db = getSupabaseAdminClient();
-  const table = kind === "design" ? "designs" : "wealth_products";
+  const table = "designs";
   const { data: product, error: productError } = await db
     .from(table)
     .select("id,title,created_by,image_url,file_url,file_type")

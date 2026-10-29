@@ -19,10 +19,6 @@ interface PreparedUpload {
   isPdf: boolean;
 }
 
-function productKindFromFolder(folder: string): "design" | "wealth" {
-  return folder.includes("wealth") ? "wealth" : "design";
-}
-
 function inferContentType(file: File): string {
   if (file.type) return file.type;
   const extension = file.name.split(".").pop()?.toLowerCase();
@@ -37,10 +33,10 @@ function inferContentType(file: File): string {
 
 export async function uploadAsset(
   file: File,
-  folder: string,
+  _folder: string,
   purpose: "product_image" | "deliverable" = "deliverable",
 ): Promise<UploadedAsset> {
-  const productKind = productKindFromFolder(folder);
+  const productKind = "design";
   const contentType = inferContentType(file);
   const prepared = await apiRequest<PreparedUpload>("/api/storage/uploads/prepare", {
     method: "POST",
@@ -74,7 +70,7 @@ export async function uploadAsset(
 }
 
 export async function bindProductAssets(
-  kind: "design" | "wealth",
+  kind: "design",
   productId: string,
   references: string[],
 ): Promise<void> {

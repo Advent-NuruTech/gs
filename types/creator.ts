@@ -18,7 +18,7 @@ export interface CreatorStorefrontProfile {
   socialLinks: CreatorSocialLinks;
 }
 
-export type StorefrontProductKind = "course" | "design" | "wealth";
+export type StorefrontProductKind = "course" | "design";
 
 export interface StorefrontProduct {
   id: string;

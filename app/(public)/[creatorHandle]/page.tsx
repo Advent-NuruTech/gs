@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke").replace(/\/$/, "");
 
 function mixRecommendations(items: StorefrontProduct[], limit = 8) {
-  const kinds: StorefrontProductKind[] = ["course", "design", "wealth"];
+  const kinds: StorefrontProductKind[] = ["course", "design"];
   const unique = [...new Map(items.map((item) => [`${item.kind}:${item.id}`, item])).values()];
   const queues = new Map(kinds.map((kind) => [kind, unique.filter((item) => item.kind === kind)]));
   const mixed: StorefrontProduct[] = [];

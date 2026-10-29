@@ -29,7 +29,6 @@ import {
   ShoppingBag,
   SlidersHorizontal,
   Store,
-  TrendingUp,
   Video,
   Wallet,
   Wrench,
@@ -42,7 +41,6 @@ import Button from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppRouter } from "@/hooks/useAppRouter";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
-import { getWealthPublicNavigationEnabled } from "@/services/wealthSettingsService";
 import { useEffect, useMemo, useState } from "react";
 
 interface SidebarProps {
@@ -72,7 +70,6 @@ const publicLinks: NavLink[] = [
   { href: "/", label: "Public Home", icon: House },
   { href: "/courses", label: "Browse Courses", icon: BookOpen },
   { href: "/designs", label: "Browse Digital Products", icon: Package },
-  { href: "/wealth", label: "Browse Wealth Academy", icon: TrendingUp },
 ];
 
 const linkMap: Record<UserRole, NavItem[]> = {
@@ -85,8 +82,6 @@ const linkMap: Record<UserRole, NavItem[]> = {
       links: [
         { href: "/dashboard/student/my-courses", label: "My Courses", icon: GraduationCap },
         { href: "/dashboard/products", label: "My Digital Products", icon: Library },
-        { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
-        { href: "/dashboard/teacher/wealth", label: "Create Wealth Products", icon: PlusCircle },
       ],
     },
     {
@@ -131,7 +126,6 @@ const linkMap: Record<UserRole, NavItem[]> = {
         { href: "/dashboard/teacher/courses", label: "Courses", icon: BookOpen },
         { href: "/dashboard/teacher/designs/create", label: "Create Digital Product", icon: PlusCircle },
         { href: "/dashboard/products", label: "My Digital Products", icon: Library },
-        { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
       ],
     },
     {
@@ -188,9 +182,7 @@ const linkMap: Record<UserRole, NavItem[]> = {
         { href: "/dashboard/admin/courses", label: "Courses", icon: BookOpen },
         { href: "/dashboard/admin/courses/create", label: "Create Course", icon: PlusCircle },
         { href: "/dashboard/admin/designs", label: "Digital Products", icon: Package },
-        { href: "/dashboard/admin/wealth", label: "Wealth Academy", icon: TrendingUp },
         { href: "/dashboard/products", label: "My Digital Products", icon: Library },
-        { href: "/dashboard/wealth", label: "My Wealth Resources", icon: TrendingUp },
       ],
     },
     {
@@ -199,7 +191,6 @@ const linkMap: Record<UserRole, NavItem[]> = {
       icon: ShoppingBag,
       links: [
         { href: "/dashboard/admin/designs/orders", label: "Product Orders", icon: ShoppingBag },
-        { href: "/dashboard/admin/wealth/orders", label: "Wealth Orders", icon: ShoppingBag },
         { href: "/dashboard/admin/payments", label: "Payments", icon: CreditCard },
         { href: "/adventpay/admin", label: "AdventPay", icon: Wallet },
         { href: "/dashboard/admin/creator-payouts", label: "Creator Payouts", icon: Wallet },
@@ -245,7 +236,6 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
   const pathname = usePathname();
   const router = useAppRouter();
   const { profile, logout } = useAuth();
-  const [wealthPublicNavigation, setWealthPublicNavigation] = useState(false);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
   const signOut = useAsyncAction({
     action: async () => {
@@ -254,16 +244,6 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
       router.push("/login");
     },
   });
-
-  useEffect(() => {
-    let active = true;
-    void getWealthPublicNavigationEnabled()
-      .then((enabled) => active && setWealthPublicNavigation(enabled))
-      .catch((error) => console.error("Could not load public Wealth Academy navigation setting.", error));
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const links = useMemo(() => {
     const rolePublicLinks = role === "teacher"
@@ -277,24 +257,10 @@ export default function Sidebar({ role, mobileOpen = false, onClose }: SidebarPr
       )
       : publicLinks;
 
-    const shouldShowLink = (link: NavLink) => {
-      if (link.href === "/wealth") {
-        return wealthPublicNavigation && (role !== "teacher" || Boolean(profile?.wealthEnabled));
-      }
-      if (link.href === "/dashboard/wealth" && role === "teacher") {
-        return Boolean(profile?.wealthEnabled);
-      }
-      if (link.href === "/dashboard/teacher/wealth") {
-        return Boolean(profile?.role === "teacher" && profile.creatorStatus === "approved" && profile.wealthEnabled);
-      }
-      return true;
-    };
-
     return linkMap[role]
       .map((item) => isNavGroup(item) && item.id === "teacher-explore" ? { ...item, links: rolePublicLinks } : item)
-      .map((item) => (isNavGroup(item) ? { ...item, links: item.links.filter(shouldShowLink) } : item))
       .filter((item) => !isNavGroup(item) || item.links.length > 0);
-  }, [profile, role, wealthPublicNavigation]);
+  }, [profile, role]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);

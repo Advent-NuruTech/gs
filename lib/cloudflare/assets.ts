@@ -83,7 +83,7 @@ export async function getEffectiveUploadLimit(accountId: string): Promise<number
 
 export async function createPendingAsset(input: {
   ownerId: string;
-  productKind: "design" | "wealth";
+  productKind: "design";
   purpose: "product_image" | "deliverable";
   visibility: "public" | "private";
   fileName: string;
@@ -127,7 +127,7 @@ export async function completePendingAsset(assetId: string): Promise<StoredAsset
 
 export async function bindAssetsToProduct(
   references: string[],
-  kind: "design" | "wealth",
+  kind: "design",
   productId: string,
   assetOwnerId: string,
   productOwnerId = assetOwnerId,

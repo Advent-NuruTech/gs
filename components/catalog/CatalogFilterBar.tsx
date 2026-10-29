@@ -37,6 +37,7 @@ type CatalogFilterBarProps = {
   accent?: Accent;
   innerMaxWidth?: string;
   showCategoryFilter?: boolean;
+  stickyOnMobile?: boolean;
 };
 
 export default function CatalogFilterBar({
@@ -53,6 +54,7 @@ export default function CatalogFilterBar({
   accent = "blue",
   innerMaxWidth = "max-w-7xl",
   showCategoryFilter,
+  stickyOnMobile = false,
 }: CatalogFilterBarProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [categoryQuery, setCategoryQuery] = useState("");
@@ -110,11 +112,11 @@ export default function CatalogFilterBar({
   return (
     <div
       ref={rootRef}
-      className="sm:sticky sm:top-16 z-30 -mx-4 border-y border-slate-200 bg-[var(--background)]/95 px-4 py-3 shadow-sm backdrop-blur"
+      className={`z-30 -mx-4 border-y border-slate-200 bg-[var(--background)]/95 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 ${stickyOnMobile ? "sticky top-0 sm:top-16" : "sm:sticky sm:top-16"}`}
     >
-      <div className={`mx-auto flex flex-col gap-2.5 sm:flex-row sm:items-center ${innerMaxWidth}`}>
+      <div className={`mx-auto flex gap-2.5 sm:items-center ${stickyOnMobile ? "flex-row items-center" : "flex-col sm:flex-row"} ${innerMaxWidth}`}>
         <div
-          className={`flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 shadow-sm transition focus-within:ring-2 sm:h-11 ${tones.focus}`}
+          className={`flex h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 shadow-sm transition focus-within:ring-2 sm:h-11 dark:border-slate-700 dark:bg-slate-900 ${tones.focus}`}
         >
           <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
           <input
@@ -137,14 +139,14 @@ export default function CatalogFilterBar({
           ) : null}
         </div>
 
-        <div className="relative shrink-0 sm:w-64">
+        <div className={`relative shrink-0 sm:w-64 ${stickyOnMobile && withCategory ? "w-32 min-[400px]:w-40" : ""}`}>
           {withCategory ? (
             <button
               type="button"
               aria-expanded={pickerOpen}
               aria-haspopup="listbox"
               onClick={togglePicker}
-              className={`flex h-11 w-full items-center gap-2 rounded-xl border bg-white px-3 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 focus:outline-none focus:ring-2 ${
+              className={`flex h-11 w-full items-center gap-2 rounded-xl border bg-white px-3 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 focus:outline-none focus:ring-2 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 ${
                 pickerOpen ? "border-slate-400 ring-slate-200" : "border-slate-300"
               }`}
             >
@@ -160,7 +162,7 @@ export default function CatalogFilterBar({
           ) : null}
 
           {pickerOpen ? (
-            <div className="absolute left-0 right-0 z-40 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl sm:left-auto sm:right-0 sm:w-80">
+            <div className="absolute right-0 z-40 mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl dark:border-slate-700 dark:bg-slate-900 sm:left-auto sm:right-0 sm:w-80">
               {categories.length > 12 ? (
                 <label className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100">
                   <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
@@ -189,7 +191,7 @@ export default function CatalogFilterBar({
                           closePicker();
                         }}
                         className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition ${
-                          selected ? tones.selected : `text-slate-700 ${tones.hover}`
+                          selected ? tones.selected : `text-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 ${tones.hover}`
                         }`}
                       >
                         <span className="min-w-0 truncate">{category}</span>

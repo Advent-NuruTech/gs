@@ -12,7 +12,7 @@ import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext
  * ratio with no cropping (Pinterest-style). The whole tile links to the
  * detail page where the download / customization flows begin.
  */
-export default function DesignCard({ design, hidePrice = false }: { design: Design; hidePrice?: boolean }) {
+export default function DesignCard({ design, hidePrice = false, compact = false }: { design: Design; hidePrice?: boolean; compact?: boolean }) {
   const { showViewCounts } = usePublicDisplaySettings();
   const canDownload = !hidePrice && Number(design.downloadPrice || 0) > 0;
   const canCustomize = design.customizationEnabled && !hidePrice && Number(design.customizationPrice || 0) > 0;
@@ -41,18 +41,18 @@ export default function DesignCard({ design, hidePrice = false }: { design: Desi
 
   return (
     <article
-      className="group mb-4 block break-inside-avoid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+      className={`group block min-w-0 break-inside-avoid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-xl dark:border-slate-800 dark:bg-slate-900 ${compact ? "h-full" : "mb-4"}`}
     >
       <Link href={`/designs/${design.id}`} className="block">
-        <div className="relative w-full overflow-hidden bg-slate-100">
+        <div className={`relative w-full overflow-hidden bg-slate-100 dark:bg-slate-800 ${compact ? "aspect-[4/3]" : ""}`}>
           {/* Plain img + natural aspect ratio = zero cropping. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={design.imageUrl}
             alt={design.title}
             loading="lazy"
-            style={ratio ? { aspectRatio: ratio } : undefined}
-            className="w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+            style={!compact && ratio ? { aspectRatio: ratio } : undefined}
+            className={`${compact ? "h-full object-contain" : "object-cover"} w-full transition duration-300 group-hover:scale-[1.02]`}
           />
           {design.fileType === "pdf" ? (
             <span className="absolute right-3 top-3 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
@@ -72,7 +72,7 @@ export default function DesignCard({ design, hidePrice = false }: { design: Desi
           <span className="truncate">{design.category}</span>
         </span>
         <Link href={`/designs/${design.id}`} className="block hover:text-indigo-700">
-          <h3 className="line-clamp-1 text-sm font-semibold text-slate-900">{design.title}</h3>
+          <h3 className="line-clamp-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{design.title}</h3>
         </Link>
         <div className="flex flex-wrap items-center gap-1.5">
           {canDownload ? (

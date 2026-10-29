@@ -12,7 +12,7 @@ export async function GET(
   const { assetId } = await params;
   try {
     const asset = await getAsset(assetId);
-    if (!asset || asset.status !== "ready" || asset.visibility !== "public") {
+    if (!asset || asset.productKind !== "design" || asset.status !== "ready" || asset.visibility !== "public") {
       return NextResponse.json({ error: "File not found." }, { status: 404 });
     }
     const url = createR2PresignedUrl({ method: "GET", key: asset.objectKey, expiresSeconds: 10 * 60 });

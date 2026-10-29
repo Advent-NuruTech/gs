@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   const user = await getRequestUser(request);
   if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
-  const kind = body?.kind === "wealth" ? "wealth" : body?.kind === "design" ? "design" : null;
+  const kind = body?.kind === "design" ? "design" : null;
   const productId = String(body?.productId ?? "");
   const references = Array.isArray(body?.references) ? body.references.map(String).slice(0, 4) : [];
   if (!kind || !productId || references.length === 0) {
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   }
 
   const db = getSupabaseAdminClient();
-  const table = kind === "design" ? "designs" : "wealth_products";
+  const table = "designs";
   const { data: product } = await db.from(table).select("created_by").eq("id", productId).maybeSingle();
   if (!product || (user.role !== "admin" && product.created_by !== user.id)) {
     return NextResponse.json({ error: "Not authorized to bind these files." }, { status: 403 });

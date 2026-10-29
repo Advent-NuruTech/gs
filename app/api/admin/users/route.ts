@@ -98,22 +98,14 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const userId = String(body?.id ?? "");
   const action = String(body?.action ?? "");
-  if (!userId || !["approve_creator", "reject_creator", "suspend", "restore", "set_wealth_access"].includes(action)) return NextResponse.json({ error: "Invalid account action." }, { status: 400 });
+  if (!userId || !["approve_creator", "reject_creator", "suspend", "restore"].includes(action)) return NextResponse.json({ error: "Invalid account action." }, { status: 400 });
   if (userId === admin.id) return NextResponse.json({ error: "You cannot change your own account." }, { status: 400 });
   const db = getSupabaseAdminClient();
   let result;
   if (action === "approve_creator") result = await db.from("profiles").update({ role: "teacher", creator_status: "approved" }).eq("id", userId);
-  else if (action === "reject_creator") result = await db.from("profiles").update({ creator_status: "rejected", wealth_enabled: false }).eq("id", userId);
+  else if (action === "reject_creator") result = await db.from("profiles").update({ creator_status: "rejected" }).eq("id", userId);
   else if (action === "restore") result = await db.from("profiles").update({ suspended_until: null, suspension_reason: null }).eq("id", userId);
-  else if (action === "set_wealth_access") {
-    if (typeof body?.wealthEnabled !== "boolean") return NextResponse.json({ error: "Wealth access must be enabled or disabled." }, { status: 400 });
-    const { data: target, error: targetError } = await db.from("profiles").select("role, creator_status").eq("id", userId).maybeSingle();
-    if (targetError) return NextResponse.json({ error: targetError.message }, { status: 400 });
-    if (!target || target.role !== "teacher" || target.creator_status !== "approved") {
-      return NextResponse.json({ error: "Wealth access can only be assigned to approved creators." }, { status: 400 });
-    }
-    result = await db.from("profiles").update({ wealth_enabled: body.wealthEnabled }).eq("id", userId);
-  }
+
   else {
     const hours = Number(body?.hours);
     if (!Number.isFinite(hours) || hours < 1 || hours > 24 * 365) return NextResponse.json({ error: "Suspension duration must be 1 hour to 365 days." }, { status: 400 });

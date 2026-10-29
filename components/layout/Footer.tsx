@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getWealthPublicNavigationEnabled } from "@/services/wealthSettingsService";
 
 const CREDIT = "Powered by Advent NuruTech Services";
 
@@ -43,7 +42,6 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/courses", label: "Courses" },
   { href: "/designs", label: "Digital Products" },
-  { href: "/wealth", label: "Wealth Academy" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },
   { href: "/become-a-creator", label: "Become a teacher" },
@@ -57,17 +55,6 @@ const legalLinks = [
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const [wealthPublicNavigation, setWealthPublicNavigation] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    void getWealthPublicNavigationEnabled()
-      .then((enabled) => active && setWealthPublicNavigation(enabled))
-      .catch((error) => console.error("Could not load public Wealth Academy navigation setting.", error));
-    return () => {
-      active = false;
-    };
-  }, []);
 
   return (
     <footer className="mt-16 border-t border-slate-200 bg-transparent dark:border-slate-800">
@@ -95,7 +82,7 @@ export default function Footer() {
               Explore
             </h3>
             <ul className="mt-4 space-y-2">
-              {navLinks.filter((link) => link.href !== "/wealth" || wealthPublicNavigation).map((link) => (
+              {navLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

@@ -24,7 +24,7 @@ function mapCourse(row: Record<string, unknown>): StorefrontProduct {
   };
 }
 
-function mapDownloadable(row: Record<string, unknown>, kind: "design" | "wealth"): StorefrontProduct {
+function mapDownloadable(row: Record<string, unknown>, kind: "design"): StorefrontProduct {
   return {
     id: String(row.id),
     kind,
@@ -90,33 +90,29 @@ export async function getCreatorStorefront(handle: string): Promise<CreatorStore
 
 async function listProductsForCreator(creatorId: string): Promise<StorefrontProduct[]> {
   const db = getSupabaseAdminClient();
-  const [courses, designs, wealth] = await Promise.all([
+  const [courses, designs] = await Promise.all([
     db.from("courses").select("id,title,category,thumbnail_url,final_price,original_price,instructor_id,created_at").eq("published", true).eq("instructor_id", creatorId).order("created_at", { ascending: false }).limit(300),
     db.from("designs").select("id,title,category,image_url,download_price,views,orders_count,created_by,created_at").eq("published", true).eq("created_by", creatorId).order("created_at", { ascending: false }).limit(300),
-    db.from("wealth_products").select("id,title,category,image_url,download_price,views,orders_count,created_by,created_at").eq("published", true).eq("created_by", creatorId).order("created_at", { ascending: false }).limit(300),
   ]);
-  const error = courses.error ?? designs.error ?? wealth.error;
+  const error = courses.error ?? designs.error;
   if (error) throw new Error(error.message);
   return [
     ...(courses.data ?? []).map((row) => mapCourse(row as Record<string, unknown>)),
     ...(designs.data ?? []).map((row) => mapDownloadable(row as Record<string, unknown>, "design")),
-    ...(wealth.data ?? []).map((row) => mapDownloadable(row as Record<string, unknown>, "wealth")),
   ].sort(byNewest);
 }
 
 async function listOtherProducts(creatorId: string): Promise<StorefrontProduct[]> {
   const db = getSupabaseAdminClient();
-  const [courses, designs, wealth] = await Promise.all([
+  const [courses, designs] = await Promise.all([
     db.from("courses").select("id,title,category,thumbnail_url,final_price,original_price,instructor_id,created_at").eq("published", true).neq("instructor_id", creatorId).order("created_at", { ascending: false }).limit(18),
     db.from("designs").select("id,title,category,image_url,download_price,views,orders_count,created_by,created_at").eq("published", true).neq("created_by", creatorId).order("created_at", { ascending: false }).limit(18),
-    db.from("wealth_products").select("id,title,category,image_url,download_price,views,orders_count,created_by,created_at").eq("published", true).neq("created_by", creatorId).order("created_at", { ascending: false }).limit(18),
   ]);
-  const error = courses.error ?? designs.error ?? wealth.error;
+  const error = courses.error ?? designs.error;
   if (error) throw new Error(error.message);
   const products = [
     ...(courses.data ?? []).map((row) => mapCourse(row as Record<string, unknown>)),
     ...(designs.data ?? []).map((row) => mapDownloadable(row as Record<string, unknown>, "design")),
-    ...(wealth.data ?? []).map((row) => mapDownloadable(row as Record<string, unknown>, "wealth")),
   ];
   const creatorIds = [...new Set(products.map((product) => product.creatorId).filter(Boolean))];
   if (!creatorIds.length) return [];

@@ -6,7 +6,7 @@ export interface ProductSyncResult {
   legacyRemoved: boolean;
 }
 
-export async function syncProductAssets(kind: "design" | "wealth", productId: string) {
+export async function syncProductAssets(kind: "design", productId: string) {
   return apiRequest<ProductSyncResult>("/api/storage/sync", {
     method: "POST",
     body: JSON.stringify({ kind, productId }),
