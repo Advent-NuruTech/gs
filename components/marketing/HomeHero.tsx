@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { getHomeHeroContent } from "@/services/homeHeroService";
 import { DEFAULT_HOME_HERO_SETTINGS, DEFAULT_HOME_HERO_SLIDES } from "@/types/hero";
+import styles from "./HomeHero.module.css";
 
 const HERO_COPY = "Discover practical courses and digital resources made to move your goals forward.";
 
@@ -53,6 +54,7 @@ export default function HomeHero() {
   const ctas = heroContent.data?.settings ?? DEFAULT_HOME_HERO_SETTINGS;
   const [activeSlide, setActiveSlide] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [interacting, setInteracting] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(true);
 
   useEffect(() => {
@@ -64,12 +66,12 @@ export default function HomeHero() {
   }, []);
 
   useEffect(() => {
-    if (paused || reduceMotion) return;
+    if (paused || interacting || reduceMotion) return;
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % slides.length);
     }, 6500);
     return () => window.clearInterval(timer);
-  }, [paused, reduceMotion, slides.length]);
+  }, [paused, interacting, reduceMotion, slides.length]);
 
   const visibleSlide = activeSlide % slides.length;
 
@@ -77,11 +79,11 @@ export default function HomeHero() {
     <section
       className="relative isolate -mx-2 overflow-hidden bg-white dark:bg-slate-950 sm:mx-0 sm:min-h-[540px] sm:bg-slate-950 sm:shadow-2xl sm:shadow-slate-950/20 lg:min-h-[500px]"
       aria-label="AdventSkool introduction"
-      onPointerEnter={() => setPaused(true)}
-      onPointerLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
+      onPointerEnter={() => setInteracting(true)}
+      onPointerLeave={() => setInteracting(false)}
+      onFocusCapture={() => setInteracting(true)}
       onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
+        if (!event.currentTarget.contains(event.relatedTarget)) setInteracting(false);
       }}
     >
       <div className="relative aspect-[4/3] w-full sm:absolute sm:inset-0 sm:h-full sm:aspect-auto">
@@ -126,6 +128,11 @@ export default function HomeHero() {
           Skills and resources for your next move.
         </h1>
         <TypewriterCopy />
+        <div className={styles.mascotScene} aria-hidden="true">
+          <div className={`${styles.mascotJourney} ${paused || interacting ? styles.mascotPaused : ""}`}>
+            <Image src="/images/homepage-mascots.webp" alt="" width={720} height={480} className={styles.mascots} />
+          </div>
+        </div>
         <p className="mt-3 text-sm font-bold text-blue-700 dark:text-blue-300">Learn something. Earn something.</p>
         <div className="mt-5 flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 sm:text-sm">
           <span>✓ Learn at your pace</span>
@@ -150,7 +157,7 @@ export default function HomeHero() {
             type="button"
             onClick={() => setPaused((current) => !current)}
             className="ml-1 grid h-7 w-7 place-items-center rounded-full bg-white/15 transition hover:bg-white/25"
-            aria-label={paused ? "Resume hero images" : "Pause hero images"}
+            aria-label={paused ? "Resume hero animations" : "Pause hero animations"}
           >
             {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
           </button>
