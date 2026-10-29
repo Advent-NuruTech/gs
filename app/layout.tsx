@@ -7,6 +7,15 @@ const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/brand/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/adventskool-icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   title: {
     default: "AdventSkool | Online Courses and Digital Products in Kenya",
     template: "%s | AdventSkool",

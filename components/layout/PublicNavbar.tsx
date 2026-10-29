@@ -184,7 +184,7 @@ export default function PublicNavbar() {
     <>
       <header className="z-40 border-b border-slate-200 bg-[var(--background)]/95 backdrop-blur sm:sticky sm:top-0 dark:border-slate-800">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4">
-          <Link href="/" className="shrink-0 text-lg font-black tracking-tight text-slate-950 dark:text-white">Advent<span className="text-blue-600">Skool</span></Link>
+          <Link href="/" className="shrink-0 text-lg font-black tracking-tight text-slate-950 dark:text-white">advent<span className="text-blue-600 dark:text-blue-400">skool</span></Link>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
             {resolvedNavLinks.map((link) => {
               const active = isNavActive(pathname, link.href);
@@ -246,7 +246,7 @@ export default function PublicNavbar() {
       {menuOpen ? <div className="fixed inset-0 z-50 bg-slate-950/45" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
       <aside className={`fixed inset-y-0 left-0 z-50 flex w-[min(86vw,22rem)] flex-col border-r border-slate-200 bg-[var(--background)] p-4 shadow-2xl transition-transform duration-300 dark:border-slate-800 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`} aria-hidden={!menuOpen}>
         <div className="flex items-center justify-between">
-          <Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-black tracking-tight text-slate-950 dark:text-white">Advent<span className="text-blue-600">Skool</span></Link>
+          <Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-black tracking-tight text-slate-950 dark:text-white">advent<span className="text-blue-600 dark:text-blue-400">skool</span></Link>
           <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu" className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-900"><X className="h-5 w-5" /></button>
         </div>
         <nav className="mt-5 flex flex-col gap-1" aria-label="Mobile navigation">

@@ -61,9 +61,7 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
-            <p className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
-              AdventSkool LMS
-            </p>
+           
             <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-600 dark:text-slate-300">
               AdventSkool is a guided, mobile-first learning platform - structured lessons, progress
               tracking, and role-based dashboards for students, teachers, and admins. AdventSkool is
