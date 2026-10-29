@@ -29,7 +29,7 @@ export default function AdminUsersPage() {
   const { profile } = useAuth();
   const { pushToast } = useNotificationContext();
   const [feedback, setFeedback] = useState<{ message: string; kind: "success" | "error" } | null>(null);
-  const detailsRef = useRef<HTMLElement>(null);
+  const detailsRef = useRef<HTMLDialogElement>(null);
   const report = (message: string, kind: "success" | "error") => { setFeedback({ message, kind }); pushToast(message, kind); };
   const [users, setUsers] = useState<AppUser[]>([]);
   const [invites, setInvites] = useState<TeacherInvite[]>([]);
@@ -54,7 +54,7 @@ export default function AdminUsersPage() {
   const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    if (selectedUser?.id) detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (selectedUser?.id && detailsRef.current && !detailsRef.current.open) detailsRef.current.showModal();
   }, [selectedUser?.id]);
 
   const creatorAction = async (id: string, action: string, hours?: number) => {
@@ -259,13 +259,14 @@ export default function AdminUsersPage() {
             <span className="text-sm tabular-nums text-slate-500 dark:text-slate-400">{index + 1}</span>
             <div className="min-w-0"><p className="break-words font-semibold text-slate-900 dark:text-slate-100">{user.displayName || "Unnamed account"}</p><p className="break-all text-sm text-slate-500 dark:text-slate-400 md:hidden">{user.email}</p><p className="mt-1 text-xs capitalize text-slate-500 dark:text-slate-400 md:hidden">{user.role === "teacher" ? "Creator" : user.role}</p></div>
             <span className="hidden min-w-0 break-all text-sm text-slate-600 dark:text-slate-300 md:block">{user.email}</span><span className="hidden text-sm capitalize text-slate-600 dark:text-slate-300 md:block">{user.role === "teacher" ? "Creator" : user.role}</span>
-            <button type="button" onClick={() => setSelectedUser({ ...user })} className="inline-flex items-center justify-center rounded-lg border border-slate-200 p-2 text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-700 dark:text-blue-300 dark:hover:bg-slate-800" aria-label={`View details for ${user.displayName || user.email}`}><Eye className="h-5 w-5" /></button>
+            <button type="button" onClick={() => { setFeedback(null); setSelectedUser({ ...user }); }} className="inline-flex items-center justify-center rounded-lg border border-slate-200 p-2 text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-700 dark:text-blue-300 dark:hover:bg-slate-800" aria-label={`View details for ${user.displayName || user.email}`}><Eye className="h-5 w-5" /></button>
           </li>)}
         </ol>
         {visibleUsers.length === 0 ? <div className="p-4"><StatusCard kind="info" title="No matching accounts" description="Try another search or account category." /></div> : null}
       </section>
-      {selectedUser ? <section ref={detailsRef} tabIndex={-1} className="space-y-4 rounded-xl border border-blue-200 bg-white p-4 shadow-sm dark:border-blue-900 dark:bg-slate-900" aria-label="Account details">
-        <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-lg font-semibold text-slate-950 dark:text-white">Account details</h2><p className="break-all text-sm text-slate-500 dark:text-slate-400">{selectedUser.email}</p></div><button type="button" onClick={() => setSelectedUser(null)} aria-label="Close account details" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"><X className="h-5 w-5" /></button></div>
+      {selectedUser ? <dialog ref={detailsRef} onClose={() => setSelectedUser(null)} aria-labelledby="account-details-title" className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-2xl backdrop:bg-slate-950/60 dark:border-slate-700 dark:bg-slate-900 sm:p-6"><div className="space-y-4">
+        <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 id="account-details-title" className="text-lg font-semibold text-slate-950 dark:text-white">Account details</h2><p className="break-all text-sm text-slate-500 dark:text-slate-400">{selectedUser.email}</p></div><button type="button" onClick={() => setSelectedUser(null)} aria-label="Close account details" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"><X className="h-5 w-5" /></button></div>
+        {feedback ? <StatusCard kind={feedback.kind} title={feedback.message} onDismiss={() => setFeedback(null)} /> : null}
         <div className="grid gap-3 md:grid-cols-2"><Input label="Name" value={selectedUser.displayName} onChange={(event) => setSelectedUser({ ...selectedUser, displayName: event.target.value })} /><label className="flex flex-col gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">Role<select value={selectedUser.role} onChange={(event) => setSelectedUser({ ...selectedUser, role: event.target.value as AppUser["role"] })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-800"><option value="student">Student</option><option value="teacher">Creator</option><option value="admin">Admin</option></select></label></div>
         <dl className="grid gap-2 text-sm text-slate-600 dark:text-slate-300 sm:grid-cols-2"><div><dt className="font-semibold">Phone</dt><dd className="break-words">{selectedUser.phone || "Not provided"}</dd></div><div><dt className="font-semibold">Joined</dt><dd>{selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : "Unknown"}</dd></div><div><dt className="font-semibold">Creator application</dt><dd className="capitalize">{selectedUser.creatorStatus || "none"}</dd></div><div><dt className="font-semibold">Access</dt><dd>{selectedUser.suspendedUntil && new Date(selectedUser.suspendedUntil) > new Date() ? `Suspended until ${new Date(selectedUser.suspendedUntil).toLocaleString()}` : "Active"}</dd></div></dl>
         <div className="flex flex-wrap gap-2">
@@ -274,7 +275,7 @@ export default function AdminUsersPage() {
           {selectedUser.role === "teacher" ? <>{selectedUser.suspendedUntil && new Date(selectedUser.suspendedUntil) > new Date() ? <Button variant="secondary" disabled={!!creatorActionId || !!savingId || !!deletingId} onClick={() => creatorAction(selectedUser.id, "restore")}>Restore access</Button> : <><Button variant="secondary" disabled={!!creatorActionId || !!savingId || !!deletingId} onClick={() => creatorAction(selectedUser.id, "suspend", 24)}>Suspend 24 hours</Button><Button variant="secondary" disabled={!!creatorActionId || !!savingId || !!deletingId} onClick={() => creatorAction(selectedUser.id, "suspend", 720)}>Suspend 30 days</Button><Button variant="secondary" disabled={!!creatorActionId || !!savingId || !!deletingId} onClick={() => { const days = Number(window.prompt("Suspend for how many days? (1?365)", "7")); if (Number.isInteger(days) && days >= 1 && days <= 365) void creatorAction(selectedUser.id, "suspend", days * 24); }}>Custom suspension</Button></>}</> : null}
           <Button variant="danger" loading={deletingId === selectedUser.id} loadingText="Deleting..." disabled={selectedUser.id === profile?.id || !!creatorActionId || !!savingId} onClick={async () => { if (deletingId || !window.confirm(`Delete the account for ${selectedUser.displayName || selectedUser.email}?`)) return; setDeletingId(selectedUser.id); try { await deleteManagedUser(selectedUser.id); setUsers(prev => prev.filter(u => u.id !== selectedUser.id)); setSelectedUser(null); report("User deleted from profile records.", "success"); } catch (error) { report(error instanceof Error ? error.message : "Failed to delete user.", "error"); } finally { setDeletingId(null); } }}>Delete account</Button>
         </div>
-      </section> : null}
+      </div></dialog> : null}
     </section>
   );
 }
