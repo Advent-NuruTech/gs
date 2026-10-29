@@ -4,13 +4,13 @@
   width: 100vw;
   transform: translateX(-50%);
   overflow: hidden;
+  background: white;
 }
 
 .scene {
   position: relative;
   height: 155px;
   overflow: hidden;
-  background: linear-gradient(to top, rgb(219 234 254 / 0.45), transparent 45%);
 }
 
 .walker {
@@ -24,6 +24,21 @@
 .laptop { animation-delay: -4s; }
 .pencil { animation-duration: 26s; animation-delay: -13s; }
 .book { animation-duration: 19s; animation-delay: -15s; }
+
+.footprint {
+  position: absolute;
+  left: 48%;
+  bottom: 2px;
+  width: 14px;
+  height: 6px;
+  border-radius: 55% 45% 45% 55%;
+  background: #93b7df;
+  opacity: 0;
+  animation: footprint-fade 2.4s linear infinite;
+}
+
+.secondPrint { bottom: 6px; animation-delay: -0.8s; }
+.thirdPrint { animation-delay: -1.6s; }
 
 .character {
   position: relative;
@@ -82,9 +97,15 @@
 @keyframes stride { from { transform: rotate(-32deg); } to { transform: rotate(32deg); } }
 @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-4px); } }
 @keyframes sway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+@keyframes footprint-fade {
+  0% { opacity: 0; transform: translateX(0); }
+  15% { opacity: 0.65; }
+  100% { opacity: 0; transform: translateX(-70px); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .walker, .character, .body, .leg { animation: none; }
+  .footprint { display: none; }
   .walker { left: 0; }
   .pencil { left: calc(50% - 56px); }
   .book { left: auto; right: 0; }
