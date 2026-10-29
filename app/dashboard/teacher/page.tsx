@@ -12,6 +12,7 @@ import { getTeacherStudentCount } from "@/services/messageService";
 import { Course } from "@/types/course";
 import { apiRequest } from "@/lib/api/client";
 import StatusCard from "@/components/ui/StatusCard";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 
 type PayoutSummaryResponse = {
@@ -22,6 +23,7 @@ type PayoutSummaryResponse = {
 type TeacherDashboardData = {
   courses: Course[];
   studentCount: number;
+  productCount: number;
   needsPayout: boolean;
   totalEarnings: number;
 };
@@ -30,13 +32,16 @@ export default function TeacherDashboardPage() {
   const { profile } = useAuth();
   const { data, isLoading, errorMessage, reload } = useAsyncData<TeacherDashboardData>(
     async () => {
-      if (!profile) return { courses: [], studentCount: 0, needsPayout: false, totalEarnings: 0 };
-      const [response, count, payout] = await Promise.all([
+      if (!profile) return { courses: [], studentCount: 0, productCount: 0, needsPayout: false, totalEarnings: 0 };
+      const [response, count, payout, products] = await Promise.all([
         listCourses({ instructorId: profile.id, pageSize: 50 }),
         getTeacherStudentCount(profile.id),
         apiRequest<PayoutSummaryResponse>("/api/creator/payout").catch(() => ({ payout: null, earnings: [] })),
+        getSupabaseBrowserClient().from("designs").select("id", { count: "exact", head: true }).eq("created_by", profile.id),
       ]);
+      if (products.error) throw new Error(products.error.message);
       return {
+        productCount: products.count ?? 0,
         courses: response.courses,
         studentCount: count,
         needsPayout: !payout.payout && response.courses.some((course) => course.published),
@@ -63,6 +68,9 @@ export default function TeacherDashboardPage() {
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
         <Link href="/dashboard/teacher/courses" className="block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" aria-label={`View ${courses.length} courses`}>
           <StatCard label="Total courses" value={courses.length} />
+        </Link>
+        <Link href={profile?.handle ? `/@${profile.handle}` : "/dashboard/teacher/storefront"} className="block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+          <StatCard label="Digital Products" value={data?.productCount ?? 0} />
         </Link>
         <Link href="/dashboard/teacher/payouts" className="block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" aria-label={`View total earnings of ${formatKsh(data?.totalEarnings ?? 0)}`}>
           <StatCard label="Total earnings" value={formatKsh(data?.totalEarnings ?? 0)} hint="View payout and settlement details" />
