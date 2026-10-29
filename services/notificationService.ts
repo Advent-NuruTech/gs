@@ -65,3 +65,13 @@ export async function clearNotificationsForUser(userId: string): Promise<void> {
     .eq("read", false);
   if (error) throw new Error(error.message);
 }
+
+export async function deleteNotification(notificationId: string): Promise<void> {
+  const { error } = await supabase.from("notifications").delete().eq("id", notificationId);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteReadNotifications(userId: string): Promise<void> {
+  const { error } = await supabase.from("notifications").delete().eq("user_id", userId).eq("read", true);
+  if (error) throw new Error(error.message);
+}

@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bell, CircleUser, Menu } from "lucide-react";
+import { Bell, CircleUser, Menu, Trash2 } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import StatusCard from "@/components/ui/StatusCard";
 import { useAppRouter } from "@/hooks/useAppRouter";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
 import { useAuth } from "@/hooks/useAuth";
 import {
   clearNotificationsForUser,
+  deleteNotification,
+  deleteReadNotifications,
   getNotificationsForUser,
   markNotificationAsRead,
 } from "@/services/notificationService";
@@ -66,7 +69,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
     if (!profile) return;
 
     let active = true;
-    (async () => {
+    const refresh = async () => {
       const [rows, announcementRows] = await Promise.all([
         getNotificationsForUser(profile.id),
         listAnnouncementsForUser(profile.id).catch(() => [] as Announcement[]),
@@ -75,9 +78,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
         setNotifications(rows);
         setAnnouncements(announcementRows);
       }
-    })();
+    };
+    void refresh().catch(() => {});
+    const timer = window.setInterval(() => void refresh().catch(() => {}), 60000);
 
     return () => {
+      window.clearInterval(timer);
       active = false;
     };
   }, [profile]);
@@ -142,6 +148,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
       // Keep the panel usable even if the clear action fails.
     }
   };
+
+  const removeNotice = useAsyncAction({
+    action: async (id: string) => { await deleteNotification(id); setNotifications((items) => items.filter((item) => item.id !== id)); },
+    successMessage: "Notification deleted.",
+  });
+  const removeRead = useAsyncAction({
+    action: async () => { if (!profile) return; await deleteReadNotifications(profile.id); setNotifications((items) => items.filter((item) => !item.read)); },
+    successMessage: "Read notifications cleared.",
+  });
 
   const openAnnouncement = async (announcement: Announcement) => {
     if (!announcement.read && profile) {
@@ -266,6 +281,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   ) : null}
                 </div>
                 <div className="max-h-[min(24rem,55vh)] space-y-2 overflow-y-auto p-3">
+                  {notifications.some((item) => item.read) ? <Button type="button" variant="secondary" loading={removeRead.isLoading} loadingText="Clearing..." onClick={() => void removeRead.run()}>Clear read notifications</Button> : null}
+                  {(removeNotice.errorMessage || removeRead.errorMessage) ? <StatusCard kind="error" title="Could not delete notifications" description={removeNotice.errorMessage || removeRead.errorMessage} /> : null}
+                  {(removeNotice.successMessage || removeRead.successMessage) ? <StatusCard kind="success" title={removeNotice.successMessage || removeRead.successMessage} /> : null}
                   {announcements.slice(0, 8).map((item) => (
                     <button
                       key={`ann_${item.id}`}
@@ -296,9 +314,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
                       You&apos;re all caught up. Nothing new yet.
                     </p>
                   ) : (
-                    notifications.slice(0, 12).map((item) => (
+                    notifications.map((item) => (
+                      <div key={item.id} className="flex items-start gap-1">
                       <button
-                        key={item.id}
                         type="button"
                         onClick={() => openNotification(item)}
                         className={`flex w-full items-start gap-2 rounded border p-2 text-left text-sm transition ${
@@ -318,6 +336,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
                           <span className="block break-words text-slate-600">{item.message}</span>
                         </span>
                       </button>
+                      <button type="button" disabled={removeNotice.isLoading || removeRead.isLoading} aria-label={`Delete notification: ${item.title}`} onClick={() => void removeNotice.run(item.id)} className="rounded p-2 text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Trash2 className="h-4 w-4" aria-hidden="true" /></button>
+                      </div>
                     ))
                   )}
                 </div>
