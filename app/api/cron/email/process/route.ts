@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
-import { isAuthorizedCron } from "@/lib/email/cron";
+import { currentPromoPeriod, isAuthorizedCron } from "@/lib/email/cron";
 import { EMAIL_LIMITS, renderQueueRow, sleep } from "@/lib/email/render";
 import { sendEmail } from "@/lib/email/resend";
 
@@ -25,6 +25,16 @@ async function handle(request: NextRequest) {
 
   const supabase = getSupabaseAdminClient();
   const startedAt = Date.now();
+  // The same five-minute job handles promotions at 09:00 UTC on the 1st and 15th.
+  // Retry later that day if an earlier invocation failed. The database records
+  // each period atomically so overlapping runs cannot fan it out twice.
+  const now = new Date();
+  let promotionsEnqueued = 0;
+  if ((now.getUTCDate() === 1 || now.getUTCDate() === 15) && now.getUTCHours() >= 9) {
+    const { data, error } = await supabase.rpc("enqueue_scheduled_promotion", { p_period: currentPromoPeriod(now) });
+    if (error) return NextResponse.json({ error: "Could not queue scheduled promotion" }, { status: 500 });
+    promotionsEnqueued = Number(data ?? 0);
+  }
   const { data: due, error: dueError } = await supabase.from("email_campaigns")
     .select("id").eq("status", "pending").lte("scheduled_at", new Date().toISOString()).limit(20);
   if (dueError) return NextResponse.json({ error: "Could not load scheduled campaigns" }, { status: 500 });
@@ -65,7 +75,7 @@ async function handle(request: NextRequest) {
 
   const { error: markError } = await supabase.rpc("mark_drained_campaigns");
   if (markError) return NextResponse.json({ error: "Could not update campaign status" }, { status: 500 });
-  return NextResponse.json({ ok: deferred === 0, promoted, sent, failed, deferred }, { status: deferred ? 503 : 200 });
+  return NextResponse.json({ ok: deferred === 0, promoted, promotionsEnqueued, sent, failed, deferred }, { status: deferred ? 503 : 200 });
 }
 
 export async function POST(request: NextRequest) { return handle(request); }
