@@ -137,3 +137,5 @@ npm run lint
 - The admin user directory uses a numbered, responsive list with an eye control for account details and management actions. Admin and creator dashboard summaries include Digital Product totals; creator totals count their own products, including drafts.
 
 - Admin account details show recorded creator earnings and counts of uploaded courses and Digital Products, including drafts. The creator payout and course payment registers provide numbered, searchable lists with details in dialogs. Admin payout overview totals cover the latest 500 ledger entries; the payment register shows records returned by the database response limit.
+
+- Creator payout verification states are highlighted in the admin directory. The transaction breakdown link opens a server-paginated ledger (25 per page); apply `supabase/migrations/0038_creator_earnings_register_index.sql` for the register index. The payout overview still summarizes only the latest 500 entries. Product orders use a searchable, status-filtered register with details and fulfillment actions in a dialog; its totals describe the records loaded under the database response limit.
