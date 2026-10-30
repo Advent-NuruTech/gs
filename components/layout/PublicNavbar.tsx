@@ -141,8 +141,8 @@ export default function PublicNavbar() {
 
   const searchBox = (
     <div data-global-search className="relative w-full">
-      <label className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 shadow-sm transition focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:focus-within:ring-blue-900">
-        <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+      <label className="flex h-12 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-4 transition focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:focus-within:ring-blue-900">
+        <Search className="h-5 w-5 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden="true" />
         <input
           type="search"
           value={query}
@@ -153,7 +153,7 @@ export default function PublicNavbar() {
           }}
           placeholder="Search courses and products"
           aria-label="Search courses and digital products"
-          className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100"
+          className="min-w-0 flex-1 bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-400"
         />
       </label>
       {searchOpen && query.trim() ? (
@@ -183,36 +183,16 @@ export default function PublicNavbar() {
 
   return (
     <>
-      <header className="z-40 border-b border-slate-200 bg-[var(--background)]/95 backdrop-blur sm:sticky sm:top-0 dark:border-slate-800">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4">
-          <Link href="/" className="shrink-0 text-lg font-black tracking-tight text-slate-950 dark:text-white">advent<span className="text-blue-600 dark:text-blue-400">skool</span></Link>
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-            {resolvedNavLinks.map((link) => {
-              const active = isNavActive(pathname, link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  aria-current={active ? "page" : undefined}
-                  className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${
-                    active
-                      ? "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
-                      : "text-slate-600 hover:bg-white hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-blue-400"
-                  }`}
-                >
-                  <link.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="whitespace-nowrap">{link.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+      <header className="z-40 border-b border-slate-200 bg-white/95 shadow-[0_4px_24px_rgba(15,23,42,0.05)] backdrop-blur sm:sticky sm:top-0 dark:border-slate-800 dark:bg-slate-950/95">
+        <div className="mx-auto flex h-18 max-w-7xl items-center gap-4 px-4 sm:px-6">
+          <Link href="/" className="shrink-0 text-2xl font-black tracking-tight text-slate-950 dark:text-white">advent<span className="text-blue-600 dark:text-blue-400">skool</span></Link>
           {showSearch ? (
-            <div className="ml-auto hidden w-full max-w-sm md:block">{searchBox}</div>
+            <div className="ml-auto hidden w-full max-w-md md:block">{searchBox}</div>
           ) : null}
-          <div className="hidden lg:block"><InstallAppButton compact /></div>
+          <div className={`${showSearch ? "" : "ml-auto "}hidden lg:block`}><InstallAppButton compact /></div>
           {authLoading ? (
             <span
-              className={`${showSearch ? "" : "ml-auto "}hidden h-10 w-10 shrink-0 animate-pulse rounded-full bg-slate-200 md:block dark:bg-slate-800`}
+              className={`${showSearch ? "" : "ml-auto lg:ml-0 "}hidden h-10 w-10 shrink-0 animate-pulse rounded-full bg-slate-200 md:block dark:bg-slate-800`}
               aria-hidden="true"
             />
           ) : profile ? (
@@ -220,14 +200,14 @@ export default function PublicNavbar() {
               href={dashboardHref}
               aria-label={`Go to your ${profile.role} dashboard`}
               title={`${profile.displayName} — dashboard`}
-              className={`${showSearch ? "" : "ml-auto "}hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-blue-700 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-800 md:inline-flex dark:border-slate-700 dark:bg-slate-900 dark:text-blue-300 dark:hover:bg-slate-800`}
+              className={`${showSearch ? "" : "ml-auto lg:ml-0 "}hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-blue-700 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-800 md:inline-flex dark:border-slate-700 dark:bg-slate-900 dark:text-blue-300 dark:hover:bg-slate-800`}
             >
               <CircleUser className="h-6 w-6" aria-hidden="true" />
             </Link>
           ) : (
             <Link
               href="/login"
-              className={`${showSearch ? "" : "ml-auto "}hidden shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:text-blue-700 dark:text-slate-200 dark:hover:text-blue-400 md:inline-flex`}
+              className={`${showSearch ? "" : "ml-auto lg:ml-0 "}hidden shrink-0 items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-base font-semibold text-white transition hover:bg-blue-800 dark:bg-blue-500 dark:text-slate-950 dark:hover:bg-blue-400 md:inline-flex`}
             >
               <LogIn className="h-4 w-4" aria-hidden="true" />
               Log in
@@ -237,6 +217,28 @@ export default function PublicNavbar() {
             <CartButton className="h-11 w-11 justify-center border-0 !bg-transparent p-0 text-blue-700 shadow-none hover:!bg-transparent dark:text-blue-300" />
             <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open navigation menu" className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"><Menu className="h-5 w-5" /></button>
           </div>
+        </div>
+        <div className="hidden border-t border-slate-100 lg:block dark:border-slate-800">
+          <nav className="mx-auto flex max-w-7xl items-center justify-center gap-1 px-6 py-1.5" aria-label="Main navigation">
+            {resolvedNavLinks.map((link) => {
+              const active = isNavActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-base font-semibold transition ${
+                    active
+                      ? "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                      : "text-slate-700 hover:bg-slate-100 hover:text-blue-700 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-blue-300"
+                  }`}
+                >
+                  <link.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="whitespace-nowrap">{link.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
         {showSearch ? (
           <div className="border-t border-slate-200 px-4 py-3 dark:border-slate-800 md:hidden">
@@ -248,7 +250,7 @@ export default function PublicNavbar() {
       {menuOpen ? <div className="fixed inset-0 z-50 bg-slate-950/45" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
       <aside className={`fixed inset-y-0 left-0 z-50 flex w-[min(86vw,22rem)] flex-col overflow-y-auto border-r border-slate-200 bg-[var(--background)] p-4 shadow-2xl transition-transform duration-300 dark:border-slate-800 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`} aria-hidden={!menuOpen}>
         <div className="flex items-center justify-between">
-          <Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-black tracking-tight text-slate-950 dark:text-white">advent<span className="text-blue-600 dark:text-blue-400">skool</span></Link>
+          <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">advent<span className="text-blue-600 dark:text-blue-400">skool</span></Link>
           <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close navigation menu" className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-900"><X className="h-5 w-5" /></button>
         </div>
         <nav className="mt-5 flex flex-col gap-1" aria-label="Mobile navigation">
@@ -298,7 +300,7 @@ export default function PublicNavbar() {
         </nav>
         <div className="mt-4"><InstallAppButton /></div>
         <div className="mt-auto border-t border-slate-200 pt-4 dark:border-slate-800">
-          <button type="button" onClick={toggleTheme} className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+          <button type="button" onClick={toggleTheme} className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
             <span className="flex items-center gap-2">{dark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}{dark ? "Dark mode" : "Light mode"}</span>
             <span className={`relative h-6 w-11 rounded-full transition ${dark ? "bg-blue-600" : "bg-slate-300"}`}><span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition ${dark ? "left-6" : "left-1"}`} /></span>
           </button>

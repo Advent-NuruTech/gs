@@ -13,6 +13,7 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import AuthLogo from "@/components/auth/AuthLogo";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import PageSkeleton from "@/components/ui/PageSkeleton";
@@ -65,6 +66,9 @@ export default function BecomeCreatorPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col justify-center px-4 py-8 sm:px-8 sm:py-12">
       <div className="mx-auto w-full max-w-2xl space-y-7 sm:space-y-8">
         <header className="text-center">
+          <div className="mb-6">
+            <AuthLogo />
+          </div>
           <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-100 sm:h-24 sm:w-24">
             <UserRoundPlus className="h-10 w-10 sm:h-12 sm:w-12" strokeWidth={1.7} aria-hidden="true" />
           </div>
