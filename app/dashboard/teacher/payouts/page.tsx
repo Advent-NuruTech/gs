@@ -117,6 +117,8 @@ export default function TeacherPayoutsPage() {
     return <PageSkeleton label="Loading your payout details and earnings…" variant="form" />;
   }
 
+  if (!data && errorMessage) return <StatusCard kind="error" title="We could not load your payout details" description={errorMessage} actions={<Button variant="secondary" onClick={reload}>Try again</Button>} />;
+
   const payout = data?.payout ?? null;
   const earnings = data?.earnings ?? [];
   const total = earnings.reduce((sum, row) => sum + Number(row.creator_amount), 0);
@@ -227,7 +229,11 @@ export default function TeacherPayoutsPage() {
           title="Earnings history"
           description="Every recorded course sale, your share of it, and where it is in the payout process."
         />
-        <div className="overflow-x-auto">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800 md:hidden">
+          {earnings.map((row, index) => <article key={`${row.created_at}-${index}`} className="space-y-2 p-4 text-sm"><div className="flex items-center justify-between gap-3"><span className="font-semibold text-slate-900 dark:text-white">{formatKsh(Number(row.creator_amount))}</span><EarningStatusBadge payoutStatus={row.payout_status} /></div><p className="text-slate-600 dark:text-slate-300">{new Date(row.created_at).toLocaleDateString()} ? Sale {formatKsh(Number(row.gross_amount))}</p><p className="break-all font-mono text-xs text-slate-500 dark:text-slate-400">{row.payment_reference ?? "No reference"}</p><p className="text-slate-600 dark:text-slate-300">AdventSkool fee: {row.commission_percent}% ? Payment fee: {row.provider_fee == null ? "Not reported" : formatKsh(Number(row.provider_fee))}</p></article>)}
+          {earnings.length === 0 ? <div className="p-4"><StatusCard kind="info" title="No earnings recorded yet" description="Earnings appear here after a successful course sale." /></div> : null}
+        </div>
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>

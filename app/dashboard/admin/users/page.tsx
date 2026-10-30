@@ -24,6 +24,8 @@ import { TeacherInvite } from "@/types/teacherInvite";
 import { AppUser } from "@/types/user";
 import Link from "next/link";
 import StatusCard from "@/components/ui/StatusCard";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { formatKsh } from "@/lib/utils/formatCurrency";
 
 export default function AdminUsersPage() {
   const { profile } = useAuth();
@@ -52,9 +54,40 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [activity, setActivity] = useState<{ courses: number; products: number; earnings: number } | null>(null);
+  const [activityError, setActivityError] = useState("");
+  const [activityLoading, setActivityLoading] = useState(false);
 
   useEffect(() => {
     if (selectedUser?.id && detailsRef.current && !detailsRef.current.open) detailsRef.current.showModal();
+  }, [selectedUser?.id]);
+
+  useEffect(() => {
+    if (!selectedUser?.id) return;
+    let active = true;
+    const id = selectedUser.id;
+    async function loadActivity() {
+      setActivity(null); setActivityError(""); setActivityLoading(true);
+      try {
+        const db = getSupabaseBrowserClient();
+        const [courses, products] = await Promise.all([
+          db.from("courses").select("id", { count: "exact", head: true }).eq("instructor_id", id),
+          db.from("designs").select("id", { count: "exact", head: true }).eq("created_by", id),
+        ]);
+        if (courses.error || products.error) throw new Error(courses.error?.message ?? products.error?.message);
+        let earnings = 0;
+        for (let offset = 0; ; offset += 1000) {
+          const result = await db.from("creator_earnings").select("creator_amount").eq("creator_id", id).order("id").range(offset, offset + 999);
+          if (result.error) throw new Error(result.error.message);
+          earnings += (result.data ?? []).reduce((sum: number, row: { creator_amount: number | string }) => sum + Number(row.creator_amount), 0);
+          if ((result.data?.length ?? 0) < 1000) break;
+        }
+        if (active) setActivity({ courses: courses.count ?? 0, products: products.count ?? 0, earnings });
+      } catch (error) { if (active) setActivityError(error instanceof Error ? error.message : "Could not load account activity."); }
+      finally { if (active) setActivityLoading(false); }
+    }
+    void loadActivity();
+    return () => { active = false; };
   }, [selectedUser?.id]);
 
   const creatorAction = async (id: string, action: string, hours?: number) => {
@@ -267,6 +300,7 @@ export default function AdminUsersPage() {
       {selectedUser ? <dialog ref={detailsRef} onClose={() => setSelectedUser(null)} aria-labelledby="account-details-title" className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-2xl backdrop:bg-slate-950/60 dark:border-slate-700 dark:bg-slate-900 sm:p-6"><div className="space-y-4">
         <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 id="account-details-title" className="text-lg font-semibold text-slate-950 dark:text-white">Account details</h2><p className="break-all text-sm text-slate-500 dark:text-slate-400">{selectedUser.email}</p></div><button type="button" onClick={() => setSelectedUser(null)} aria-label="Close account details" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"><X className="h-5 w-5" /></button></div>
         {feedback ? <StatusCard kind={feedback.kind} title={feedback.message} onDismiss={() => setFeedback(null)} /> : null}
+        {activityLoading ? <StatusCard kind="loading" title="Loading account activity" /> : activityError ? <StatusCard kind="error" title="Could not load account activity" description={activityError} /> : activity ? <div className="grid grid-cols-2 gap-3"><StatCard label="Recorded earnings" value={formatKsh(activity.earnings)} hint="Creator share recorded on sales" /><StatCard label="Uploaded resources" value={activity.courses + activity.products} hint={`${activity.courses} courses ? ${activity.products} Digital Products`} /></div> : null}
         <div className="grid gap-3 md:grid-cols-2"><Input label="Name" value={selectedUser.displayName} onChange={(event) => setSelectedUser({ ...selectedUser, displayName: event.target.value })} /><label className="flex flex-col gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">Role<select value={selectedUser.role} onChange={(event) => setSelectedUser({ ...selectedUser, role: event.target.value as AppUser["role"] })} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-800"><option value="student">Student</option><option value="teacher">Creator</option><option value="admin">Admin</option></select></label></div>
         <dl className="grid gap-2 text-sm text-slate-600 dark:text-slate-300 sm:grid-cols-2"><div><dt className="font-semibold">Phone</dt><dd className="break-words">{selectedUser.phone || "Not provided"}</dd></div><div><dt className="font-semibold">Joined</dt><dd>{selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : "Unknown"}</dd></div><div><dt className="font-semibold">Creator application</dt><dd className="capitalize">{selectedUser.creatorStatus || "none"}</dd></div><div><dt className="font-semibold">Access</dt><dd>{selectedUser.suspendedUntil && new Date(selectedUser.suspendedUntil) > new Date() ? `Suspended until ${new Date(selectedUser.suspendedUntil).toLocaleString()}` : "Active"}</dd></div></dl>
         <div className="flex flex-wrap gap-2">

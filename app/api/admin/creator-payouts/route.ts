@@ -7,13 +7,20 @@ export async function GET(request: NextRequest) {
   const user = await getRequestUser(request);
   if (!user || user.role !== "admin") return NextResponse.json({ error: "Admins only." }, { status: 403 });
   const db = getSupabaseAdminClient();
-  const [{ data: teachers }, { data: payouts }, { data: rates }, { data: earnings }, { data: settings }] = await Promise.all([
+  const [teachersResult, payoutsResult, ratesResult, earningsResult, settingsResult] = await Promise.all([
     db.from("profiles").select("id,full_name,email").eq("role", "teacher").order("full_name"),
     db.from("creator_payout_profiles").select("creator_id,account_holder_name,bank_name,account_last4,phone_number,verification_status,payout_status,updated_at"),
     db.from("creator_commission_settings").select("*"),
     db.from("creator_earnings").select("*").order("created_at", { ascending: false }).limit(500),
     db.from("platform_payment_settings").select("*").eq("id", true).maybeSingle(),
   ]);
+  const error = [teachersResult, payoutsResult, ratesResult, earningsResult, settingsResult].find((result) => result.error)?.error;
+  if (error) return NextResponse.json({ error: "Could not load creator payout data." }, { status: 500 });
+  const { data: teachers } = teachersResult;
+  const { data: payouts } = payoutsResult;
+  const { data: rates } = ratesResult;
+  const { data: earnings } = earningsResult;
+  const { data: settings } = settingsResult;
   const teacherById = new Map((teachers ?? []).map((teacher) => [teacher.id, teacher]));
   const earningsWithCreator = (earnings ?? []).map((row) => ({ ...row, creator: teacherById.get(row.creator_id) ?? null }));
   return NextResponse.json({ teachers: teachers ?? [], payouts: payouts ?? [], rates: rates ?? [], earnings: earningsWithCreator, settings });
