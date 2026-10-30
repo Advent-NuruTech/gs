@@ -3,7 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import StatCard from "@/components/ui/StatCard";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import Select from "@/components/ui/Select";
 import StatusCard from "@/components/ui/StatusCard";
@@ -25,6 +28,7 @@ const statusOptions: { value: CreatorDomainStatus; label: string }[] = [
 
 export default function AdminCreatorDomainsPage() {
   const requests = useAsyncData(() => apiRequest<{ requests: AdminDomainRequest[] }>("/api/admin/creator-domains"), []);
+  const [search, setSearch] = useState("");
   const [drafts, setDrafts] = useState<Record<string, CreatorDomainStatus>>({});
   const [activeId, setActiveId] = useState("");
   const updateAction = useAsyncAction({
@@ -38,18 +42,22 @@ export default function AdminCreatorDomainsPage() {
   });
 
   if (requests.isLoading) return <PageSkeleton label="Loading creator domain requests" />;
+  const allRequests = requests.data?.requests ?? [];
+  const query = search.trim().toLowerCase();
+  const visibleRequests = allRequests.filter(request => `${request.requestedDomain} ${request.creatorName} ${request.creatorHandle ?? ""}`.toLowerCase().includes(query));
   return (
     <section className="mx-auto max-w-6xl space-y-6">
       <div><p className="text-sm font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Creator operations</p><h1 className="mt-1 text-3xl font-bold text-slate-950 dark:text-white">Custom domain requests</h1><p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Track the manual setup process. Mark a domain ready only after ownership, routing and HTTPS are verified.</p></div>
       {requests.errorMessage ? <StatusCard kind="error" title="Requests could not be loaded" description={requests.errorMessage} actions={<Button onClick={requests.reload}>Retry</Button>} /> : null}
       {updateAction.successMessage ? <StatusCard kind="success" title="Request updated" description={updateAction.successMessage} /> : null}
       {updateAction.errorMessage ? <StatusCard kind="error" title="Request could not be updated" description={updateAction.errorMessage} /> : null}
+      {!requests.errorMessage ? <><div className="grid grid-cols-2 gap-3 lg:grid-cols-4"><StatCard label="All requests" value={allRequests.length} /><StatCard label="Pending review" value={allRequests.filter(request => request.status === "pending").length} /><StatCard label="In setup" value={allRequests.filter(request => request.status === "in_progress" || request.status === "awaiting_dns").length} /><StatCard label="Ready" value={allRequests.filter(request => request.status === "ready").length} /></div><div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"><Input label="Search domain requests" placeholder="Domain or creator" value={search} onChange={event => setSearch(event.target.value)} /></div></> : null}
       <div className="space-y-4">
-        {(requests.data?.requests ?? []).map((request) => {
+        {visibleRequests.map((request) => {
           const selected = drafts[request.id] ?? request.status;
           return <article key={request.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="min-w-0"><h2 className="break-all text-lg font-bold text-slate-950 dark:text-white">{request.requestedDomain}</h2><p className="break-words text-sm text-slate-600 dark:text-slate-300">{request.creatorName}{request.creatorHandle ? <> · <Link className="text-blue-700 dark:text-blue-300" href={`/@${request.creatorHandle}`} target="_blank">@{request.creatorHandle}</Link></> : null}</p><p className="mt-1 text-xs text-slate-500">Requested {new Date(request.requestedAt).toLocaleString("en-KE")}</p></div>
+              <div className="min-w-0"><h2 className="break-all text-lg font-bold text-slate-950 dark:text-white">{request.requestedDomain}</h2><p className="break-words text-sm text-slate-600 dark:text-slate-300">{request.creatorName}{request.creatorHandle ? <> · <Link className="text-blue-700 dark:text-blue-300" href={`/@${request.creatorHandle}`} target="_blank">@{request.creatorHandle}</Link></> : null}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Requested {new Date(request.requestedAt).toLocaleString("en-KE")}</p><div className="mt-2"><Badge tone={request.status === "ready" ? "emerald" : request.status === "rejected" ? "red" : request.status === "cancelled" ? "slate" : "amber"}>{statusOptions.find(option => option.value === request.status)?.label ?? request.status}</Badge></div></div>
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end">
                 <Select label="Status" value={selected} onChange={(event) => setDrafts((current) => ({ ...current, [request.id]: event.target.value as CreatorDomainStatus }))} options={statusOptions} />
                 <Button loading={updateAction.isLoading && activeId === request.id} loadingText="Updating…" disabled={updateAction.isLoading || selected === request.status} onClick={() => void updateAction.run(request.id, selected)}>Update</Button>
@@ -57,7 +65,7 @@ export default function AdminCreatorDomainsPage() {
             </div>
           </article>;
         })}
-        {!requests.errorMessage && !(requests.data?.requests.length) ? <StatusCard kind="info" title="No custom-domain requests" description="Creator requests will appear here." /> : null}
+        {!requests.errorMessage && !visibleRequests.length ? <StatusCard kind="info" title="No matching domain requests" description="Try another search or check back for new requests." /> : null}
       </div>
     </section>
   );
