@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GraduationCap, Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 
 import AuthShell from "@/components/auth/AuthShell";
+import AuthLogo from "@/components/auth/AuthLogo";
 import Button from "@/components/ui/Button";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import Input from "@/components/ui/Input";
@@ -117,16 +118,7 @@ export default function LoginPageClient() {
       <div className="w-full max-w-md">
         {/* Logo and Branding */}
         <div className="text-center mb-6">
-          <Link href="/" className="inline-block">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-xl shadow-lg">
-                <GraduationCap className="w-8 h-8 text-white" />
-              </div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                adventskool
-              </span>
-            </div>
-          </Link>
+          <AuthLogo />
           <p className="text-sm text-slate-600 mt-2">
             Continue your structured learning journey
           </p>

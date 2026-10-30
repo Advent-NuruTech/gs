@@ -4,11 +4,13 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
-import { CheckCircle2, Eye, EyeOff, GraduationCap, Lock } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, Lock } from "lucide-react";
 
 import AuthShell from "@/components/auth/AuthShell";
+import AuthLogo from "@/components/auth/AuthLogo";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import StatusCard from "@/components/ui/StatusCard";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { updateUserPassword } from "@/services/authService";
@@ -21,12 +23,14 @@ export default function ResetPasswordPageClient() {
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [done, setDone] = useState(false);
   const [hasSession, setHasSession] = useState<boolean | null>(null);
 
   // The recovery link drops the user here with an active session (created by the
   // /auth/callback route). Confirm it exists before allowing a password change.
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("error")) { setHasSession(false); return; }
     const supabase = getSupabaseBrowserClient();
     supabase.auth
       .getSession()
@@ -44,13 +48,14 @@ export default function ResetPasswordPageClient() {
     if (!isValid) return;
 
     setLoading(true);
+    setErrorMessage("");
     try {
       await updateUserPassword(password);
       setDone(true);
       pushToast("Password updated. You can sign in with it now.", "success");
       setTimeout(() => router.push("/login"), 1800);
     } catch (error) {
-      pushToast(error instanceof Error ? error.message : "Could not update password.", "error");
+      setErrorMessage(error instanceof Error ? error.message : "Could not update password.");
     } finally {
       setLoading(false);
     }
@@ -61,16 +66,7 @@ export default function ResetPasswordPageClient() {
       <div className="w-full max-w-md">
         {/* Logo and Branding */}
         <div className="text-center mb-6">
-          <Link href="/" className="inline-block">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-xl shadow-lg">
-                <GraduationCap className="w-8 h-8 text-white" />
-              </div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                adventskool
-              </span>
-            </div>
-          </Link>
+          <AuthLogo />
           <p className="text-sm text-slate-600 mt-2">Choose a new password</p>
         </div>
 
@@ -100,8 +96,11 @@ export default function ResetPasswordPageClient() {
                 Request a new link
               </Link>
             </div>
+          ) : hasSession === null ? (
+            <StatusCard kind="loading" title="Checking your reset link" />
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {errorMessage ? <StatusCard kind="error" title="Something went wrong" description={errorMessage} /> : null}
               <div className="space-y-1 text-center">
                 <h1 className="text-2xl font-bold text-slate-900">Set a new password</h1>
                 <p className="text-sm text-slate-500">
@@ -166,16 +165,11 @@ export default function ResetPasswordPageClient() {
               <Button
                 type="submit"
                 className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={loading || !isValid}
+                loading={loading}
+                loadingText="Updating..."
+                disabled={!isValid}
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                    Updating...
-                  </span>
-                ) : (
-                  "Update password"
-                )}
+                Update password
               </Button>
             </form>
           )}

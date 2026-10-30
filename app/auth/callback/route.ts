@@ -15,15 +15,20 @@ export async function GET(request: NextRequest) {
   const next = request.nextUrl.searchParams.get("next");
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
 
-  if (!code) {
+  const tokenHash = request.nextUrl.searchParams.get("token_hash");
+  const recovery = request.nextUrl.searchParams.get("type") === "recovery";
+
+  if (!code && !(tokenHash && recovery)) {
     return NextResponse.redirect(new URL("/login?error=missing_code", request.url));
   }
 
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  const { data, error } = tokenHash && recovery
+    ? await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" })
+    : await supabase.auth.exchangeCodeForSession(code!);
   if (error || !data.user) {
     return NextResponse.redirect(
-      new URL(`/login?error=${encodeURIComponent(error?.message ?? "oauth_failed")}`, request.url),
+      new URL(recovery || safeNext === "/reset-password" ? "/reset-password?error=invalid_link" : `/login?error=${encodeURIComponent(error?.message ?? "oauth_failed")}`, request.url),
     );
   }
 
@@ -39,7 +44,7 @@ export async function GET(request: NextRequest) {
   // Never return an authenticated user to the public homepage. Creator
   // accounts are teacher-role profiles and therefore land in their creator
   // dashboard by default.
-  const destination = safeNext && safeNext !== "/" ? safeNext : `/dashboard/${role}`;
+  const destination = recovery ? "/reset-password" : safeNext && safeNext !== "/" ? safeNext : `/dashboard/${role}`;
   const response = NextResponse.redirect(new URL(destination, request.url));
   const maxAge = 60 * 60 * 24 * 365;
   response.cookies.set("adventskool_uid", data.user.id, { path: "/", maxAge, sameSite: "lax" });

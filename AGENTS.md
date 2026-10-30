@@ -141,3 +141,9 @@ npm run lint
 - Creator payout verification states are highlighted in the admin directory. The transaction breakdown link opens a server-paginated ledger (25 per page); apply `supabase/migrations/0038_creator_earnings_register_index.sql` for the register index. The payout overview still summarizes only the latest 500 entries. Product orders use a searchable, status-filtered register with details and fulfillment actions in a dialog; its totals describe the records loaded under the database response limit.
 
 - Creator applications use a searchable, numbered admin directory with review decisions in a details dialog. Product order titles are shortened in the register to eight words; the details dialog retains the full title. Custom-domain requests include searchable status summaries and visible status badges.
+
+
+## Authentication emails
+
+- Supabase Auth sends signup confirmation and password recovery emails through its own SMTP configuration, separate from the application Resend API integration. Configure verified-domain Resend SMTP and install the branded templates in `supabase/email-templates` as described in `docs/AUTH_EMAIL_SETUP.md`. Deploy the callback before installing the recovery template. Recovery verifies a Supabase token hash at `/auth/callback` and supports opening the email on another device. Email confirmation stays enabled.
+- The app email sender uses `RESEND_API_KEY` and `EMAIL_FROM` server-side. The official wordmark is used on the sign-in, signup, and password recovery pages and in the shared email shell.

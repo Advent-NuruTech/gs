@@ -5,7 +5,7 @@
  */
 
 export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://adventskool.co.ke";
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://adventskool.co.ke";
 
 const BRAND = "#0EA5E9";
 const BRAND_DARK = "#0284C7";
@@ -42,8 +42,8 @@ export function baseEmail(opts: {
     <td align="center" style="padding:24px 12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid ${BORDER};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
         <tr>
-          <td style="background:linear-gradient(135deg,${BRAND},${BRAND_DARK});padding:22px 28px;">
-            <span style="color:#ffffff;font-size:20px;font-weight:800;letter-spacing:-0.3px;">Advent Skool</span>
+          <td style="background:#ffffff;padding:22px 28px;border-bottom:1px solid ${BORDER};">
+            <a href="${APP_URL}"><img src="${APP_URL}/brand/adventskool-wordmark.png" alt="AdventSkool" width="190" style="display:block;width:190px;max-width:100%;height:auto;border:0;" /></a>
           </td>
         </tr>
         <tr>

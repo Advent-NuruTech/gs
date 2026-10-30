@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, KeyRound, Lock, Mail, Phone, ShieldCheck, User } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Lock, Mail, Phone, User } from "lucide-react";
 
 import AuthShell from "@/components/auth/AuthShell";
+import AuthLogo from "@/components/auth/AuthLogo";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useNotificationContext } from "@/context/NotificationContext";
@@ -77,9 +78,7 @@ export default function AdminSignupPageClient() {
     <AuthShell variant="dark">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 inline-flex items-center justify-center rounded-xl bg-slate-800 p-3">
-            <ShieldCheck className="h-8 w-8 text-emerald-400" />
-          </div>
+          <div className="mx-auto mb-4 w-fit rounded-xl bg-white px-4 py-3"><AuthLogo /></div>
           <h1 className="text-2xl font-bold text-white">Create Admin Account</h1>
           <p className="mt-1 text-sm text-slate-400">Requires the admin signup code.</p>
         </div>

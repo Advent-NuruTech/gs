@@ -2,19 +2,20 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { ArrowLeft, GraduationCap, Mail, MailCheck } from "lucide-react";
+import { ArrowLeft, Mail, MailCheck } from "lucide-react";
 
 import AuthShell from "@/components/auth/AuthShell";
+import AuthLogo from "@/components/auth/AuthLogo";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { useNotificationContext } from "@/context/NotificationContext";
+import StatusCard from "@/components/ui/StatusCard";
 import { sendPasswordReset } from "@/services/authService";
 
 export default function ForgotPasswordPageClient() {
-  const { pushToast } = useNotificationContext();
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [sent, setSent] = useState(false);
   const [focused, setFocused] = useState(false);
 
@@ -25,12 +26,13 @@ export default function ForgotPasswordPageClient() {
     if (!isValid) return;
 
     setLoading(true);
+    setErrorMessage("");
     try {
       await sendPasswordReset(email.trim());
       setSent(true);
-      pushToast("Password reset email sent. Check your inbox.", "success");
+
     } catch (error) {
-      pushToast(error instanceof Error ? error.message : "Could not send reset email.", "error");
+      setErrorMessage(error instanceof Error ? error.message : "Could not send reset email.");
     } finally {
       setLoading(false);
     }
@@ -41,16 +43,7 @@ export default function ForgotPasswordPageClient() {
       <div className="w-full max-w-md">
         {/* Logo and Branding */}
         <div className="text-center mb-6">
-          <Link href="/" className="inline-block">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-xl shadow-lg">
-                <GraduationCap className="w-8 h-8 text-white" />
-              </div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                adventskool
-              </span>
-            </div>
-          </Link>
+          <AuthLogo />
           <p className="text-sm text-slate-600 mt-2">Reset your account password</p>
         </div>
 
@@ -60,12 +53,13 @@ export default function ForgotPasswordPageClient() {
               <div className="mx-auto inline-flex items-center justify-center rounded-2xl bg-emerald-50 p-3">
                 <MailCheck className="h-8 w-8 text-emerald-600" />
               </div>
+              <StatusCard kind="success" title="Check your inbox" description="If an account exists for this email, a reset link is on its way." />
               <div className="space-y-1">
                 <h1 className="text-2xl font-bold text-slate-900">Check your inbox</h1>
                 <p className="text-sm text-slate-500">
-                  We sent a password reset link to{" "}
-                  <span className="font-medium text-slate-700">{email}</span>. Follow it to choose a new
-                  password. The link expires in 1 hour.
+                  If an account exists for{" "}
+                  <span className="font-medium text-slate-700">{email}</span>, we sent a link to choose a new
+                  password.
                 </p>
               </div>
               <p className="text-xs text-slate-500">
@@ -89,6 +83,7 @@ export default function ForgotPasswordPageClient() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {errorMessage ? <StatusCard kind="error" title="Something went wrong" description={errorMessage} /> : null}
               <div className="space-y-1 text-center">
                 <h1 className="text-2xl font-bold text-slate-900">Forgot password?</h1>
                 <p className="text-sm text-slate-500">
@@ -125,16 +120,11 @@ export default function ForgotPasswordPageClient() {
               <Button
                 type="submit"
                 className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={loading || !isValid}
+                loading={loading}
+                loadingText="Sending link..."
+                disabled={!isValid}
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                    Sending link...
-                  </span>
-                ) : (
-                  "Send reset link"
-                )}
+                Send reset link
               </Button>
 
               <Link
