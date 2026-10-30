@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 interface QueueRow {
   id: string;
+  lease_id: string;
   recipient_email: string;
   subject: string;
   html: string | null;
@@ -18,94 +19,54 @@ interface QueueRow {
   attempts: number;
 }
 
-/**
- * Outbox processor. Run frequently (e.g. every 5 min via pg_cron). Each run:
- *   1. Promotes any due admin campaigns into the queue (fan-out in SQL).
- *   2. Drains up to EMAIL_LIMITS.maxPerRun pending rows, rate-limited, marking
- *      each sent/failed. This batching + cron cadence spreads large audiences
- *      over time, staying within Resend / Supabase free-tier limits.
- */
 async function handle(request: NextRequest) {
-  if (!isAuthorizedCron(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!isAuthorizedCron(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!process.env.RESEND_API_KEY) return NextResponse.json({ error: "RESEND_API_KEY is not configured" }, { status: 503 });
 
   const supabase = getSupabaseAdminClient();
-  const now = new Date().toISOString();
+  const startedAt = Date.now();
+  const { data: due, error: dueError } = await supabase.from("email_campaigns")
+    .select("id").eq("status", "pending").lte("scheduled_at", new Date().toISOString()).limit(20);
+  if (dueError) return NextResponse.json({ error: "Could not load scheduled campaigns" }, { status: 500 });
 
-  // 1. Promote due scheduled campaigns into the outbox.
   let promoted = 0;
-  const { data: dueCampaigns } = await supabase
-    .from("email_campaigns")
-    .select("id")
-    .eq("status", "pending")
-    .lte("scheduled_at", now);
-
-  for (const c of dueCampaigns ?? []) {
-    const { error } = await supabase.rpc("enqueue_campaign_emails", { p_campaign_id: c.id });
-    if (!error) promoted += 1;
+  for (const campaign of due ?? []) {
+    if (Date.now() - startedAt > 15000) break;
+    const { error } = await supabase.rpc("enqueue_campaign_emails", { p_campaign_id: campaign.id });
+    if (error) return NextResponse.json({ error: "Could not queue a scheduled campaign" }, { status: 500 });
+    promoted++;
   }
 
-  // 2. Claim a batch of pending rows (mark 'sending' so a second run skips them).
-  const { data: claimable } = await supabase
-    .from("email_queue")
-    .select("id, recipient_email, subject, html, template, payload, attempts")
-    .eq("status", "pending")
-    .lt("attempts", EMAIL_LIMITS.maxAttempts)
-    .lte("scheduled_at", now)
-    .order("scheduled_at", { ascending: true })
-    .limit(EMAIL_LIMITS.maxPerRun);
-
-  const rows = (claimable ?? []) as QueueRow[];
-  if (rows.length === 0) {
-    return NextResponse.json({ ok: true, promoted, sent: 0, failed: 0 });
-  }
-
-  await supabase
-    .from("email_queue")
-    .update({ status: "sending" })
-    .in("id", rows.map((r) => r.id));
-
-  // 3. Send sequentially with a delay between sends to respect rate limits.
   let sent = 0;
   let failed = 0;
-  for (let i = 0; i < rows.length; i += 1) {
-    const row = rows[i];
+  let deferred = 0;
+  for (let i = 0; i < EMAIL_LIMITS.maxPerRun && Date.now() - startedAt < 15000; i++) {
+    const { data, error } = await supabase.rpc("claim_email_queue_item");
+    if (error) return NextResponse.json({ error: "Could not claim email queue item" }, { status: 500 });
+    const row = (data as QueueRow[] | null)?.[0];
+    if (!row) break;
+
     const { subject, html } = renderQueueRow(row);
-    const result = await sendEmail({ to: row.recipient_email, subject, html });
-
-    if (result.ok) {
-      sent += 1;
-      await supabase
-        .from("email_queue")
-        .update({ status: "sent", sent_at: new Date().toISOString(), attempts: row.attempts + 1 })
-        .eq("id", row.id);
-    } else {
-      failed += 1;
-      const attempts = row.attempts + 1;
-      await supabase
-        .from("email_queue")
-        .update({
-          status: attempts >= EMAIL_LIMITS.maxAttempts ? "failed" : "pending",
-          attempts,
-          last_error: result.error?.slice(0, 500) ?? "unknown error",
-        })
-        .eq("id", row.id);
-    }
-
-    if (i < rows.length - 1) await sleep(EMAIL_LIMITS.delayBetweenSends);
+    const result = await sendEmail({ to: row.recipient_email, subject, html, idempotencyKey: `email-queue/${row.id}` });
+    // Provider outages, limits and configuration failures should not exhaust a recipient's retries.
+    const transient = !result.ok && (!result.status || result.status === 401 || result.status === 403 || result.status === 408 || result.status === 409 || result.status === 429 || result.status >= 500);
+    const attempts = row.attempts + (transient ? 0 : 1);
+    const update = result.ok
+      ? { status: "sent", sent_at: new Date().toISOString(), attempts, last_error: null, lease_id: null, leased_at: null }
+      : { status: !transient && attempts >= EMAIL_LIMITS.maxAttempts ? "failed" : "pending", attempts, last_error: (result.error ?? "unknown error").slice(0, 500), scheduled_at: new Date(Date.now() + (transient ? 15 * 60_000 : 5 * 60_000)).toISOString(), lease_id: null, leased_at: null };
+    const { data: saved, error: saveError } = await supabase.from("email_queue").update(update)
+      .eq("id", row.id).eq("lease_id", row.lease_id).eq("status", "sending").select("id");
+    if (saveError || !saved?.length) return NextResponse.json({ error: "Could not record email result" }, { status: 500 });
+    if (result.ok) sent++;
+    else if (transient) { deferred++; break; }
+    else failed++;
+    if (i + 1 < EMAIL_LIMITS.maxPerRun && Date.now() - startedAt < 15000) await sleep(EMAIL_LIMITS.delayBetweenSends);
   }
 
-  // Mark fully-drained campaigns as sent.
-  await supabase.rpc("mark_drained_campaigns");
-
-  return NextResponse.json({ ok: true, promoted, sent, failed, batch: rows.length });
+  const { error: markError } = await supabase.rpc("mark_drained_campaigns");
+  if (markError) return NextResponse.json({ error: "Could not update campaign status" }, { status: 500 });
+  return NextResponse.json({ ok: deferred === 0, promoted, sent, failed, deferred }, { status: deferred ? 503 : 200 });
 }
 
-export async function POST(request: NextRequest) {
-  return handle(request);
-}
-
-export async function GET(request: NextRequest) {
-  return handle(request);
-}
+export async function POST(request: NextRequest) { return handle(request); }
+export async function GET(request: NextRequest) { return handle(request); }

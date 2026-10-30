@@ -146,4 +146,11 @@ npm run lint
 ## Authentication emails
 
 - Supabase Auth sends signup confirmation and password recovery emails through its own SMTP configuration, separate from the application Resend API integration. Configure verified-domain Resend SMTP and install the branded templates in `supabase/email-templates` as described in `docs/AUTH_EMAIL_SETUP.md`. Deploy the callback before installing the recovery template. Recovery verifies a Supabase token hash at `/auth/callback` and supports opening the email on another device. Email confirmation stays enabled.
-- The app email sender uses `RESEND_API_KEY` and `EMAIL_FROM` server-side. The official wordmark is used on the sign-in, signup, and password recovery pages and in the shared email shell.
+- The app email sender uses `RESEND_API_KEY` and `RESEND_FROM_EMAIL` server-side (`EMAIL_FROM` remains a legacy fallback). The official wordmark is used on the sign-in, signup, and password recovery pages and in the shared email shell.
+
+
+## Email campaigns and cron-job.org
+
+- Apply `supabase/migrations/0038_email_queue_reliability.sql` after 0007 before deploying the revised email worker; pause any existing email worker during migration and deployment. Campaigns and marketing newsletters queue in Supabase and are sent through Resend using `RESEND_API_KEY` and `RESEND_FROM_EMAIL`.
+- Configure cron-job.org to call `/api/cron/email/process` every five minutes with an `x-cron-secret` header equal to Vercel `CRON_SECRET`. The `CRONJOB_ORG_API_KEY` manages cron-job.org and is not an endpoint credential; it is unnecessary for jobs created in the console. Optionally schedule `/api/cron/email/promotions` on the 1st and 15th at 09:00 UTC with the same header. Avoid duplicate schedulers. See `docs/email-notifications.md` for rollout and monitoring.
+- Queue rows are claimed atomically, stale leases recovered after five minutes and Resend requests use per-row idempotency keys. Transient failures defer without exhausting retries; permanently failed recipients cause the campaign to be marked failed. Accepted email is not proof of inbox delivery.

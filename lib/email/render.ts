@@ -7,15 +7,15 @@ import {
 
 /**
  * Shared tuning for the rate-limited queue processor. Conservative defaults
- * keep usage inside the Resend / Supabase free tiers; override via env to scale.
+ * limit individual run time; monitor your Resend plan and adjust with care.
  *
  *   MAX_PER_RUN          rows sent per cron invocation
  *   DELAY_BETWEEN_SENDS  ms paused between individual sends (rate limit)
  *   MAX_ATTEMPTS         retries before a row is marked permanently failed
  */
 export const EMAIL_LIMITS = {
-  maxPerRun: numEnv("EMAIL_MAX_PER_RUN", 40),
-  delayBetweenSends: numEnv("EMAIL_DELAY_MS", 600),
+  maxPerRun: Math.min(Math.floor(numEnv("EMAIL_MAX_PER_RUN", 5)), 20),
+  delayBetweenSends: Math.min(numEnv("EMAIL_DELAY_MS", 600), 1500),
   maxAttempts: numEnv("EMAIL_MAX_ATTEMPTS", 3),
 };
 

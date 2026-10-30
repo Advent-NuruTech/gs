@@ -1,86 +1,20 @@
-# Email Notification System
+# Email campaigns and cron-job.org
 
-Resend-powered email automation, layered **on top of** the existing in-app
-notification system (`notifications` table / `notificationService` / toast
-`NotificationContext`) — none of which is modified. Everything here is additive.
+Campaigns, scheduled newsletters, automatic new-course messages and the optional twice-monthly promotion are placed in `email_queue`. The processor sends through Resend to accounts subscribed to marketing email. It must run even when no administrator has the dashboard open.
 
-## What it does
+## Required setup
 
-| Feature | Trigger | Audience |
-| --- | --- | --- |
-| **New course** | `courses.published` flips `false → true` (DB trigger) | Subscribers who enrolled in / paid for a course in the **same category** |
-| **Bi-monthly promotion** | pg_cron on the 1st & 15th | All subscribers (`marketing_subscribed = true`) |
-| **Admin campaigns** | Admin UI → immediate or scheduled | All subscribers, or a category's interested learners |
-| **Subscription prompt** | Public header banner + signup checkbox | Logged-in users with `marketing_subscribed = false` |
+1. Verify `adventskool.co.ke` in Resend and add its required DNS records. In Vercel production set `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (for example `AdventSkool <noreply@adventskool.co.ke>`), `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_SITE_URL=https://adventskool.co.ke`. The existing `EMAIL_FROM` is a fallback only if `RESEND_FROM_EMAIL` is unset.
+2. Add a separate long, random `CRON_SECRET` to Vercel, then redeploy. This secret protects all existing cron routes. **Do not use `CRONJOB_ORG_API_KEY` as the endpoint secret:** that key manages your cron-job.org account and is not needed to run jobs configured in its console. Do not place either secret in a URL or source control.
+3. Pause existing email cron jobs. Apply `supabase/migrations/0007_email_notifications.sql` if it is not already installed and then `0038_email_queue_reliability.sql` in Supabase. Deploy the updated app before enabling jobs again. Migration 0007 must not be reapplied blindly to an existing database.
+4. In the cron-job.org console, create or update one job for `https://adventskool.co.ke/api/cron/email/process`. Choose GET or POST, every 5 minutes, and add a custom HTTP header named `x-cron-secret` whose value exactly matches Vercel's `CRON_SECRET`. Enable failure notifications. Use only one scheduler for this endpoint; disable any duplicate Supabase pg_cron or other job.
+5. Optional: for automatic promotions, create a second job targeting `https://adventskool.co.ke/api/cron/email/promotions`, with the same method and header, on the 1st and 15th at 09:00 UTC. Skip this job if automatic promotions are not wanted. The queue processor above is still required.
+6. Send a small campaign to an account subscribed to marketing emails. Check the job execution history, dashboard campaign status, and Resend delivery logs. `sent` indicates Resend accepted every queued email, not proof of delivery or inbox placement. A campaign with permanently failed recipients is marked `failed`. A campaign with no matching recipients completes with zero recipients.
 
-## Architecture
+Before claiming pending messages, the processor cancels queued marketing messages for accounts that have since opted out. The processor claims one email at a time with a five-minute lease. Interrupted work is reclaimed; a per-row Resend idempotency key reduces duplicate sends within Resend's 24-hour window. Concurrent executions can work on different rows. Temporary provider, quota, authorization and network errors defer the current row for 15 minutes without exhausting its attempt limit and return HTTP 503 so cron monitoring can alert. Fix the cause and ensure cron-job.org has not disabled the job. Other errors retry after five minutes, up to `EMAIL_MAX_ATTEMPTS` (default 3); failed rows require investigation and manual repair. Accepted sends count against your Resend plan, which can also include other app and authentication emails; monitor its quotas.
 
-```
-producers ──────────────►  email_queue  ◄────── drained by ──── /api/cron/email/process
-  • courses publish trigger     (outbox)           (rate-limited, batched)         │
-  • enqueue_campaign_emails()                                                       ▼
-  • enqueue_promotion_emails()                                              Resend REST API
-```
+Defaults are five emails per invocation and 600 ms between sends. `EMAIL_MAX_PER_RUN` may be increased up to 20, `EMAIL_DELAY_MS` up to 1500 ms, and `EMAIL_MAX_ATTEMPTS` adjusted. The worker stops starting new sends after roughly 15 seconds and each Resend request has a five-second timeout, leaving room under cron-job.org's default 30-second timeout; database/provider delays can still cause timeouts. Increase throughput only within your provider and hosting limits.
 
-- **`email_queue`** — one row per recipient. `html` precomputed (campaigns) or
-  rendered at send time from `template` + `payload` (`new_course`, `promotion`).
-  `dedup_key` (unique) makes every producer idempotent.
-- **`email_campaigns`** — admin-authored campaigns (matches the spec schema:
-  title, subject, html_content, target_audience, category, scheduled_at, status).
-- **Processor** caps each run at `EMAIL_MAX_PER_RUN` (default 40) with a
-  `EMAIL_DELAY_MS` (default 600 ms) pause between sends. Combined with the cron
-  cadence this spreads large audiences over time within free-tier limits.
+Email confirmation and password-reset messages are sent by Supabase Auth, not this queue. Configure Supabase SMTP separately as described in `docs/AUTH_EMAIL_SETUP.md`.
 
-### Files
-- `supabase/migrations/0007_email_notifications.sql` — schema, publish trigger, fan-out functions, RLS.
-- `lib/email/{resend,templates,render,cron}.ts` — sender, HTML templates, render layer, cron auth.
-- `app/api/cron/email/{process,promotions}/route.ts` — queue drainer & bi-monthly promo.
-- `app/api/admin/email-campaigns/{route,preview}.ts` — admin campaign create/list/preview.
-- `services/{emailCampaignService,marketingService}.ts` — client services.
-- `components/dashboard/EmailCampaignComposer.tsx`, `app/dashboard/admin/email-campaigns/page.tsx` — admin UI.
-- `components/marketing/SubscribeBanner.tsx` — public-header opt-in banner.
-
-## Environment
-
-Already present: `RESEND_API_KEY`, `EMAIL_FROM`, `NEXT_PUBLIC_APP_URL`,
-`SUPABASE_SERVICE_ROLE_KEY`. Added: **`CRON_SECRET`** (shared secret for the
-cron routes — must match the value used in the pg_cron jobs).
-
-Optional tuning: `EMAIL_MAX_PER_RUN`, `EMAIL_DELAY_MS`, `EMAIL_MAX_ATTEMPTS`.
-
-## Setup (one-time)
-
-1. **Apply the migration** (`supabase/migrations/0007_email_notifications.sql`).
-2. **Schedule the cron jobs** in the Supabase SQL editor — see the commented
-   block at the bottom of the migration. Replace `<APP_URL>` and `<CRON_SECRET>`:
-
-   ```sql
-   create extension if not exists pg_cron;
-   create extension if not exists pg_net;
-
-   select cron.schedule('email-process', '*/5 * * * *',
-     $$ select net.http_post(
-          url := '<APP_URL>/api/cron/email/process',
-          headers := jsonb_build_object('x-cron-secret', '<CRON_SECRET>')); $$);
-
-   select cron.schedule('email-promotions', '0 9 1,15 * *',
-     $$ select net.http_post(
-          url := '<APP_URL>/api/cron/email/promotions',
-          headers := jsonb_build_object('x-cron-secret', '<CRON_SECRET>')); $$);
-   ```
-
-3. **Verify** by publishing a course (in a category that has enrollments) and
-   then triggering the processor manually:
-
-   ```bash
-   curl -H "x-cron-secret: <CRON_SECRET>" <APP_URL>/api/cron/email/process
-   ```
-
-## Notes / decisions
-
-- Course URLs are **id-based** (`/courses/<id>`) — the app has no slug column or
-  slug route, so emails link by id to avoid breaking routing.
-- "Subscribed to a category" is **derived from enrollments/payments** (no
-  separate category-subscription UI), per the chosen targeting model.
-- The processor sends sequentially per row so each recipient's status/retry is
-  tracked individually. Retries up to `EMAIL_MAX_ATTEMPTS`, then marked `failed`.
+See https://cron-job.org/en/faq/, https://docs.cron-job.org/rest-api.html and https://resend.com/docs/dashboard/emails/idempotency-keys.

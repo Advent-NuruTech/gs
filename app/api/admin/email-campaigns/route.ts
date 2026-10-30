@@ -93,11 +93,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error?.message ?? "Could not create campaign." }, { status: 400 });
   }
 
-  // If due now, enqueue immediately for snappy delivery instead of waiting for
-  // the processor's promote step.
-  if (new Date(scheduledAt).getTime() <= Date.now()) {
-    await supabase.rpc("enqueue_campaign_emails", { p_campaign_id: data.id });
-  }
-
   return NextResponse.json({ id: data.id });
 }
