@@ -66,7 +66,7 @@ export default function DisplaySettingsPage() {
             <span className="min-w-0">
               <span className="block font-semibold text-slate-950 dark:text-white">Show public view counts</span>
               <span className="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Display view totals on Digital Product cards, detail pages, catalog highlights, and creator storefronts. Turning this off removes the counters completely while internal tracking continues.
+                Display view totals on Digital Product cards, detail pages, catalog highlights, and creator storefronts. When off, visitors and creators cannot see the counters; administrators can still see them. View tracking continues.
               </span>
             </span>
           </span>

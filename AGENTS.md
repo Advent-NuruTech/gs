@@ -107,7 +107,7 @@ npm run lint
 ## Public display settings
 
 - Migration `0022_public_display_settings.sql` adds the public-readable, admin-writable global display setting. Apply it before deploying this feature.
-- Administrators control public view-count visibility at `/dashboard/admin/display-settings`. When disabled, view counters are omitted completely from public Digital Product cards, detail pages, catalog highlights, and creator storefronts. View tracking and internal admin/creator analytics continue unchanged, so the setting can be re-enabled without losing data.
+- Administrators control public view-count visibility at `/dashboard/admin/display-settings`. When disabled, visitors and creators do not see view counters on public Digital Product cards, detail pages, catalog highlights, or creator storefronts; signed-in administrators can still see them. View tracking continues, so the setting can be re-enabled without losing data. This is a display setting, not a restriction on access to underlying view-count data.
 
 ## AdventPay invoicing
 
