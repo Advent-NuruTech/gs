@@ -36,7 +36,7 @@ export default function TeacherDashboardPage() {
       const [response, count, payout, products] = await Promise.all([
         listCourses({ instructorId: profile.id, pageSize: 50 }),
         getTeacherStudentCount(profile.id),
-        apiRequest<PayoutSummaryResponse>("/api/creator/payout").catch(() => ({ payout: null, earnings: [] })),
+        apiRequest<PayoutSummaryResponse>("/api/creator/payout"),
         getSupabaseBrowserClient().from("designs").select("id", { count: "exact", head: true }).eq("created_by", profile.id),
       ]);
       if (products.error) throw new Error(products.error.message);
@@ -65,7 +65,7 @@ export default function TeacherDashboardPage() {
       {profile?.creatorStatus === "pending" ? <StatusCard kind="info" title="Creator application in review" description="Your application has been sent to the administrators. They must approve your creator account before payout routing can be enabled." /> : null}
       {profile?.creatorStatus === "rejected" ? <StatusCard kind="warning" title="Creator application not approved" description="Contact AdventSkool support if you would like to discuss the decision." /> : null}
       {needsPayout ? <Link href="/dashboard/teacher/payouts" className="block"><StatusCard kind="warning" title="Add your payout details" description="You have published a product but have not set up a payout account yet. Add payout details to receive your share of future sales." /></Link> : null}
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
+      {data ? <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
         <Link href="/dashboard/teacher/courses" className="block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" aria-label={`View ${courses.length} courses`}>
           <StatCard label="Total courses" value={courses.length} />
         </Link>
@@ -73,12 +73,12 @@ export default function TeacherDashboardPage() {
           <StatCard label="Digital Products" value={data?.productCount ?? 0} />
         </Link>
         <Link href="/dashboard/teacher/payouts" className="block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" aria-label={`View total earnings of ${formatKsh(data?.totalEarnings ?? 0)}`}>
-          <StatCard label="Total earnings" value={formatKsh(data?.totalEarnings ?? 0)} hint="View payout and settlement details" />
+          <StatCard label="Total earnings" value={formatKsh(data?.totalEarnings ?? 0)} hint="Course and Digital Product sales" />
         </Link>
         <div className="min-w-0">
           <StatCard label="My students" value={studentCount} />
         </div>
-      </div>
+      </div> : null}
       <UpcomingMeetingsWidget role="teacher" />
       <Link
         href="/dashboard/teacher/courses/create"

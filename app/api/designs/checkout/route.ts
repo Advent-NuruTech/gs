@@ -118,6 +118,34 @@ export async function POST(request: NextRequest) {
 
   const reference = `${isFree ? "free" : "dz"}_${crypto.randomUUID().replace(/-/g, "")}`;
 
+  // Only creator-owned paid products receive a creator split. Snapshot the
+  // terms before checkout, so subsequent settings changes cannot alter a sale.
+  let payoutSplit: { subaccount: string; transactionChargeKobo: number; feeBearer: "account" | "subaccount" } | undefined;
+  let creatorPayoutSnapshot: Record<string, unknown> | undefined;
+  if (!isFree && design.created_by) {
+    const creatorId = String(design.created_by);
+    const [platform, settings, payout, creator] = await Promise.all([
+      admin.from("platform_payment_settings").select("default_commission_percent,default_fee_mode").eq("id", true).maybeSingle(),
+      admin.from("creator_commission_settings").select("commission_percent,fee_mode").eq("creator_id", creatorId).maybeSingle(),
+      admin.from("creator_payout_profiles").select("paystack_subaccount_code,verification_status,payout_status").eq("creator_id", creatorId).maybeSingle(),
+      admin.from("profiles").select("role,creator_status,suspended_until").eq("id", creatorId).maybeSingle(),
+    ]);
+    if (platform.error || settings.error || payout.error || creator.error || !creator.data) {
+      return NextResponse.json({ error: "Creator payout settings are unavailable. Please try again." }, { status: 503 });
+    }
+    if (creator.data.role === "teacher") {
+      const percent = Number(settings.data?.commission_percent ?? platform.data?.default_commission_percent ?? 10);
+      const feeMode = String(settings.data?.fee_mode ?? platform.data?.default_fee_mode ?? "exclusive");
+      if (!Number.isFinite(percent) || percent < 0 || percent > 100 || !["inclusive", "exclusive"].includes(feeMode)) {
+        return NextResponse.json({ error: "Creator payout settings are invalid. Contact AdventSkool support." }, { status: 503 });
+      }
+      const platformAmount = Math.round(amount * percent) / 100;
+      const subaccount = creator.data.creator_status === "approved" && (!creator.data.suspended_until || new Date(creator.data.suspended_until).getTime() <= Date.now()) && payout.data?.verification_status === "verified" && payout.data.payout_status === "ready" ? String(payout.data.paystack_subaccount_code ?? "") : "";
+      creatorPayoutSnapshot = { creator_id: creatorId, commission_percent: percent, fee_mode: feeMode, platform_amount: platformAmount, settlement_mode: subaccount ? "paystack_split" : "platform_only" };
+      if (subaccount) payoutSplit = { subaccount, transactionChargeKobo: Math.round(platformAmount * 100), feeBearer: feeMode === "exclusive" ? "subaccount" : "account" };
+    }
+  }
+
   const { error: insertError } = await admin.from("design_orders").insert({
     design_id: designId,
     design_title: String(design.title ?? ""),
@@ -137,6 +165,7 @@ export async function POST(request: NextRequest) {
     amount,
     currency: "KES",
     paystack_reference: reference,
+    metadata: creatorPayoutSnapshot ? { creator_payout: creatorPayoutSnapshot } : {},
     // Free orders need no payment: mark them settled up-front. Downloads are
     // self-serve (delivered) and customization requests await the team.
     payment_status: isFree ? "success" : "pending",
@@ -203,6 +232,7 @@ export async function POST(request: NextRequest) {
       reference,
       callbackUrl,
       metadata: { designId, type: "design_order", kind, accessMode, userId: user?.id, customer: fullName },
+      ...payoutSplit,
     });
 
     await admin

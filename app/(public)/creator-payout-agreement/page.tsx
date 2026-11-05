@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     title: "Standard commission",
-    content: "AdventSkool's standard platform commission is 10% of the customer payment for each eligible course sale. The remainder, after applicable payment processing fees, is allocated to the creator. Any creator-specific rate shown in the payout dashboard replaces the standard rate for future checkouts.",
+    content: "AdventSkool's standard platform commission is 10% of the customer payment for each eligible course or Digital Product sale. The remainder, after applicable payment processing fees, is allocated to the creator. Any creator-specific rate shown in the payout dashboard replaces the standard rate for future checkouts.",
   },
   {
     title: "Payment processing fees",
@@ -34,7 +34,7 @@ export default function CreatorPayoutAgreementPage() {
       <header className="space-y-3">
         <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Creator programme</p>
         <h1 className="text-3xl font-bold text-slate-950">Creator payout agreement</h1>
-        <p className="text-slate-600">These standard terms describe how AdventSkool commissions and creator payouts work for course sales.</p>
+        <p className="text-slate-600">These standard terms describe how AdventSkool commissions and creator payouts work for course and Digital Product sales.</p>
       </header>
       <div className="space-y-5 rounded-2xl border bg-white p-5 sm:p-7">
         {sections.map((section) => (

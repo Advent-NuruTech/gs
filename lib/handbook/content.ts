@@ -65,7 +65,7 @@ export const HANDBOOK_FACTS_AT_A_GLANCE: string[][] = [
   ["Product lines", "Online courses, downloadable digital products, bespoke design customization"],
   ["Physical goods", "None. The platform does not sell or ship physical items."],
   ["Roles", "student, teacher (creator), admin"],
-  ["Standard platform commission", "10% of the customer payment per eligible course sale"],
+  ["Standard platform commission", "10% of the customer payment per eligible course or Digital Product sale"],
   ["Standard processing fee mode", "exclusive — the creator bears Paystack's processing fee"],
   ["Payout rail", "Paystack subaccount split, per verified creator"],
   ["Governing law", "Laws of the Republic of Kenya, courts of Nairobi"],
@@ -588,7 +588,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
         kind: "callout",
         tone: "success",
         title: "Creator payout agreement — the headline terms",
-        text: "AdventSkool's standard platform commission is 10% of the customer payment for each eligible course sale. The remainder, after applicable payment processing fees, is allocated to the creator. The standard fee mode is exclusive, so Paystack's processing fee is borne by the creator and is separate from AdventSkool's commission. Full terms are published on the public Creator Payout Agreement page.",
+        text: "AdventSkool's standard platform commission is 10% of the customer payment for each eligible course or Digital Product sale. The remainder, after applicable payment processing fees, is allocated to the creator. The standard fee mode is exclusive, so Paystack's processing fee is borne by the creator and is separate from AdventSkool's commission. Full terms are published on the public Creator Payout Agreement page.",
       },
       {
         kind: "paragraph",
@@ -817,7 +817,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           {
             term: "How much does AdventSkool charge creators?",
             description:
-              "AdventSkool's standard platform commission is 10% of the customer payment for each eligible course sale. A creator-specific rate may be set for individual creators and replaces the standard rate for their future sales.",
+              "AdventSkool's standard platform commission is 10% of the customer payment for each eligible course or Digital Product sale. A creator-specific rate may be set for individual creators and replaces the standard rate for their future sales.",
           },
           {
             term: "Who pays Paystack's processing fee?",

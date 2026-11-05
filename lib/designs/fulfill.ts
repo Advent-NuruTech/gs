@@ -77,16 +77,17 @@ export async function fulfillDesignOrder(reference: string): Promise<DesignFulfi
     };
   }
 
-  await supabase
+  const { error: updateError } = await supabase
     .from("design_orders")
     .update({
       payment_status: "success",
       // Downloads are self-serve and complete the moment payment clears.
       order_status: kind === "download" ? "delivered" : "pending",
       paid_at: verification.paidAt ?? new Date().toISOString(),
-      metadata: { ...(order.metadata as object), paystack: verification.raw },
+      metadata: { ...(order.metadata as object), paystack: verification.raw, provider_fee: verification.feesKobo === null ? null : verification.feesKobo / 100 },
     })
     .eq("id", order.id);
+  if (updateError) throw new Error(`Could not record confirmed Digital Product payment: ${updateError.message}`);
 
   // Bump the design's orders counter (best-effort).
   if (order.design_id) {

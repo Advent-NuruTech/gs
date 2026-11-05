@@ -16,13 +16,22 @@ export async function GET(request: NextRequest) {
   } catch {
     // Leave the last known ledger state intact; a later cron run will retry.
   }
-  const [{ data: payout }, { data: commission }, { data: earnings }] = await Promise.all([
+  const [payoutResult, commissionResult, defaultsResult] = await Promise.all([
     db.from("creator_payout_profiles").select("creator_id,account_holder_name,bank_name,bank_code,account_last4,phone_number,verification_status,payout_status,updated_at").eq("creator_id", user.id).maybeSingle(),
     db.from("creator_commission_settings").select("commission_percent,fee_mode").eq("creator_id", user.id).maybeSingle(),
-    db.from("creator_earnings").select("gross_amount,commission_percent,fee_mode,platform_commission,creator_amount,provider_fee,payout_status,settlement_mode,payment_reference,settled_at,created_at").eq("creator_id", user.id).order("created_at", { ascending: false }),
+    db.from("platform_payment_settings").select("default_commission_percent,default_fee_mode").eq("id", true).maybeSingle(),
   ]);
-  const { data: defaults } = await db.from("platform_payment_settings").select("default_commission_percent,default_fee_mode").eq("id", true).maybeSingle();
-  return NextResponse.json({ payout, commission: commission ?? { commission_percent: defaults?.default_commission_percent ?? 10, fee_mode: defaults?.default_fee_mode ?? "exclusive" }, earnings: earnings ?? [] });
+  if (payoutResult.error || commissionResult.error || defaultsResult.error) return NextResponse.json({ error: "Could not load payout details." }, { status: 500 });
+  const earnings = [];
+  const batchSize = 1000;
+  for (let offset = 0; ; offset += batchSize) {
+    const result = await db.from("creator_earnings").select("id,gross_amount,commission_percent,fee_mode,creator_amount,provider_fee,payout_status,settlement_mode,payment_reference,settled_at,created_at").eq("creator_id", user.id).order("created_at", { ascending: false }).order("id", { ascending: false }).range(offset, offset + batchSize - 1);
+    if (result.error) return NextResponse.json({ error: "Could not load your earnings." }, { status: 500 });
+    earnings.push(...(result.data ?? []));
+    if ((result.data?.length ?? 0) < batchSize) break;
+  }
+  const defaults = defaultsResult.data;
+  return NextResponse.json({ payout: payoutResult.data, commission: commissionResult.data ?? { commission_percent: defaults?.default_commission_percent ?? 10, fee_mode: defaults?.default_fee_mode ?? "exclusive" }, earnings });
 }
 
 export async function PUT(request: NextRequest) {

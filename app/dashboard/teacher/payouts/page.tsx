@@ -58,7 +58,7 @@ const VERIFICATION_COPY: Record<string, { label: string; tone: BadgeTone; kind: 
     tone: "emerald",
     kind: "success",
     description:
-      "Your payout account is verified. You receive your share of new course sales in this account. Paystack sends the money on its normal schedule; earlier sales are not sent automatically.",
+      "Your payout account is verified. You receive your share of new course and Digital Product sales in this account. Paystack sends the money on its normal schedule; earlier sales are not sent automatically.",
   },
   rejected: {
     label: "Needs changes",
@@ -72,7 +72,7 @@ const VERIFICATION_COPY: Record<string, { label: string; tone: BadgeTone; kind: 
     tone: "amber",
     kind: "warning",
     description:
-      "Your payout account is with AdventSkool for review. You can receive money from new course sales once it is approved. We usually finish reviews within one business day.",
+      "Your payout account is with AdventSkool for review. You can receive money from new course and Digital Product sales once it is approved. We usually finish reviews within one business day.",
   },
 };
 
@@ -81,7 +81,7 @@ const NOT_SET_UP: { label: string; tone: BadgeTone; kind: FeedbackKind; descript
   tone: "slate",
   kind: "info",
   description:
-    "Add your payout account details below, then wait for AdventSkool to review them. You can receive money from course sales after approval.",
+    "Add your payout account details below, then wait for AdventSkool to review them. You can receive money from course and Digital Product sales after approval.",
 };
 
 export default function TeacherPayoutsPage() {
@@ -103,7 +103,7 @@ export default function TeacherPayoutsPage() {
     action: async (payload: Record<string, string>) => {
       await apiRequest("/api/creator/payout", { method: "PUT", body: JSON.stringify(payload) });
     },
-    successMessage: "Payout details saved. AdventSkool will review them before your next course sale is paid out.",
+    successMessage: "Payout details saved. AdventSkool will review them before your next eligible sale is paid out.",
     onSuccess: () => {
       reload();
     },
@@ -172,17 +172,17 @@ export default function TeacherPayoutsPage() {
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <StatCard
-          label="Your commission"
+          label="AdventSkool commission"
           value={`${commissionPercent}%`}
           hint={creatorBearsFee ? "You also bear the Paystack fee" : "AdventSkool bears the Paystack fee"}
           icon={<Percent className="h-4 w-4" aria-hidden="true" />}
         />
         <StatCard label="Total earnings" value={formatKsh(total)} icon={<TrendingUp className="h-4 w-4" aria-hidden="true" />} />
         <StatCard
-          label="Waiting for payment"
+          label="Awaiting payout"
           value={formatKsh(pending)}
           tone="warning"
-          hint="Recorded, not yet confirmed by Paystack"
+          hint="Not automatically sent to your bank"
         />
         <StatCard
           label="Sent for payout"
@@ -197,6 +197,8 @@ export default function TeacherPayoutsPage() {
           hint="Confirmed in Paystack settlement"
         />
       </div>
+
+      <StatusCard kind="info" title="About your earnings" description="These are recorded course and Digital Product sale shares before any Paystack fee charged to you. Earlier Digital Product purchases are not included. Sent for payout means the allocation was routed; paid means the ledger records your share as paid." />
 
       <StatusCard
         kind={status.kind}
@@ -227,11 +229,11 @@ export default function TeacherPayoutsPage() {
       <Card>
         <CardHeader
           title="Earnings history"
-          description="Every recorded course sale, your share of it, and where it is in the payout process."
+          description="Every recorded course or Digital Product sale, your share of it, and where it is in the payout process."
         />
         <div className="divide-y divide-slate-100 dark:divide-slate-800 md:hidden">
           {earnings.map((row, index) => <article key={`${row.created_at}-${index}`} className="space-y-2 p-4 text-sm"><div className="flex items-center justify-between gap-3"><span className="font-semibold text-slate-900 dark:text-white">{formatKsh(Number(row.creator_amount))}</span><EarningStatusBadge payoutStatus={row.payout_status} /></div><p className="text-slate-600 dark:text-slate-300">{new Date(row.created_at).toLocaleDateString()} ? Sale {formatKsh(Number(row.gross_amount))}</p><p className="break-all font-mono text-xs text-slate-500 dark:text-slate-400">{row.payment_reference ?? "No reference"}</p><p className="text-slate-600 dark:text-slate-300">AdventSkool fee: {row.commission_percent}% ? Payment fee: {row.provider_fee == null ? "Not reported" : formatKsh(Number(row.provider_fee))}</p></article>)}
-          {earnings.length === 0 ? <div className="p-4"><StatusCard kind="info" title="No earnings recorded yet" description="Earnings appear here after a successful course sale." /></div> : null}
+          {earnings.length === 0 ? <div className="p-4"><StatusCard kind="info" title="No earnings recorded yet" description="Earnings appear here after a successful eligible sale." /></div> : null}
         </div>
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[720px] text-left text-sm">
@@ -269,7 +271,7 @@ export default function TeacherPayoutsPage() {
                   <td colSpan={7} className="px-4 py-10 text-center">
                     <Receipt className="mx-auto h-8 w-8 text-slate-300" aria-hidden="true" />
                     <p className="mt-2 text-sm font-semibold text-slate-700">No earnings recorded yet</p>
-                    <p className="text-sm text-slate-500">Earnings appear here after a successful course sale.</p>
+                    <p className="text-sm text-slate-500">Earnings appear here after a successful eligible sale.</p>
                   </td>
                 </tr>
               ) : null}
@@ -284,7 +286,7 @@ export default function TeacherPayoutsPage() {
 function EarningStatusBadge({ payoutStatus }: { payoutStatus: string }) {
   if (payoutStatus === "paid") return <Badge tone="emerald">Paid</Badge>;
   if (payoutStatus === "routed") return <Badge tone="emerald">Sent for payout</Badge>;
-  if (payoutStatus === "pending") return <Badge tone="amber">Waiting for payment</Badge>;
+  if (payoutStatus === "pending") return <Badge tone="amber">Awaiting payout</Badge>;
   return <Badge tone="slate">{payoutStatus || "Unknown"}</Badge>;
 }
 
