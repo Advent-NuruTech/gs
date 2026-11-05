@@ -118,6 +118,10 @@ export interface PaystackBank {
   currency: string;
 }
 
+export class PaystackRequestError extends Error {
+  constructor(message: string, public readonly status: number) { super(message); }
+}
+
 async function paystackRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!secretKey) throw new Error("Paystack secret key is not configured.");
   const response = await fetch(`${PAYSTACK_BASE}${path}`, {
@@ -127,7 +131,7 @@ async function paystackRequest<T>(path: string, init: RequestInit = {}): Promise
   });
   const payload = await response.json() as { status: boolean; message: string; data?: T };
   if (!response.ok || !payload.status || payload.data === undefined) {
-    throw new Error(payload.message || "Paystack request failed.");
+    throw new PaystackRequestError(payload.message || "Paystack request failed.", response.status);
   }
   return payload.data;
 }
@@ -145,6 +149,7 @@ export async function createKenyanSubaccount(input: {
   email: string;
   phone: string;
   platformCommissionPercent: number;
+  existingCode?: string;
 }) {
   const result = await paystackRequest<{
     subaccount_code: string;
@@ -152,8 +157,8 @@ export async function createKenyanSubaccount(input: {
     account_number?: string;
     settlement_bank?: string;
     active: boolean;
-  }>("/subaccount", {
-    method: "POST",
+  }>(input.existingCode ? `/subaccount/${encodeURIComponent(input.existingCode)}` : "/subaccount", {
+    method: input.existingCode ? "PUT" : "POST",
     body: JSON.stringify({
       business_name: input.businessName.slice(0, 100),
       bank_code: input.bankCode,

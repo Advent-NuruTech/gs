@@ -19,6 +19,8 @@ npm run lint
 
 ## Creator payouts and Paystack splits
 
+- Apply `supabase/migrations/0041_creator_payout_submission_claims.sql` before deploying payout submission changes. Submissions update a creator's existing Paystack subaccount instead of creating another, and reset verification before changing payout details. A persistent per-creator claim blocks concurrent submissions and unsafe retries when a first creation has an uncertain outcome or a local save fails. For a stuck claim, an operator must reconcile the creator's Paystack subaccount and local payout profile before clearing that creator's row in `creator_payout_submission_claims`; do not blindly clear claims or create a replacement. Existing duplicates require manual Paystack review.
+
 - Creator payout onboarding registers each teacher's Kenyan bank details with Paystack as a subaccount. Bank names/codes come from Paystack's `/bank?currency=KES` endpoint. New full account numbers are sent server-to-server to Paystack, then discarded; AdventSkool stores only the Paystack subaccount code and the last four digits. The subaccount code is server-only.
 - Apply `supabase/migrations/0014_creator_payouts.sql` and `0015_paystack_creator_splits.sql` before deploying payout features. Migration 0015 masks and clears raw account numbers from the earlier payout form; affected teachers need to resubmit their bank details to create a Paystack subaccount.
 - Admin verification is required after Paystack registers a subaccount. Only profiles marked verified/ready get split parameters at course checkout. Checkout snapshots the rate, amount, fee mode, and routing mode onto the payment before redirecting, so later settings changes affect future checkouts only.

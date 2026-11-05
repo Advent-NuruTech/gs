@@ -551,7 +551,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
     chapter: "11",
     title: "Creator payout onboarding and verification",
     summary:
-      "A creator submits Kenyan bank details once. Paystack converts them into a payout subaccount, and an administrator verifies the account before any split is enabled.",
+      "A creator submits Kenyan bank details to register a Paystack payout subaccount. Later submissions update that subaccount, and an administrator verifies the details before any split is enabled.",
     blocks: [
       {
         kind: "numbered",
@@ -567,10 +567,10 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
         kind: "bullets",
         title: "What happens on submission",
         items: [
-          "The details are sent server-to-server to Paystack to create a payout subaccount.",
+          "The details are sent server-to-server to Paystack to create or update the creator?s payout subaccount.",
           "The full account number is discarded immediately and never stored by AdventSkool. Only the Paystack subaccount code and the last four digits are kept.",
           "The payout profile is set to pending verification. The creator is told an administrator will review it.",
-          "If Paystack registers the account but the local save fails, the creator is told to contact support rather than resubmit, so no duplicate subaccount is created.",
+          "If the result of creating a subaccount is uncertain or the local save fails, further submissions are blocked until support reconciles the payout setup.",
         ],
       },
       {
