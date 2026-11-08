@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import Link from "next/link";
 
 import Button from "@/components/ui/Button";
@@ -6,11 +6,11 @@ import Button from "@/components/ui/Button";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "AdventSkool is a mobile-first learning management platform and a product of Advent NuruTech, built to make structured, high-quality education accessible to everyone.",
+    "Discover AdventSkool: a Kenya-focused platform for online courses, Digital Products, creator storefronts, and AdventPay invoicing.",
   openGraph: {
     title: "About AdventSkool",
     description:
-      "AdventSkool is a mobile-first learning management platform and a product of Advent NuruTech, built to make structured, high-quality education accessible to everyone.",
+      "Discover AdventSkool: a Kenya-focused platform for online courses, Digital Products, creator storefronts, and AdventPay invoicing.",
   },
 };
 
@@ -23,7 +23,7 @@ const values = [
   {
     title: "Accessible by Design",
     description:
-      "Mobile-first and lightweight, so learning works on any device, on any connection, anywhere in the world.",
+      "A mobile-first experience designed to make learning and digital resources easier to reach.",
   },
   {
     title: "Quality Content",
@@ -33,33 +33,46 @@ const values = [
   {
     title: "Trust & Privacy",
     description:
-      "We hold ourselves to international data protection standards and treat your data with the care it deserves.",
+      "We work to protect personal information and treat it with care.",
   },
 ];
 
 const offerings = [
   {
-    title: "For Students",
+    title: "Online courses",
     description:
-      "Browse and enrol in courses, follow guided lessons with progressive unlocks, take quizzes, and track your progress from first login to completion.",
+      "Learn through structured lessons, quizzes, and progress tracking. Connect with teachers and join scheduled live classes.",
+    href: "/courses",
+    link: "Explore courses",
   },
   {
-    title: "For Teachers",
+    title: "Digital Products",
     description:
-      "Upload courses with rich outlines and media, schedule and host live classes through AdventSkool's built-in calendar, and engage learners with structured assessments.",
+      "Discover practical resources such as templates, guides, and workbooks. Depending on the product, access your purchase by download or online reading.",
+    href: "/resources",
+    link: "Explore resources",
   },
   {
-    title: "For Administrators",
+    title: "For creators",
     description:
-      "Manage users and roles, monitor analytics, send notifications, and oversee a secure, scalable learning operation from a single dashboard.",
+      "Publish courses and Digital Products, share your storefront, and host live classes. Eligible sales can be split through Paystack after approval and payout verification.",
+    href: "/register/creator",
+    link: "Become a creator",
+  },
+  {
+    title: "AdventPay",
+    description:
+      "Manage invoices and payment history, download receipts after payment, and use available payment collection options.",
+    href: "/adventpay",
+    link: "Explore AdventPay",
   },
 ];
 
 const stats = [
-  { value: "Mobile", label: "First Experience" },
-  { value: "24/7", label: "Anywhere Access" },
-  { value: "Step", label: "By Step Learning" },
-  { value: "Secure", label: "By Default" },
+  { value: "Mobile-first", label: "Built for your devices" },
+  { value: "Courses", label: "Learn at your pace" },
+  { value: "Digital", label: "Practical resources" },
+  { value: "KES", label: "Kenyan shilling payments" },
 ];
 
 export default function AboutPage() {
@@ -74,18 +87,17 @@ export default function AboutPage() {
           Education that meets every learner where they are.
         </h1>
         <p className="mt-4 max-w-2xl text-slate-600">
-          AdventSkool is a guided, mobile-first learning management platform built to make
-          structured, high-quality education accessible to everyone. From a first lesson to a
-          completed course, we help students, teachers, and institutions learn and teach with
-          clarity and confidence.
+          AdventSkool brings online courses and practical Digital Products together in one
+          mobile-first platform. Built with Kenyan learners and creators in mind, it helps people
+          learn new skills, share their expertise, and find resources for their goals.
         </p>
         <p className="mt-3 max-w-2xl text-sm text-slate-600">
           AdventSkool is a product of{" "}
           <span className="font-semibold text-slate-900">Advent NuruTech</span>.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/courses">
-            <Button>Browse Courses</Button>
+          <Link href="/resources">
+            <Button>Explore Resources</Button>
           </Link>
           <Link href="/register">
             <Button className="bg-emerald-600 text-white hover:bg-emerald-700">
@@ -102,7 +114,7 @@ export default function AboutPage() {
             key={stat.label}
             className="rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm"
           >
-            <p className="text-2xl font-black text-blue-700">{stat.value}</p>
+            <p className="break-words text-xl font-black text-blue-700 sm:text-2xl">{stat.value}</p>
             <p className="mt-1 text-xs font-medium text-slate-600 sm:text-sm">{stat.label}</p>
           </div>
         ))}
@@ -129,10 +141,10 @@ export default function AboutPage() {
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">What We Offer</h2>
           <p className="max-w-2xl text-slate-600">
-            One platform, built for every role in the learning journey.
+            Learn, create, and manage payments with tools built for practical progress.
           </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           {offerings.map((item) => (
             <div
               key={item.title}
@@ -140,6 +152,9 @@ export default function AboutPage() {
             >
               <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.description}</p>
+              <Link href={item.href} className="mt-4 inline-block text-sm font-semibold text-blue-700 hover:underline dark:text-blue-300">
+                {item.link}
+              </Link>
             </div>
           ))}
         </div>
@@ -190,15 +205,14 @@ export default function AboutPage() {
       {/* CTA */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10">
         <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-          Ready to start learning?
+          Ready to learn or create?
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-slate-600">
-          Join AdventSkool today and turn your goals into completed courses, one guided step at a
-          time.
+          Explore courses and digital resources, or join the community and share what you know.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/courses">
-            <Button>Browse Courses</Button>
+          <Link href="/resources">
+            <Button>Explore Resources</Button>
           </Link>
           <Link href="/register">
             <Button className="bg-emerald-600 text-white hover:bg-emerald-700">

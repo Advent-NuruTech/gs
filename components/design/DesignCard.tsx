@@ -12,7 +12,7 @@ import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext
  * ratio with no cropping (Pinterest-style). The whole tile links to the
  * detail page where the download / customization flows begin.
  */
-export default function DesignCard({ design, hidePrice = false, compact = false }: { design: Design; hidePrice?: boolean; compact?: boolean }) {
+export default function DesignCard({ design, hidePrice = false, compact = false, showViewCount }: { design: Design; hidePrice?: boolean; compact?: boolean; showViewCount?: boolean }) {
   const { showViewCounts } = usePublicDisplaySettings();
   const canDownload = !hidePrice && Number(design.downloadPrice || 0) > 0;
   const canCustomize = design.customizationEnabled && !hidePrice && Number(design.customizationPrice || 0) > 0;
@@ -94,7 +94,7 @@ export default function DesignCard({ design, hidePrice = false, compact = false 
           >
             <Share2 className="h-3.5 w-3.5" />
           </button>
-          {showViewCounts ? (
+          {(showViewCount ?? showViewCounts) ? (
             <span className="inline-flex items-center gap-1 text-xs text-slate-400">
               <Eye className="h-3.5 w-3.5" />
               {design.views.toLocaleString("en-KE")}

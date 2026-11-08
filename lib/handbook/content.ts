@@ -39,7 +39,7 @@ export const HANDBOOK_META = {
   product: "AdventSkool",
   title: "The AdventSkool Handbook",
   subtitle: "What the platform is, what it sells, and how creators get paid",
-  version: "1.0",
+  version: "1.1",
   canonicalUrl: "https://adventskool.co.ke",
   supportEmail: "adventskool@gmail.com",
   transactionalSender: "noreply@adventskool.co.ke",
@@ -53,7 +53,7 @@ export const HANDBOOK_SHORT_DESCRIPTION =
   "AdventSkool is a Kenya-focused learning platform offering online courses and practical digital products.";
 
 export const HANDBOOK_LONG_DESCRIPTION =
-  "AdventSkool is a mobile-first learning management platform and a product of Advent NuruTech, built to make structured, high-quality education accessible to everyone. Students buy online courses and downloadable digital products in Kenyan shillings. Teachers publish courses and products, host live classes, and are paid through Paystack subaccount splits on verified sales. Administrators manage users, catalogue, payments, payouts, and communications from one dashboard.";
+  "AdventSkool is a mobile-first learning and digital commerce platform and a product of Advent NuruTech. Students buy online courses and Digital Products in Kenyan shillings. Creators publish courses and products, host live classes, and can receive Paystack subaccount splits on eligible sales after approval and payout verification. AdventPay provides invoicing and payment collection. Administrators manage the catalogue, accounts, payments, payouts, and communications.";
 
 /** Facts an assistant must treat as authoritative. Keep numbers exact. */
 export const HANDBOOK_FACTS_AT_A_GLANCE: string[][] = [
@@ -62,7 +62,7 @@ export const HANDBOOK_FACTS_AT_A_GLANCE: string[][] = [
   ["Transactional email sender", "noreply@adventskool.co.ke"],
   ["Currency", "Kenyan shilling (KES). Every transaction is single-currency."],
   ["Payment processor", "Paystack"],
-  ["Product lines", "Online courses, downloadable digital products, bespoke design customization"],
+  ["Product lines", "Online courses, Digital Products, bespoke design customization, and AdventPay invoicing and collections"],
   ["Physical goods", "None. The platform does not sell or ship physical items."],
   ["Roles", "student, teacher (creator), admin"],
   ["Standard platform commission", "10% of the customer payment per eligible course or Digital Product sale"],
@@ -148,7 +148,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
     chapter: "3",
     title: "What is being sold",
     summary:
-      "Three product lines. Everything is digital, priced in Kenyan shillings, and delivered instantly or as scheduled live sessions. No physical goods are sold.",
+      "Courses, Digital Products and customization are offered alongside AdventPay invoicing and collections. No physical goods are sold.",
     blocks: [
       {
         kind: "table",
@@ -163,15 +163,21 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           ],
           [
             "Digital products",
-            "Downloadable image files or PDF templates such as thumbnails, flyers, workbooks, and guides",
-            "A single download price, or free",
-            "Instant download or in-browser reading, repeatable from the buyer's library",
+            "Image files or PDF templates such as thumbnails, flyers, workbooks, and guides",
+            "A single product price, or free",
+            "Download or in-browser reading according to the creator's delivery setting",
           ],
           [
             "Design customization",
             "Bespoke work produced by the seller using a product as the base template",
             "A single customization fee, charged instead of the download price",
             "Fulfilled manually by the seller after payment",
+          ],
+          [
+            "AdventPay",
+            "Invoices, payment history and receipts; administrators can also create payment links or send mobile-money prompts",
+            "The amount specified on the invoice or collection",
+            "Paystack checkout, mobile-money prompt or administrator-confirmed Till payment, as available",
           ],
         ],
       },
@@ -184,6 +190,10 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
       {
         kind: "paragraph",
         text: "Supporting services complete the offer: scheduled live classes with attendance tracking, one-to-one messaging between a student and their teacher, course quizzes, platform announcements, transactional email, and SMS confirmations.",
+      },
+      {
+        kind: "paragraph",
+        text: "AdventPay has its own customer and administrator dashboards. Recurring invoices remain anchored to their due dates, with missed periods recorded separately. Paid invoices provide a PDF receipt. Quick collections can use a public payment link or a mobile-money prompt; the payer authorises a prompt on their phone and AdventPay does not collect their PIN.",
       },
     ],
   },
@@ -249,7 +259,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
       },
       {
         kind: "paragraph",
-        text: "A buyer chooses how to take the product: download the full file, or read it online and return to it later from their personal library. Reading online requires an account. A guest who buys without an account still has their purchase matched to their library by the email address they entered at checkout.",
+        text: "A creator chooses whether a product permits downloads or is available online only. Where downloads are permitted, a buyer can download or read online; online-only products require a signed-in account and cannot be downloaded through the platform. A guest download purchase can be matched to a library by the email address entered at checkout. Online-only access does not prevent screenshots or copying content displayed in a browser.",
       },
       {
         kind: "callout",
@@ -268,7 +278,11 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
       },
       {
         kind: "paragraph",
-        text: "Free products skip the payment step entirely: the order is recorded as paid immediately, the download is released, and a customization request goes straight to the seller's team.",
+        text: "Free products skip the payment step: the order is recorded as paid immediately and access follows the product's delivery setting. A customization request goes to the seller's team.",
+      },
+      {
+        kind: "paragraph",
+        text: "Creators can share a storefront at adventskool.co.ke/@handle that combines their published courses and Digital Products. They can request a custom domain they already own; an administrator must verify and activate it before it works.",
       },
       {
         kind: "table",
@@ -663,8 +677,8 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
         kind: "numbered",
         title: "Buying a digital product",
         items: [
-          "Open the product page and choose to download the file or read it online.",
-          "Enter name, email address, and phone number. Guests are welcome.",
+          "Open the product page and choose an available delivery option. Online-only products require a signed-in account.",
+          "Enter the requested contact details. Guests can purchase products that permit downloads.",
           "Pay, or continue immediately if the product is free.",
           "Downloads start automatically. Online reading requires an account and opens in the buyer's library.",
         ],
@@ -708,6 +722,8 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           "Turn Google or email sign-in on or off for the public pages.",
           "Show Digital Product view counters publicly, or hide them from visitors and creators while administrators retain access and tracking continues.",
           "Manage up to ten responsive homepage hero slides and edit both public hero action labels and destinations.",
+          "Manage creator storefront domain requests and Digital Product upload allowances.",
+          "Manage AdventPay invoices, recurring billing, payment links, mobile-money prompts and Till confirmations.",
         ],
       },
       {
@@ -754,7 +770,8 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           ["Creator payouts", "Account holder name, bank name and code, last four digits only, Paystack subaccount code, verification and payout status."],
           ["Creator earnings", "Gross amount, commission percentage, platform commission, creator share, provider fee, settlement mode and status."],
           ["Messaging", "One-to-one student-teacher conversations between enrolled pairs."],
-          ["Live classes", "Schedule, recurrence, Meet link, invitees, and attendance."],
+          ["Live classes", "Schedule, recurrence, optional session URL and location, invitees, and attendance."],
+          ["AdventPay", "Invoices, billing schedules, payment records, Till instructions and receipt details."],
           ["Communications", "Notifications, announcements, read state, and queued email campaigns."],
         ],
       },
@@ -827,7 +844,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           {
             term: "How long does a creator wait to be paid?",
             description:
-              "AdventSkool routes the creator's share as part of the sale. Paystack's settlement schedule then determines when the money reaches the creator's bank. AdventSkool does not promise a specific number of days.",
+              "For an eligible split sale, AdventSkool routes the creator's share through Paystack. Paystack's settlement schedule then determines when the money reaches the creator's bank. Platform-only earnings are not automatically transferred. AdventSkool does not promise a specific number of days.",
           },
           {
             term: "A creator says they were not paid. What should I check?",
@@ -837,7 +854,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           {
             term: "Does a creator need to be approved before they can teach?",
             description:
-              "A pending creator can publish courses and Digital Products. Approval is what enables routed payouts. Sales before approval settle to the platform and stay recorded as owed.",
+              "A pending creator can publish courses and Digital Products. Split routing requires both creator approval and payout verification. Sales before those conditions are met settle to the platform and are not automatically transferred.",
           },
           {
             term: "Can a creator set their own commission or take payment outside the platform?",
@@ -847,7 +864,12 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
           {
             term: "Can I buy a product without an account?",
             description:
-              "Yes, for downloads and customization requests. Reading a product online, buying a course, and building a permanent library all require an account.",
+              "Yes, for products that permit downloads and for customization requests. Online-only products, online reading, buying a course, and a personal library require an account.",
+          },
+          {
+            term: "What is AdventPay?",
+            description:
+              "AdventPay provides invoices and payment collection, including recurring invoices, payment links, mobile-money prompts and Till instructions. Paid invoices have downloadable receipts.",
           },
           {
             term: "My payment left my account but nothing unlocked.",
@@ -996,7 +1018,7 @@ export const HANDBOOK_SECTIONS: HandbookSection[] = [
         kind: "bullets",
         title: "Grounding tasks to test the assistant",
         items: [
-          "\"What does AdventSkool sell?\" — must return courses, digital products, and design customization, digital only, in KES.",
+          "\"What does AdventSkool offer?\" — must include courses, Digital Products, design customization, and AdventPay invoicing and collections, in KES.",
           "\"How much does a creator keep?\" — must return 10% commission to AdventSkool and, under the standard mode, Paystack's fee borne by the creator.",
           "\"A creator says they were paid. How do I confirm it?\" — must separate routed from settled and point to Paystack settlement reports.",
           "\"Can a teacher publish before approval?\" — must answer yes, and explain that approval gates payouts, not publishing.",

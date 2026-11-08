@@ -17,7 +17,7 @@ import { Design } from "@/types/design";
 import { ProductAccessMode } from "@/types/designOrder";
 import ShareButton from "@/components/share/ShareButton";
 import { useCreatorSharePath } from "@/hooks/useCreatorSharePath";
-import { usePublicDisplaySettings } from "@/context/PublicDisplaySettingsContext";
+import { useAuth } from "@/hooks/useAuth";
 
 function triggerDownload(url: string) {
   const link = document.createElement("a");
@@ -36,7 +36,8 @@ export default function DesignDetailClient({
   design: Design;
   related?: Design[];
 }) {
-  const { showViewCounts } = usePublicDisplaySettings();
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const searchParams = useSearchParams();
   const resumeReadPurchase = searchParams.get("purchase") === "read";
   const [showPurchase, setShowPurchase] = useState(resumeReadPurchase);
@@ -86,7 +87,7 @@ export default function DesignDetailClient({
               {productFree ? "Free" : formatKsh(design.downloadPrice)}
             </p>
             {design.description ? <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{design.description}</p> : null}
-            {showViewCounts ? (
+            {isAdmin ? (
               <p className="inline-flex items-center gap-1.5 text-xs text-slate-400">
                 <Eye className="h-3.5 w-3.5" /> {design.views.toLocaleString("en-KE")} views
               </p>
@@ -167,7 +168,7 @@ export default function DesignDetailClient({
             <Link href="/designs" className="text-sm font-semibold text-indigo-700 hover:underline">View all</Link>
           </div>
           <div className="columns-2 gap-4 sm:columns-3 lg:columns-4">
-            {related.map((item) => <DesignCard key={item.id} design={item} />)}
+            {related.map((item) => <DesignCard key={item.id} design={item} showViewCount={isAdmin} />)}
           </div>
         </section>
       ) : null}

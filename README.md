@@ -1,91 +1,45 @@
-# AdventSkool LMS
+# AdventSkool
 
-Production-ready, modular LMS built with Next.js App Router, application data services, and staged Cloudflare/Cloudinary media storage.
+AdventSkool is a Kenya-focused learning and digital commerce platform at [adventskool.co.ke](https://adventskool.co.ke). It offers courses, Digital Products, creator storefronts and AdventPay invoicing.
 
-## Stack
+## Stack and features
 
-- Next.js App Router (React 19)
-- Firebase Auth + Firestore (via REST-compatible `firebase/*` local shim)
-- Cloudflare D1 + private R2 for new Digital Product assets
-- Cloudinary for legacy product assets and remaining course/marketing media
-- TypeScript + ESLint
+- Next.js App Router, React, TypeScript and Tailwind CSS.
+- Supabase Auth and Postgres for accounts, application data and access policies.
+- Paystack for course and product payments, creator splits and AdventPay payments.
+- Private Cloudflare R2 and D1 for new Digital Product files; Cloudinary continues to serve legacy product assets and other media.
+- Student, creator (`teacher` internally) and admin dashboards, lesson progress, live-class scheduling, notifications and creator payout management.
+- Creator storefronts at `/@handle`, and AdventPay invoicing and collections at `/adventpay`.
 
-## Features
+## Local development
 
-- Role-based dashboards: `student`, `teacher`, `admin`
-- Course upload:
-  - title
-  - original price
-  - discounted price
-  - Cloudinary thumbnail upload
-  - rich text outline
-  - dynamic unlimited lesson creation
-- Lesson management:
-  - title
-  - rich text content editor (bold, italic, underline, color, lists, size, links)
-  - Cloudinary image upload
-  - video URL
-  - automatic YouTube ID extraction
-  - link detection in notes/content
-  - quiz questions per lesson
-- Enrollment and progress:
-  - `enrollments/{userId_courseId}`
-  - completion tracking
-  - progress percentage
-  - sequential lesson unlock logic
-- Scalable architecture:
-  - service layer
-  - reusable hooks
-  - modular components
-  - Firestore-style subcollections for lessons
-- Firestore security rules included at `lib/firebase/securityRules.txt`
-
-## Project Structure
-
-The structure matches the LMS architecture requested across:
-
-- `app/` route groups for public/auth/dashboard
-- `components/` split by `ui`, `course`, and `dashboard`
-- `services/` for business logic and Firestore access
-- `hooks/`, `context/`, `lib/`, and `types/`
-- `middleware.ts` for role route protection
-
-## Environment Variables
-
-Create `.env.local` from `.env.example`:
-
-```bash
-cp .env.example .env.local
-```
-
-Required variables:
-
-- `NEXT_PUBLIC_FIREBASE_API_KEY`
-- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-- `NEXT_PUBLIC_FIREBASE_APP_ID`
-- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
-- `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`
-
-New Digital Product uploads use Cloudflare D1 + R2. See [Cloudflare product storage setup](docs/CLOUDFLARE_STORAGE_SETUP.md) for the required private bucket, D1 migration, CORS policy, worker, environment variables, and gradual legacy sync procedure.
-
-## Run
+Install dependencies and run the development server:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Quality checks:
+Create `.env.local` with the configuration for your own services. The repository does not include an `.env.example`. Core Supabase configuration uses `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and server-only `SUPABASE_SERVICE_ROLE_KEY`. Set `NEXT_PUBLIC_SITE_URL` to the appropriate origin; production uses `https://adventskool.co.ke`.
+
+Features require their own service configuration: `PAYSTACK_SECRET_KEY` for payments, Cloudinary settings for existing media, Cloudflare credentials for Digital Product storage, `RESEND_API_KEY` and sender settings for application email, and `CRON_SECRET` for scheduled jobs. Keep service-role keys, provider secrets and Cloudflare credentials server-side. See the setup guides below for details; features cannot be fully exercised without the corresponding services.
 
 ```bash
 npm run typecheck
 npm run lint
 ```
 
-## Notes
+## Deployment and operations
 
-- In this environment, package download is cache-restricted, so Firebase is integrated through local `firebase/*` compatibility modules in `lib/firebase/sdk/*` that call Firebase REST APIs.
-- Next.js currently warns that `middleware.ts` convention is deprecated in favor of `proxy.ts` in newer versions.
+Apply the applicable Supabase migrations in `supabase/migrations` in order before deploying the corresponding features. Existing databases should not blindly reapply migrations. The project memory in [AGENTS.md](AGENTS.md) describes feature-specific migration dependencies, payout safeguards, settlement reconciliation, and scheduled jobs.
+
+- [Cloudflare Digital Product storage](docs/CLOUDFLARE_STORAGE_SETUP.md)
+- [Google Sign-In](docs/GOOGLE_SETUP.md)
+- [Authentication email](docs/AUTH_EMAIL_SETUP.md)
+- [Email campaigns and scheduled processing](docs/email-notifications.md)
+
+The admin-only handbook at `/dashboard/admin/documentation` is maintained in `lib/handbook/content.ts`; its screen, print-to-PDF and Markdown export use that shared content.
+
+## Project structure
+
+`app/` contains routes and APIs; `components/` contains UI and dashboard components; `services/`, `hooks/`, `context/`, `lib/` and `types/` contain application logic and shared types. Database migrations are in `supabase/migrations/`, and Cloudflare storage configuration is in `cloudflare/`.
