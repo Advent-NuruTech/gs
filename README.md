@@ -20,9 +20,9 @@ npm install
 npm run dev
 ```
 
-Create `.env.local` with the configuration for your own services. The repository does not include an `.env.example`. Core Supabase configuration uses `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and server-only `SUPABASE_SERVICE_ROLE_KEY`. Set `NEXT_PUBLIC_SITE_URL` to the appropriate origin; production uses `https://adventskool.co.ke`.
+Create `.env.local` with the configuration for your own services, using [.env.example](./.env.example) as a template. Core Supabase configuration uses `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and server-only `SUPABASE_SECRET_KEY`. The URL remains the project endpoint; the publishable key is safe for browser use, while the secret key must stay server-side. Set `NEXT_PUBLIC_SITE_URL` to the appropriate origin; production uses `https://adventskool.co.ke`.
 
-Features require their own service configuration: `PAYSTACK_SECRET_KEY` for payments, Cloudinary settings for existing media, Cloudflare credentials for Digital Product storage, `RESEND_API_KEY` and sender settings for application email, and `CRON_SECRET` for scheduled jobs. Keep service-role keys, provider secrets and Cloudflare credentials server-side. See the setup guides below for details; features cannot be fully exercised without the corresponding services.
+Features require their own service configuration: `PAYSTACK_SECRET_KEY` for payments, Cloudinary settings for existing media, Cloudflare credentials for Digital Product storage, `RESEND_API_KEY` and sender settings for application email, and `CRON_SECRET` for scheduled jobs. Keep Supabase secret keys, provider secrets and Cloudflare credentials server-side. See the setup guides below for details; features cannot be fully exercised without the corresponding services.
 
 ```bash
 npm run typecheck

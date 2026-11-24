@@ -6,7 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
 
 export interface RequestUser {
   id: string;
@@ -24,7 +24,7 @@ export async function getRequestUser(request: NextRequest): Promise<RequestUser 
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
 
   if (token) {
-    const client = createClient(supabaseUrl, anonKey, {
+    const client = createClient(supabaseUrl, publishableKey, {
       global: { headers: { Authorization: `Bearer ${token}` } },
       auth: { persistSession: false },
     });

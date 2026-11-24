@@ -2,12 +2,12 @@ import "server-only";
 
 import { Design } from "@/types/design";
 
-/** Read-only Supabase client using the anon key (RLS allows published rows). */
-async function anonClient() {
+/** Read-only Supabase client using the publishable key (RLS allows published rows). */
+async function publishableClient() {
   const { createServerClient } = await import("@supabase/ssr");
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
     { cookies: { getAll: () => [], setAll: () => {} } },
   );
 }
@@ -38,7 +38,7 @@ function mapDesign(data: Record<string, unknown>): Design {
 }
 
 export async function getPublishedDesign(designId: string): Promise<Design | null> {
-  const supabase = await anonClient();
+  const supabase = await publishableClient();
   const { data } = await supabase
     .from("designs")
     .select("*")
@@ -57,7 +57,7 @@ export async function listRelatedDesigns(
   category: string,
   limit = 6,
 ): Promise<Design[]> {
-  const supabase = await anonClient();
+  const supabase = await publishableClient();
 
   const { data: sameCategory } = await supabase
     .from("designs")
@@ -103,7 +103,7 @@ export async function listRecommendedDesigns(
   const relevantCategories = [...new Set(categories.map((category) => category.trim()).filter(Boolean))];
   if (relevantCategories.length === 0) return [];
 
-  const supabase = await anonClient();
+  const supabase = await publishableClient();
   const { data } = await supabase
     .from("designs")
     .select("*")
@@ -120,7 +120,7 @@ export async function listRecommendedDesigns(
 }
 
 export async function listPublishedDesignsForSitemap(): Promise<Array<{ id: string; updatedAt?: string }>> {
-  const supabase = await anonClient();
+  const supabase = await publishableClient();
   const { data } = await supabase.from("designs").select("id, updated_at").eq("published", true);
   return (data ?? []).map((row) => ({
     id: String(row.id),

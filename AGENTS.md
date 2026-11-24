@@ -147,6 +147,7 @@ npm run lint
 
 ## Authentication emails
 
+- Supabase clients use `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; privileged server operations use server-only `SUPABASE_SECRET_KEY`. Never expose the secret key.
 - Supabase Auth sends signup confirmation and password recovery emails through its own SMTP configuration, separate from the application Resend API integration. Configure verified-domain Resend SMTP and install the branded templates in `supabase/email-templates` as described in `docs/AUTH_EMAIL_SETUP.md`. Deploy the callback before installing the recovery template. Recovery verifies a Supabase token hash at `/auth/callback` and supports opening the email on another device. Email confirmation stays enabled.
 - The app email sender uses `RESEND_API_KEY` and `RESEND_FROM_EMAIL` server-side (`EMAIL_FROM` remains a legacy fallback). The official wordmark is used on the sign-in, signup, and password recovery pages and in the shared email shell.
 

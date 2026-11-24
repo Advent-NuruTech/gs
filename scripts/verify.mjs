@@ -15,10 +15,10 @@ function loadEnv() {
 }
 const env = loadEnv();
 const url = env.NEXT_PUBLIC_SUPABASE_URL;
-const anon = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const service = env.SUPABASE_SERVICE_ROLE_KEY;
+const publishable = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const secret = env.SUPABASE_SECRET_KEY;
 
-const admin = createClient(url, service, { auth: { persistSession: false } });
+const admin = createClient(url, secret, { auth: { persistSession: false } });
 const pass = (label, ok) => console.log(`${ok ? "PASS" : "FAIL"}  ${label}`);
 
 let userId, courseId;
@@ -54,12 +54,12 @@ try {
   const firstLesson = lessons.find((l) => l.order_index === 1);
 
   // 3) Public preview view exposes titles without content.
-  const anonClient = createClient(url, anon, { auth: { persistSession: false } });
-  const { data: previews } = await anonClient.from("lesson_previews").select("*").eq("course_id", courseId);
+  const publishableClient = createClient(url, publishable, { auth: { persistSession: false } });
+  const { data: previews } = await publishableClient.from("lesson_previews").select("*").eq("course_id", courseId);
   pass("lesson_previews readable by anon (4 rows)", (previews?.length ?? 0) === 4);
 
   // 4) RLS: signed-in user CANNOT read locked lesson content.
-  const userClient = createClient(url, anon, { auth: { persistSession: false } });
+  const userClient = createClient(url, publishable, { auth: { persistSession: false } });
   const { data: signIn } = await userClient.auth.signInWithPassword({ email, password });
   pass("user can sign in", !!signIn.session);
   const { data: lockedRead } = await userClient.from("lessons").select("id").eq("id", firstLesson.id);

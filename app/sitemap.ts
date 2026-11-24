@@ -72,14 +72,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  ) {
     return staticRoutes;
   }
 
   const { createServerClient } = await import("@supabase/ssr");
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
     {
       cookies: {
         getAll: () => [],
@@ -115,11 +118,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })) ?? [];
 
   let creatorRoutes: MetadataRoute.Sitemap = [];
-  if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (process.env.SUPABASE_SECRET_KEY) {
     const { createClient } = await import("@supabase/supabase-js");
     const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      process.env.SUPABASE_SECRET_KEY ?? "",
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
     const { data: creators } = await admin
