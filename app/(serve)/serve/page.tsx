@@ -99,14 +99,17 @@ export default function ServeIfSavedPage() {
             <a href="#method" className="hover:text-[#a5ff00]">
               How it works
             </a>
+            <Link href="/serve/timetable" className="hover:text-[#a5ff00]">
+              Timetable
+            </Link>
           </nav>
 
-          <a
-            href="#join"
+          <Link
+            href="/serve/register"
             className="rounded-full bg-[#a5ff00] px-5 py-2.5 text-sm font-bold text-[#06182b] transition hover:scale-[1.02]"
           >
-            Join the journey
-          </a>
+            Register
+          </Link>
         </div>
       </header>
 
@@ -140,12 +143,12 @@ export default function ServeIfSavedPage() {
             </p>
 
             <div className="mt-9 flex flex-wrap gap-4">
-              <a
+              <Link
               href="/serve/timetable"
                 className="rounded-full bg-[#a5ff00] px-7 py-4 font-extrabold text-[#06182b] hover:bg-[#baff36]"
               >
                 View timetable <span aria-hidden>→</span>
-              </a>
+              </Link>
 
               <a
                 href="#journey"
@@ -459,16 +462,12 @@ export default function ServeIfSavedPage() {
           discovery, conviction and growth.
         </p>
 
-        <a
-          href="mailto:serveifsaved@example.com?subject=Join%20SERVE%20If%20Saved%2040%20Series"
+        <Link
+          href="/serve/register"
           className="mt-9 inline-block rounded-full bg-[#a5ff00] px-8 py-4 font-extrabold text-[#06182b]"
         >
-          I want to join <span aria-hidden>→</span>
-        </a>
-
-        <p className="mt-4 text-xs text-white/45">
-          Replace this email link with your registration form or ministry contact.
-        </p>
+          Apply to join <span aria-hidden>→</span>
+        </Link>
       </section>
 
       {/* FOOTER */}

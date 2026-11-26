@@ -202,6 +202,7 @@ const linkMap: Record<UserRole, NavItem[]> = {
       label: "Operations",
       icon: BarChart3,
       links: [
+        { href: "/dashboard/admin/serve", label: "SERVE", icon: ClipboardCheck },
         { href: "/dashboard/admin/live-classes", label: "Live Classes", icon: Video },
         { href: "/dashboard/admin/analytics", label: "Analytics", icon: BarChart3 },
         { href: "/dashboard/admin/announcements", label: "Announcements", icon: Megaphone },

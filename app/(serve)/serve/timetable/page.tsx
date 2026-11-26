@@ -1,50 +1,60 @@
 
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const studies = [
-  "The Bible — God's Inspired Word",
-  "How to Study the Bible",
-  "God — Who Is He?",
-  "Jesus Christ — Our Saviour",
-  "The Holy Spirit",
-  "Creation and the Origin of Life",
-  "The Origin of Sin and the Great Controversy",
-  "The Fall of Man and the Consequences of Sin",
-  "God's Plan of Salvation",
-  "Faith, Repentance and Conversion",
-  "Baptism and the New Birth",
-  "The Ten Commandments — God's Law",
-  "The Sabbath — God's Holy Day",
-  "The True Church of God",
-  "The Remnant Church and Its Mission",
-  "The Spirit of Prophecy",
-  "Death — What Happens When We Die?",
-  "The Resurrection",
-  "Hell and the Final Destruction of Sin",
-  "The Second Coming of Jesus",
-  "Signs of Christ's Second Coming",
-  "The Millennium",
-  "The New Earth",
-  "The Sanctuary — God's Plan of Redemption",
-  "The Earthly Sanctuary and Its Services",
-  "The Heavenly Sanctuary",
-  "The Day of Atonement",
-  "The Investigative Judgment",
-  "The 2300 Days and 1844",
-  "The Three Angels' Messages",
-  "The Mark of the Beast",
-  "The Seal of God",
-  "Babylon and the Fall of Babylon",
-  "Sunday Worship and the Sabbath Controversy",
-  "The Final Crisis",
-  "Christian Stewardship",
-  "Prayer and the Christian Life",
-  "Christian Health and Temperance",
-  "The Gift of Evangelism and Christian Service",
-  "Preparing to Meet Jesus",
-];
+import PageSkeleton from "@/components/ui/PageSkeleton";
+import StatusCard from "@/components/ui/StatusCard";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { ServeTimetableEntry } from "@/lib/serve/types";
 
 export default function TimetablePage() {
+  const [studies, setStudies] = useState<ServeTimetableEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+    let active = true;
+
+    const loadTimetable = async () => {
+      const { data, error: queryError } = await supabase
+        .from("serve_timetable")
+        .select("id,study_number,title,description,session_date,start_time,published,created_at,updated_at")
+        .eq("published", true)
+        .order("study_number", { ascending: true });
+
+      if (!active) return;
+      if (queryError) {
+        setError(queryError.message);
+      } else {
+        setStudies((data ?? []) as ServeTimetableEntry[]);
+        setError("");
+      }
+      setLoading(false);
+    };
+
+    void loadTimetable();
+    const channel = supabase
+      .channel("serve-public-timetable")
+      .on("postgres_changes", { event: "*", schema: "public", table: "serve_timetable_revisions" }, () => {
+        void loadTimetable();
+      })
+      .subscribe((status: string) => {
+        if (status === "CHANNEL_ERROR" && active) {
+          setError("Live timetable updates are temporarily unavailable. Reload the page to check for changes.");
+        }
+      });
+
+    return () => {
+      active = false;
+      void supabase.removeChannel(channel);
+    };
+  }, []);
+
+  if (loading) return <PageSkeleton label="Loading the SERVE timetable" variant="cards" />;
+
   return (
     <main className="min-h-screen bg-[#06182b] text-white">
       {/* HEADER */}
@@ -88,7 +98,7 @@ export default function TimetablePage() {
           </div>
 
           <h1 className="text-5xl font-black tracking-tight sm:text-7xl">
-            <span className="text-[#a5ff00]">40</span> Bible Studies
+            <span className="text-[#a5ff00]">{studies.length}</span> Bible Studies
           </h1>
 
           <p className="mt-6 max-w-2xl text-xl font-bold leading-relaxed text-white sm:text-2xl">
@@ -97,14 +107,14 @@ export default function TimetablePage() {
           </p>
 
           <p className="mt-5 max-w-xl leading-7 text-white/65">
-            Explore the complete learning timetable of SERVE* If Saved.
-            Forty studies designed to build conviction, understanding,
-            spiritual growth and readiness for Christian service.
+            Explore the learning timetable of SERVE* If Saved. Each study is
+            designed to build conviction, understanding, spiritual growth and
+            readiness for Christian service.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-6">
             <div>
-              <p className="text-3xl font-black text-[#a5ff00]">40</p>
+              <p className="text-3xl font-black text-[#a5ff00]">{studies.length}</p>
               <p className="text-sm text-white/60">Bible studies</p>
             </div>
 
@@ -136,32 +146,42 @@ export default function TimetablePage() {
             <p className="mt-4 max-w-2xl font-medium leading-7 text-white/90">
               Each study builds upon the previous one, leading the student
               through a progressive understanding of the Bible and the
-              message entrusted to God's people.
+              message entrusted to God&apos;s people.
             </p>
           </div>
 
+          {error ? <StatusCard kind="error" title="The public timetable could not be loaded" description={error} className="mb-5" /> : null}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {studies.map((study, index) => (
+            {studies.map((study) => (
               <article
-                key={study}
+                key={study.id}
                 className="group flex items-start gap-4 rounded-2xl border border-[#06182b]/10 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#06182b] text-sm font-black text-[#a5ff00] transition group-hover:bg-[#a5ff00] group-hover:text-[#06182b]">
-                  {(index + 1).toString().padStart(2, "0")}
+                  {study.study_number.toString().padStart(2, "0")}
                 </div>
 
                 <div className="pt-1">
                   <p className="text-xs font-black uppercase tracking-widest text-[#0788dc]">
-                    Bible Study {index + 1}
+                    Bible Study {study.study_number}
                   </p>
 
                   <h3 className="mt-2 font-bold leading-6 text-[#06182b]">
-                    {study}
+                    {study.title}
                   </h3>
+                  {study.description ? <p className="mt-2 text-sm leading-6 text-[#06182b]/70">{study.description}</p> : null}
+                  {study.session_date || study.start_time ? (
+                    <p className="mt-3 text-xs font-semibold text-[#06182b]/70">
+                      {study.session_date ? new Date(`${study.session_date}T00:00:00`).toLocaleDateString(undefined, { dateStyle: "long" }) : ""}
+                      {study.session_date && study.start_time ? " · " : ""}
+                      {study.start_time ? study.start_time.slice(0, 5) : ""}
+                    </p>
+                  ) : null}
                 </div>
               </article>
             ))}
           </div>
+          {!error && studies.length === 0 ? <StatusCard kind="info" title="The timetable is being prepared" description="Please check back soon for upcoming studies." className="mt-4" /> : null}
 
           {/* BOTTOM */}
           <div className="mt-12 rounded-3xl bg-[#06182b] p-8 text-white sm:p-10">
