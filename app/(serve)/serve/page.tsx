@@ -1,4 +1,5 @@
 
+import Link from "next/link";
 import Image from "next/image";
 
 const series = [
@@ -119,7 +120,7 @@ export default function ServeIfSavedPage() {
           <div className="max-w-3xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#a5ff00]/40 bg-[#a5ff00]/10 px-4 py-2 text-xs font-bold uppercase tracking-[.2em] text-[#a5ff00]">
               <span className="h-2 w-2 rounded-full bg-[#a5ff00]" />
-              A 6-month Bible journey
+              A 4-month Bible journey
             </div>
 
             {/* BRAND LOGO TEXT */}
@@ -128,7 +129,7 @@ export default function ServeIfSavedPage() {
             </div>
 
             <p className="mt-6 max-w-2xl text-xl font-medium leading-relaxed text-white/85 sm:text-2xl">
-              Forty Bible series. One journey from the foundations to a firm
+              Forty Bible studies. One journey from the foundations to a firm
               understanding of Present Truth.
             </p>
 
@@ -140,28 +141,30 @@ export default function ServeIfSavedPage() {
 
             <div className="mt-9 flex flex-wrap gap-4">
               <a
-                href="#join"
+              href="/serve/timetable"
                 className="rounded-full bg-[#a5ff00] px-7 py-4 font-extrabold text-[#06182b] hover:bg-[#baff36]"
               >
-                Begin the journey <span aria-hidden>→</span>
+                View timetable <span aria-hidden>→</span>
               </a>
 
               <a
                 href="#journey"
                 className="rounded-full border border-white/30 px-7 py-4 font-bold hover:border-[#a5ff00] hover:text-[#a5ff00]"
               >
-                Explore the series
+                Explore the studies
               </a>
+
+            
             </div>
 
             <div className="mt-12 flex flex-wrap gap-8 text-sm text-white/70">
               <div>
                 <strong className="block text-2xl text-white">40</strong>
-                Bible series
+                Bible studies
               </div>
 
               <div>
-                <strong className="block text-2xl text-white">6 months</strong>
+                <strong className="block text-2xl text-white">4 months</strong>
                 Guided learning
               </div>
 
@@ -178,11 +181,11 @@ export default function ServeIfSavedPage() {
 
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl">
               <Image
-                src="/images/serve/bible.jpg"
-                alt="Open Bible and study materials"
-                width={1000}
-                height={1200}
-                className="h-[520px] w-full object-cover"
+                src="/images/serve/40daysbanner.jpeg"
+                alt="SERVE 40 Bible studies program banner"
+                width={1024}
+                height={1024}
+                className="h-auto w-full object-contain"
               />
 
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#06182b] via-[#06182b]/85 to-transparent p-8 pt-24">
@@ -203,79 +206,158 @@ export default function ServeIfSavedPage() {
 
       {/* ABOUT */}
       <section id="about" className="mx-auto max-w-7xl px-5 py-24">
-        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-          <div>
-            <p className="mb-3 text-sm font-bold uppercase tracking-[.2em] text-[#a5ff00]">
-              Why SERVE *IF SAVED?
+        <div className="mx-auto max-w-4xl">
+          <p className="mb-3 text-sm font-bold uppercase tracking-[.2em] text-[#a5ff00]">
+            SERVE IF SAVED
+          </p>
+
+          <h2 className="text-3xl font-black leading-tight sm:text-5xl">
+            40 Studies. 4 Months. One Foundation.
+          </h2>
+
+          <div className="mt-8 space-y-5 text-lg leading-8 text-white/70">
+            <p className="font-bold text-white">
+              Every Christian is born into the kingdom as a missionary.
             </p>
 
-            <h2 className="text-3xl font-black leading-tight sm:text-5xl">
-              Not just information.
-              <br />
-              A foundation for faith.
-            </h2>
+            <p>
+              If you have tasted the word of life, you cannot keep it to
+              yourself. You must share it, in every way you can.
+            </p>
+
+            <p>
+              But how can people believe without hearing, and how can they hear
+              without a preacher? Faith comes by hearing, and hearing by the
+              word of God. Before you serve, you must first hear, be convicted
+              by present truth, and be found standing in the kingdom.
+            </p>
+
+            <p className="font-bold text-white">
+              You cannot preach a gospel that has not saved you.
+            </p>
+
+            <p>
+              Someone who wants to rescue a drowning person from a fast current
+              must first stand on firm ground. That is the purpose of this
+              series: <strong className="text-white">to plant your feet.</strong>
+            </p>
           </div>
 
-          <p className="text-lg leading-8 text-white/70">
-            Many people have questions about the Bible, prophecy, salvation and
-            Present Truth. This program is built to take learners step by
-            step—starting with the basics, allowing Scripture to explain
-            Scripture, and developing understanding over time.
-          </p>
-        </div>
+          <div className="mt-12 grid gap-10 sm:grid-cols-2">
+            <div>
+              <h3 className="text-2xl font-black text-white">
+                What is Serve If Saved?
+              </h3>
+              <p className="mt-4 leading-7 text-white/70">
+                Serve If Saved is a mission to teach present truth through{" "}
+                <strong className="text-white">
+                  40 Bible studies over 4 months.
+                </strong>
+              </p>
+              <p className="mt-4 leading-7 text-white/70">
+                It is inspired by Christ&apos;s 40 days of fasting before He
+                began His public ministry. He prepared before He served, and so
+                should we. Each study counts as one day of that journey, so 40
+                studies make up the 40 days.
+              </p>
+            </div>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {[
-            [
-              "01",
-              "Start from zero",
-              "No assumed background. We build understanding carefully, one Bible principle at a time.",
-            ],
-            [
-              "02",
-              "Scripture interprets Scripture",
-              "Study with the Bible as the foundation, examining context and comparing passages.",
-            ],
-            [
-              "03",
-              "Grow to serve",
-              "The goal is more than knowledge: a life shaped by truth, humility and practical service.",
-            ],
-          ].map(([n, title, desc]) => (
-            <article
-              key={n}
-              className="rounded-3xl border border-white/10 bg-white/[.04] p-7"
-            >
-              <span className="text-4xl font-black text-[#a5ff00]">{n}</span>
+            <div>
+              <h3 className="text-2xl font-black text-white">
+                What you will learn
+              </h3>
+              <ul className="mt-4 list-disc space-y-3 pl-5 leading-7 text-white/70">
+                <li>
+                  Each study covers one truth, and each truth is a foundation
+                  for anyone who wants to commit their life to present truth.
+                </li>
+                <li>
+                  We cover everything from theory to practical application, so
+                  that a man of God can rightly divide the word of truth.
+                </li>
+                <li>
+                  As you water others, you are watered yourself. You become a
+                  worker who needs not be ashamed, thoroughly equipped for every
+                  good work.
+                </li>
+              </ul>
+            </div>
 
-              <h3 className="mt-5 text-xl font-bold">{title}</h3>
+            <div>
+              <h3 className="text-2xl font-black text-white">
+                Who will teach you
+              </h3>
+              <p className="mt-4 leading-7 text-white/70">
+                Students will learn from{" "}
+                <strong className="text-white">ministers around the world</strong>{" "}
+                who are experienced in gospel ministry.
+              </p>
+            </div>
 
-              <p className="mt-3 leading-7 text-white/65">{desc}</p>
-            </article>
-          ))}
+            <div>
+              <h3 className="text-2xl font-black text-white">
+                Be part of the journey
+              </h3>
+              <p className="mt-4 leading-7 text-white/70">
+                You are welcome to join us:
+              </p>
+              <ul className="mt-3 list-disc space-y-2 pl-5 leading-7 text-white/70">
+                <li>
+                  <strong className="text-white">As a student</strong>, to
+                  learn and be grounded
+                </li>
+                <li>
+                  <strong className="text-white">As a teacher</strong>, to
+                  share what God has given you
+                </li>
+                <li>
+                  <strong className="text-white">As a partner or sponsor</strong>,
+                  to keep this work going
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 border-t border-white/10 pt-6">
+            <p className="text-xl font-black text-[#a5ff00]">SERVE* If Saved</p>
+            <p className="mt-2 text-white">Byron Onyango</p>
+            <p className="text-sm text-white/60">Gospel Minister</p>
+          </div>
         </div>
       </section>
 
       {/* LEARNING PATH */}
       <section id="journey" className="bg-[#0788dc] px-5 py-24 text-[#06182b]">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <p className="mb-3 text-sm font-extrabold uppercase tracking-[.2em] text-white">
-              The learning path
-            </p>
+          <div className="grid gap-8 rounded-[2rem] border border-white/15 bg-[#06182b]/15 p-5 sm:p-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+            <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/15 shadow-xl">
+              <Image
+                src="/images/serve/40daysbanner.jpeg"
+                alt="SERVE 40 Bible studies program banner"
+                fill
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="object-cover"
+              />
+            </div>
 
-            <h2 className="text-4xl font-black leading-tight text-white sm:text-6xl">
-              40 Bible series.
-              <br />
-              6 months of discovery.
-            </h2>
+            <div className="max-w-3xl">
+              <p className="mb-3 text-sm font-extrabold uppercase tracking-[.2em] text-white">
+                The learning path
+              </p>
 
-            <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-white">
-              A progressive curriculum—from the foundations of Bible study to the
-              connected truths that shape a Present Truth understanding. The six
-              themes below are illustrative pillars; the full program can be
-              organized into all 40 individual series.
-            </p>
+              <h2 className="text-4xl font-black leading-tight text-white sm:text-6xl">
+                40 Bible studies.
+                <br />
+                4 months of discovery.
+              </h2>
+
+              <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-white">
+                A progressive curriculum—from the foundations of Bible study to
+                the connected truths that shape a Present Truth understanding.
+                The six themes below are illustrative pillars; the full program
+                can be organized into all 40 individual studies.
+              </p>
+            </div>
           </div>
 
           {/* SERIES CARDS */}
@@ -306,7 +388,7 @@ export default function ServeIfSavedPage() {
               </p>
 
               <h3 className="mt-2 text-2xl font-black">
-                40 individual series, arranged into a six-month plan.
+                40 individual studies, arranged into a four-month plan.
               </h3>
             </div>
 
@@ -373,7 +455,7 @@ export default function ServeIfSavedPage() {
         </h2>
 
         <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-white/70">
-          Take the first step into a structured six-month journey of Bible
+          Take the first step into a structured four-month journey of Bible
           discovery, conviction and growth.
         </p>
 
