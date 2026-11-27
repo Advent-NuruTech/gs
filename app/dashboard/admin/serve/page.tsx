@@ -9,6 +9,7 @@ import PageSkeleton from "@/components/ui/PageSkeleton";
 import RichTextEditor from "@/components/ui/RichTextEditor";
 import StatusCard from "@/components/ui/StatusCard";
 import ServeGalleryManager from "./ServeGalleryManager";
+import ServeLibraryManager from "./ServeLibraryManager";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import type { ServeApplication, ServeApplicationStatus, ServeTimetableEntry } from "@/lib/serve/types";
 
@@ -213,8 +214,8 @@ export default function ServeAdminPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-bold uppercase tracking-[.18em] text-blue-700 dark:text-blue-300">SERVE* If Saved</p>
-          <h1 className="mt-1 text-3xl font-black text-slate-950 dark:text-white">Applications & timetable</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Review student registrations and manage the public 40-study learning path.</p>
+          <h1 className="mt-1 text-3xl font-black text-slate-950 dark:text-white">Applications, timetable & library</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Review student registrations, manage the public learning path, and choose library resources.</p>
         </div>
         <Link href="/serve" target="_blank" className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
           View public SERVE page
@@ -332,6 +333,7 @@ export default function ServeAdminPage() {
         </div>
       </section>
 
+      <ServeLibraryManager />
       <ServeGalleryManager />
     </section>
   );

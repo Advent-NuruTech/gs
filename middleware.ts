@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
       return redirect;
     }
 
-    if (pathname === "/" || pathname === "/register" || pathname === "/timetable") {
+    if (pathname === "/" || pathname === "/register" || pathname === "/timetable" || pathname === "/library") {
       const rewriteUrl = request.nextUrl.clone();
       rewriteUrl.pathname = pathname === "/" ? "/serve" : `/serve${pathname}`;
       const rewrite = NextResponse.rewrite(rewriteUrl);

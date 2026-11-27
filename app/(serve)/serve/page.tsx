@@ -71,6 +71,9 @@ export default function ServeIfSavedPage() {
             <Link href="/serve/timetable" className="hover:text-[#a5ff00]">
               Timetable
             </Link>
+            <Link href="/serve/library" className="hover:text-[#a5ff00]">
+              Library
+            </Link>
           </nav>
 
           <Link
@@ -119,12 +122,12 @@ export default function ServeIfSavedPage() {
                 View timetable <span aria-hidden>→</span>
               </Link>
 
-              <a
-                href="#journey"
+              <Link
+                href="/serve/library"
                 className="rounded-full border border-white/30 px-7 py-4 font-bold hover:border-[#a5ff00] hover:text-[#a5ff00]"
               >
                 Explore the studies
-              </a>
+              </Link>
 
             
             </div>
