@@ -37,6 +37,7 @@ const navLinks: Array<{ href: string; label: string; icon: LucideIcon }> = [
   { href: "/adventpay", label: "AdventPay", icon: CreditCard },
   { href: "/tools", label: "Tools", icon: Wrench },
   { href: "/about", label: "About", icon: Info },
+  { href: "/serve", label: "SERVE* If Saved", icon: BookOpen },
   { href: "/become-a-creator", label: "Teach & sell", icon: GraduationCap },
 ];
 

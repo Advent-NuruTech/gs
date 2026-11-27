@@ -51,7 +51,7 @@ export default function ServeStudyDescription({
         <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col px-5 py-6 sm:px-8 sm:py-10">
           <header className="flex items-start justify-between gap-5 border-b border-white/15 pb-5">
             <div className="min-w-0">
-              <p className="text-sm font-bold uppercase tracking-[.18em] text-[#a5ff00]">Bible study description</p>
+              <p className="text-sm font-bold uppercase tracking-[.18em] text-[#a5ff00]">Description</p>
               <h2
                 id={`serve-study-description-${id}`}
                 className="mt-2 break-words text-2xl font-black sm:text-4xl"

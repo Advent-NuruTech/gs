@@ -13,7 +13,7 @@ export default function ServeLoadingScreen() {
         </p>
         <p className="mt-1 text-sm font-bold text-white">If Saved</p>
         <p className="mt-3 text-sm font-semibold text-white/70">
-          Study the Word. Live the truth. Serve with love.
+          Study the Word. Live the Word. Serve the Word
         </p>
         <p className="mt-10 text-sm font-semibold text-white">Preparing your journey</p>
         <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/15" aria-hidden="true">

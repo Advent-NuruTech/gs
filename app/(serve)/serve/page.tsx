@@ -288,7 +288,7 @@ export default function ServeIfSavedPage() {
             </p>
 
             <h2 className="text-4xl font-black sm:text-5xl">
-              Learn. Study. Apply. Share.
+              Study. Live. Serve.
             </h2>
           </div>
 
@@ -344,16 +344,6 @@ export default function ServeIfSavedPage() {
         </Link>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 px-5 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <ServeLogoText />
-
-          <p className="text-sm text-white/45">
-            Study the Word. Live the truth. Serve with love.
-          </p>
-        </div>
-      </footer>
     </main>
   );
 }

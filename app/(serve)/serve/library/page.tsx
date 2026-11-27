@@ -105,9 +105,6 @@ export default function ServeLibraryPage() {
         </div>
       </section>
 
-      <footer className="border-t border-white/10 px-5 py-7 text-center text-sm text-white/50">
-        Study the Word. Live the truth. Serve with love.
-      </footer>
     </main>
   );
 }

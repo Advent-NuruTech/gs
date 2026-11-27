@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import ServeFooter from "@/components/serve/ServeFooter";
 
 export const metadata: Metadata = {
   title: { absolute: "SERVE* If Saved" },
@@ -35,5 +36,10 @@ export const viewport: Viewport = {
 };
 
 export default function ServeLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return children;
+  return (
+    <>
+      {children}
+      <ServeFooter />
+    </>
+  );
 }

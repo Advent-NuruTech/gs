@@ -181,21 +181,6 @@ export default function TimetablePage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 bg-[#06182b] px-5 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-black text-[#a5ff00]">SERVE* If Saved</p>
-            <p className="text-xs text-white/50">
-              Study the Word. Live the truth. Serve with love.
-            </p>
-          </div>
-
-          <p className="text-sm text-white/40">
-            40 Bible studies • A journey of discovery
-          </p>
-        </div>
-      </footer>
     </main>
   );
 }
