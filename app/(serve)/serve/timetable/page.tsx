@@ -4,16 +4,16 @@
 import Link from "next/link";
 
 import Button from "@/components/ui/Button";
-import PageSkeleton from "@/components/ui/PageSkeleton";
 import StatusCard from "@/components/ui/StatusCard";
 import ServeStudyDescription from "@/components/serve/ServeStudyDescription";
+import ServeLoadingScreen from "@/components/serve/ServeLoadingScreen";
 import ServeInstallButton from "@/components/serve/ServeInstallButton";
 import { useServeTimetable } from "@/hooks/useServeTimetable";
 
 export default function TimetablePage() {
   const { studies, loading, error, reload } = useServeTimetable();
 
-  if (loading) return <PageSkeleton label="Loading the SERVE timetable" variant="cards" />;
+  if (loading) return <ServeLoadingScreen />;
 
   return (
     <main className="min-h-screen bg-[#06182b] text-white">

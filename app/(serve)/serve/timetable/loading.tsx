@@ -1,5 +1,5 @@
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import ServeLoadingScreen from "@/components/serve/ServeLoadingScreen";
 
 export default function ServeTimetableLoading() {
-  return <PageSkeleton label="Loading the SERVE timetable" variant="cards" />;
+  return <ServeLoadingScreen />;
 }

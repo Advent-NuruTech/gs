@@ -1,5 +1,5 @@
-import PageSkeleton from "@/components/ui/PageSkeleton";
+import ServeLoadingScreen from "@/components/serve/ServeLoadingScreen";
 
 export default function ServeRegistrationLoading() {
-  return <PageSkeleton label="Loading the SERVE registration form" />;
+  return <ServeLoadingScreen />;
 }

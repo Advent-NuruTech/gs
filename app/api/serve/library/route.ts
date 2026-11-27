@@ -9,6 +9,7 @@ interface LibraryItem {
   type: ItemType;
   id: string;
   title: string;
+  description: string;
   category: string;
   image_url: string;
   published: boolean;
@@ -22,6 +23,7 @@ function mapCourse(row: Record<string, unknown>, selectedIds: Set<string>): Libr
     type: "course",
     id: String(row.id),
     title: String(row.title ?? ""),
+    description: "",
     category: String(row.category ?? "General"),
     image_url: String(row.thumbnail_url ?? ""),
     published: Boolean(row.published),
@@ -36,6 +38,7 @@ function mapDesign(row: Record<string, unknown>, selectedIds: Set<string>): Libr
     type: "design",
     id: String(row.id),
     title: String(row.title ?? ""),
+    description: String(row.description ?? ""),
     category: String(row.category ?? "General"),
     image_url: String(row.image_url ?? ""),
     published: Boolean(row.published),
@@ -72,7 +75,7 @@ export async function GET(request: NextRequest) {
   if (manage) {
     const [{ data: courses, error: coursesError }, { data: designs, error: designsError }] = await Promise.all([
       db.from("courses").select("id,title,category,thumbnail_url,published,final_price").order("title", { ascending: true }),
-      db.from("designs").select("id,title,category,image_url,file_type,published,download_price").order("title", { ascending: true }),
+      db.from("designs").select("id,title,description,category,image_url,file_type,published,download_price").order("title", { ascending: true }),
     ]);
 
     if (coursesError || designsError) return NextResponse.json({ error: "Could not load courses and digital products for the SERVE library." }, { status: 500 });
@@ -98,7 +101,7 @@ export async function GET(request: NextRequest) {
   if (designIds.length) {
     const { data, error } = await db
       .from("designs")
-      .select("id,title,category,image_url,file_type,published,download_price")
+      .select("id,title,description,category,image_url,file_type,published,download_price")
       .in("id", designIds)
       .eq("published", true);
     if (error) return NextResponse.json({ error: "Could not load the SERVE library." }, { status: 500 });

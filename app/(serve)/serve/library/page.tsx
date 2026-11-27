@@ -4,8 +4,8 @@ import { useAsyncData } from "@/hooks/useAsyncData";
 import { apiRequest } from "@/lib/api/client";
 import { formatKsh } from "@/lib/utils/formatCurrency";
 import Button from "@/components/ui/Button";
-import PageSkeleton from "@/components/ui/PageSkeleton";
 import StatusCard from "@/components/ui/StatusCard";
+import ServeLoadingScreen from "@/components/serve/ServeLoadingScreen";
 import Link from "next/link";
 import ServeInstallButton from "@/components/serve/ServeInstallButton";
 
@@ -13,10 +13,22 @@ interface ServeLibraryItem {
   type: "course" | "design";
   id: string;
   title: string;
+  description: string;
   category: string;
   image_url: string;
   is_pdf: boolean;
   price: number;
+}
+
+function getCardText(title: string, description: string) {
+  const titleWords = title.trim().split(/\s+/).filter(Boolean);
+  const descriptionWords = description.trim().split(/\s+/).filter(Boolean);
+  const visibleTitle = titleWords.slice(0, 15).join(" ");
+  const visibleDescription = titleWords.length < 15
+    ? descriptionWords.slice(0, 15 - titleWords.length).join(" ")
+    : "";
+
+  return { title: visibleTitle, description: visibleDescription };
 }
 
 function itemHref(item: ServeLibraryItem) {
@@ -31,7 +43,7 @@ export default function ServeLibraryPage() {
     [],
   );
 
-  if (isLoading) return <PageSkeleton label="Loading the SERVE library" variant="cards" />;
+  if (isLoading) return <ServeLoadingScreen />;
 
   const items = data?.items ?? [];
   return (
@@ -62,28 +74,34 @@ export default function ServeLibraryPage() {
         ) : null}
 
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {items.map((item) => (
-            <a
-              key={`${item.type}:${item.id}`}
-              href={itemHref(item)}
-              className="group min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[.04] transition hover:border-[#a5ff00]/60"
-            >
-              <div className="relative aspect-[16/10] bg-[#06182b]">
-                {/* Catalog covers are existing public AdventSkool assets. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.image_url || "/images/serve/servelogo.png"} alt="" loading="lazy" className="h-full w-full object-contain" />
-                {item.is_pdf ? <span className="absolute right-3 top-3 rounded-full border border-[#a5ff00]/60 bg-[#06182b]/90 px-3 py-1 text-xs font-bold text-[#a5ff00]">PDF</span> : null}
-              </div>
-              <div className="min-w-0 space-y-2 p-3 sm:p-4">
-                <p className="break-words text-xs font-bold uppercase tracking-wider text-[#a5ff00]">{item.type === "course" ? "Course" : "Digital resource"} · {item.category}</p>
-                <h2 className="break-words text-base font-bold text-white group-hover:text-[#a5ff00] sm:text-lg">{item.title}</h2>
-                <div className="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                  <p className="text-sm font-semibold text-white/70">{item.price > 0 ? formatKsh(item.price) : "Free"}</p>
-                  <span className="text-xs font-bold text-[#a5ff00] sm:text-sm">View resource →</span>
+          {items.map((item) => {
+            const cardText = getCardText(item.title, item.description);
+            return (
+              <a
+                key={`${item.type}:${item.id}`}
+                href={itemHref(item)}
+                className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/[.04] transition hover:border-[#a5ff00]/60"
+              >
+                <div className="relative aspect-[16/10] bg-[#06182b]">
+                  {/* Catalog covers are existing public AdventSkool assets. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image_url || "/images/serve/servelogo.png"} alt="" loading="lazy" className="h-full w-full object-contain" />
+                  {item.is_pdf ? <span className="absolute right-3 top-3 rounded-full border border-[#a5ff00]/60 bg-[#06182b]/90 px-3 py-1 text-xs font-bold text-[#a5ff00]">PDF</span> : null}
                 </div>
-              </div>
-            </a>
-          ))}
+                <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4">
+                  <p className="break-words text-xs font-bold uppercase tracking-wider text-[#a5ff00]">{item.type === "course" ? "Course · " : ""}{item.category}</p>
+                  <div className="mt-2 min-h-20">
+                    {cardText.title ? <h2 className="break-words text-base font-bold text-white group-hover:text-[#a5ff00] sm:text-lg">{cardText.title}</h2> : null}
+                    {cardText.description ? <p className="mt-1 break-words text-sm leading-5 text-white/65">{cardText.description}</p> : null}
+                  </div>
+                  <div className="mt-auto flex min-w-0 flex-col items-start gap-1 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                    <p className="text-sm font-semibold text-white/70">{item.price > 0 ? formatKsh(item.price) : "Free"}</p>
+                    <span className="text-xs font-bold text-[#a5ff00] sm:text-sm">View resource →</span>
+                  </div>
+                </div>
+              </a>
+            );
+          })}
         </div>
       </section>
 

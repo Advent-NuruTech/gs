@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 import StatusCard from "@/components/ui/StatusCard";
 
@@ -20,6 +19,7 @@ const defaultImage: ServeGalleryImage = {
 };
 
 export default function ServeImageCarousel() {
+  const galleryRef = useRef<HTMLDivElement>(null);
   const [images, setImages] = useState<ServeGalleryImage[]>([defaultImage]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loadError, setLoadError] = useState("");
@@ -49,36 +49,51 @@ export default function ServeImageCarousel() {
   useEffect(() => {
     if (images.length < 2) return;
     const timer = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % images.length);
-    }, 5000);
+      const nextIndex = (activeIndex + 1) % images.length;
+      const gallery = galleryRef.current;
+      if (gallery) {
+        gallery.scrollTo({
+          left: gallery.clientWidth * nextIndex,
+          behavior: "smooth",
+        });
+      }
+      setActiveIndex(nextIndex);
+    }, 10_000);
     return () => window.clearInterval(timer);
-  }, [images.length]);
+  }, [activeIndex, images.length]);
 
   const currentImage = images[activeIndex] ?? defaultImage;
 
   return (
     <div className="relative mx-auto w-full max-w-lg">
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#06182b]">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentImage.id}
-            src={currentImage.image_url}
-            alt={currentImage.caption}
-            className="absolute inset-0 h-full w-full object-contain"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.7, ease: "easeInOut" }}
-          />
-        </AnimatePresence>
+      <div
+        ref={galleryRef}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="SERVE image gallery. Scroll horizontally to browse."
+        className="flex aspect-[4/3] snap-x snap-mandatory overflow-x-auto overscroll-x-contain bg-[#06182b] scroll-smooth"
+        onScroll={(event) => {
+          const element = event.currentTarget;
+          const nextIndex = Math.round(element.scrollLeft / element.clientWidth);
+          setActiveIndex(Math.min(nextIndex, images.length - 1));
+        }}
+        tabIndex={0}
+      >
+        {images.map((image) => (
+          <div key={image.id} className="relative h-full min-w-full snap-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={image.image_url} alt={image.caption} className="h-full w-full object-contain" />
+          </div>
+        ))}
       </div>
       <div className="min-h-28 px-2 py-5 text-center">
         <p className="text-xs font-bold uppercase tracking-[.22em] text-[#a5ff00]">The invitation</p>
         <p className="mt-2 text-xl font-bold sm:text-2xl">{currentImage.caption}</p>
         {images.length > 1 ? (
-          <p className="mt-3 text-xs text-white/55" aria-live="polite">
-            Image {activeIndex + 1} of {images.length}
-          </p>
+          <>
+            <p className="mt-3 text-xs text-white/55" aria-live="polite">Image {activeIndex + 1} of {images.length}</p>
+            <p className="mt-1 text-xs text-white/45">Swipe or scroll horizontally to explore</p>
+          </>
         ) : null}
       </div>
       {loadError ? (
