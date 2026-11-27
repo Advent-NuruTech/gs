@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import StatusCard from "@/components/ui/StatusCard";
 import ServeStudyDescription from "@/components/serve/ServeStudyDescription";
+import ServeInstallButton from "@/components/serve/ServeInstallButton";
 import { useServeTimetable } from "@/hooks/useServeTimetable";
 
 export default function TimetablePage() {
@@ -36,12 +37,15 @@ export default function TimetablePage() {
             </div>
           </Link>
 
-          <Link
-            href="/serve"
-            className="rounded-full border border-white/20 px-5 py-2 text-sm font-bold text-white transition hover:border-[#a5ff00] hover:text-[#a5ff00]"
-          >
-            Home
-          </Link>
+          <div className="flex items-center gap-2">
+            <ServeInstallButton compact />
+            <Link
+              href="/serve"
+              className="rounded-full border border-white/20 px-5 py-2 text-sm font-bold text-white transition hover:border-[#a5ff00] hover:text-[#a5ff00]"
+            >
+              Home
+            </Link>
+          </div>
         </div>
       </header>
 

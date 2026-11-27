@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 
 import Button from "@/components/ui/Button";
@@ -14,6 +14,7 @@ import { useRoleGuard } from "@/hooks/useRoleGuard";
 import type { ServeApplication, ServeApplicationStatus, ServeTimetableEntry } from "@/lib/serve/types";
 
 type ApplicationDraft = Omit<ServeApplication, "created_at" | "updated_at">;
+type AdminTab = "registrations" | "timetable" | "library" | "gallery";
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -103,6 +104,8 @@ export default function ServeAdminPage() {
   const { isAllowed, loading: guardLoading } = useRoleGuard(["admin"]);
   const [applications, setApplications] = useState<ServeApplication[]>([]);
   const [timetable, setTimetable] = useState<ServeTimetableEntry[]>([]);
+  const [activeTab, setActiveTab] = useState<AdminTab>("registrations");
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [selectedId, setSelectedId] = useState("");
   const [draft, setDraft] = useState<ApplicationDraft | null>(null);
   const [loading, setLoading] = useState(true);
@@ -208,6 +211,25 @@ export default function ServeAdminPage() {
   if (error) return <StatusCard kind="error" title="SERVE management could not be loaded" description={error} actions={<Button onClick={() => void reload()}>Retry</Button>} />;
 
   const pendingCount = applications.filter((application) => application.status === "pending").length;
+  const tabs: { id: AdminTab; label: string }[] = [
+    { id: "registrations", label: `Registrations (${applications.length})` },
+    { id: "timetable", label: `Timetable (${timetable.length})` },
+    { id: "library", label: "Library" },
+    { id: "gallery", label: "Gallery" },
+  ];
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
+    let nextIndex: number | null = null;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
+    if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = tabs.length - 1;
+    if (nextIndex === null) return;
+
+    event.preventDefault();
+    setActiveTab(tabs[nextIndex].id);
+    tabRefs.current[nextIndex]?.focus();
+  };
 
   return (
     <section className="mx-auto max-w-6xl space-y-8">
@@ -222,7 +244,38 @@ export default function ServeAdminPage() {
         </Link>
       </header>
 
-      <section className="space-y-4" aria-labelledby="serve-applications-heading">
+      <div role="tablist" aria-label="SERVE administration sections" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        {tabs.map((tab, index) => (
+          <button
+            key={tab.id}
+            ref={(element) => { tabRefs.current[index] = element; }}
+            id={`serve-tab-${tab.id}`}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-controls={`serve-tabpanel-${tab.id}`}
+            tabIndex={activeTab === tab.id ? 0 : -1}
+            onClick={() => setActiveTab(tab.id)}
+            onKeyDown={(event) => handleTabKeyDown(event, index)}
+            className={`min-w-0 rounded-lg border px-4 py-3 text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${
+              activeTab === tab.id
+                ? "border-blue-700 bg-blue-700 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <section
+        id="serve-tabpanel-registrations"
+        role="tabpanel"
+        tabIndex={0}
+        aria-labelledby="serve-tab-registrations"
+        hidden={activeTab !== "registrations"}
+        className="space-y-4"
+      >
         <div>
           <h2 id="serve-applications-heading" className="text-xl font-bold text-slate-950 dark:text-white">Student applications</h2>
           <p className="text-sm text-slate-600 dark:text-slate-300">{applications.length} received · {pendingCount} pending review</p>
@@ -296,7 +349,14 @@ export default function ServeAdminPage() {
         </div>
       </section>
 
-      <section className="space-y-4 border-t border-slate-200 pt-7 dark:border-slate-700" aria-labelledby="serve-timetable-heading">
+      <section
+        id="serve-tabpanel-timetable"
+        role="tabpanel"
+        tabIndex={0}
+        aria-labelledby="serve-tab-timetable"
+        hidden={activeTab !== "timetable"}
+        className="space-y-4"
+      >
         <div>
           <h2 id="serve-timetable-heading" className="text-xl font-bold text-slate-950 dark:text-white">Public timetable</h2>
           <p className="text-sm text-slate-600 dark:text-slate-300">Updates are published live to the public timetable. Uncheck visibility to hide a study without deleting it.</p>
@@ -333,8 +393,24 @@ export default function ServeAdminPage() {
         </div>
       </section>
 
-      <ServeLibraryManager />
-      <ServeGalleryManager />
+      <section
+        id="serve-tabpanel-library"
+        role="tabpanel"
+        tabIndex={0}
+        aria-labelledby="serve-tab-library"
+        hidden={activeTab !== "library"}
+      >
+        <ServeLibraryManager />
+      </section>
+      <section
+        id="serve-tabpanel-gallery"
+        role="tabpanel"
+        tabIndex={0}
+        aria-labelledby="serve-tab-gallery"
+        hidden={activeTab !== "gallery"}
+      >
+        <ServeGalleryManager />
+      </section>
     </section>
   );
 }

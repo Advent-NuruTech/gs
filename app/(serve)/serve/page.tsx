@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ServeImageCarousel from "@/components/serve/ServeImageCarousel";
 import ServeLearningPath from "@/components/serve/ServeLearningPath";
+import ServeInstallButton from "@/components/serve/ServeInstallButton";
 
 function ServeLogoText({
   size = "normal",
@@ -129,7 +130,7 @@ export default function ServeIfSavedPage() {
                 Explore the studies
               </Link>
 
-            
+              <ServeInstallButton />
             </div>
 
             <div className="mt-12 flex flex-wrap gap-8 text-sm text-white/70">

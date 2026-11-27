@@ -6,6 +6,7 @@ The SERVE public pages are served from the existing AdventSkool application depl
 - `https://serve.adventskool.co.ke/register` — registration
 - `https://serve.adventskool.co.ke/timetable` — public timetable
 - `https://serve.adventskool.co.ke/library` — selected courses and digital resources
+- `https://serve.adventskool.co.ke/serve.webmanifest` — SERVE standalone app manifest
 
 Before launch:
 
@@ -15,6 +16,6 @@ Before launch:
 4. Wait for DNS and TLS verification to complete, then verify the landing page, registration, timetable, library, and gallery asset URLs using the subdomain.
 5. Keep `NEXT_PUBLIC_SITE_URL`, the main platform canonical URL, Supabase auth URLs, OAuth origins, and email sender configuration on `https://adventskool.co.ke`. The SERVE subdomain is an additional public hostname, not a replacement for the main application origin.
 
-The application middleware maps the subdomain root, `/register`, `/timetable`, and `/library` to the existing SERVE routes. Existing `/serve/*` links are redirected to their shorter subdomain paths. The SERVE library only lists published courses and digital products selected by an administrator at `/dashboard/admin/serve`; opening an item goes to its existing AdventSkool detail and checkout pages. DNS and hosting-provider domain attachment are external deployment steps and are not changed by this repository code.
+The application middleware maps the subdomain root, `/register`, `/timetable`, and `/library` to the existing SERVE routes. Existing `/serve/*` links are redirected to their shorter subdomain paths. The subdomain uses a dedicated SERVE manifest, icons, and install action; its start URL opens the SERVE homepage. The main AdventSkool host keeps its own manifest. The SERVE library only lists published courses and digital products selected by an administrator at `/dashboard/admin/serve`; opening an item goes to its existing AdventSkool detail and checkout pages. DNS and hosting-provider domain attachment are external deployment steps and are not changed by this repository code.
 
 SERVE gallery uploads are stored as public image assets in Cloudflare R2 with metadata in D1, using the existing Cloudflare storage configuration described in [CLOUDFLARE_STORAGE_SETUP.md](./CLOUDFLARE_STORAGE_SETUP.md). Do not configure or use Cloudinary for new SERVE gallery uploads.

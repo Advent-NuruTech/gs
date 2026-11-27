@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import StatusCard from "@/components/ui/StatusCard";
 import Link from "next/link";
+import ServeInstallButton from "@/components/serve/ServeInstallButton";
 
 interface ServeLibraryItem {
   type: "course" | "design";
@@ -50,6 +51,7 @@ export default function ServeLibraryPage() {
           <p className="text-sm font-bold uppercase tracking-[.2em] text-[#a5ff00]">SERVE* If Saved</p>
           <h1 className="mt-3 text-4xl font-black sm:text-5xl">Library</h1>
           <p className="mt-4 max-w-2xl leading-7 text-white/70">Courses and digital resources selected for the SERVE learning community.</p>
+          <div className="mt-5"><ServeInstallButton /></div>
         </div>
 
         {errorMessage ? (
@@ -59,7 +61,7 @@ export default function ServeLibraryPage() {
           <StatusCard kind="info" title="The library is being prepared" description="Selected courses and resources will appear here." />
         ) : null}
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {items.map((item) => (
             <a
               key={`${item.type}:${item.id}`}
@@ -72,12 +74,12 @@ export default function ServeLibraryPage() {
                 <img src={item.image_url || "/images/serve/servelogo.png"} alt="" loading="lazy" className="h-full w-full object-contain" />
                 {item.is_pdf ? <span className="absolute right-3 top-3 rounded-full border border-[#a5ff00]/60 bg-[#06182b]/90 px-3 py-1 text-xs font-bold text-[#a5ff00]">PDF</span> : null}
               </div>
-              <div className="space-y-2 p-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#a5ff00]">{item.type === "course" ? "Course" : "Digital resource"} · {item.category}</p>
-                <h2 className="break-words text-lg font-bold text-white group-hover:text-[#a5ff00]">{item.title}</h2>
-                <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 space-y-2 p-3 sm:p-4">
+                <p className="break-words text-xs font-bold uppercase tracking-wider text-[#a5ff00]">{item.type === "course" ? "Course" : "Digital resource"} · {item.category}</p>
+                <h2 className="break-words text-base font-bold text-white group-hover:text-[#a5ff00] sm:text-lg">{item.title}</h2>
+                <div className="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                   <p className="text-sm font-semibold text-white/70">{item.price > 0 ? formatKsh(item.price) : "Free"}</p>
-                  <span className="text-sm font-bold text-[#a5ff00]">View resource →</span>
+                  <span className="text-xs font-bold text-[#a5ff00] sm:text-sm">View resource →</span>
                 </div>
               </div>
             </a>

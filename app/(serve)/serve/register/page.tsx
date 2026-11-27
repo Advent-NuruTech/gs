@@ -7,6 +7,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import StatusCard from "@/components/ui/StatusCard";
+import ServeInstallButton from "@/components/serve/ServeInstallButton";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
 
 interface ApplicationForm {
@@ -95,9 +96,12 @@ export default function ServeRegistrationPage() {
   return (
     <main className="min-h-screen bg-[#06182b] px-4 py-10 text-white sm:px-6 sm:py-16">
       <div className="mx-auto max-w-2xl">
-        <Link href="/serve" className="inline-flex items-center gap-2 text-sm font-bold text-[#a5ff00] hover:underline">
-          <span aria-hidden>←</span> SERVE* If Saved
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link href="/serve" className="inline-flex items-center gap-2 text-sm font-bold text-[#a5ff00] hover:underline">
+            <span aria-hidden>←</span> SERVE* If Saved
+          </Link>
+          <ServeInstallButton compact />
+        </div>
 
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[.04] p-5 shadow-2xl sm:p-9">
           <p className="text-sm font-bold uppercase tracking-[.2em] text-[#a5ff00]">Join the journey</p>

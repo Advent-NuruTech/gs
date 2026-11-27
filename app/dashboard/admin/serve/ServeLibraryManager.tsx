@@ -87,28 +87,28 @@ export default function ServeLibraryManager() {
 
   const renderItems = (heading: string, kind: ItemType, list: ServeLibraryItem[]) => (
     <section className="space-y-3" aria-labelledby={`serve-library-${kind}`}>
-      <h3 id={`serve-library-${kind}`} className="text-lg font-bold text-white">{heading} <span className="text-sm font-medium text-white/60">({list.length})</span></h3>
+      <h3 id={`serve-library-${kind}`} className="text-lg font-bold text-slate-900 dark:text-white">{heading} <span className="text-sm font-medium text-slate-500 dark:text-white/60">({list.length})</span></h3>
       {list.length ? (
         <div className="grid gap-3 md:grid-cols-2">
           {list.map((item) => {
             const key = `${item.type}:${item.id}`;
             return (
-              <label key={key} className="flex min-w-0 items-center gap-3 rounded-xl border border-white/15 bg-white/[.04] p-3">
+              <label key={key} className="flex min-w-0 items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
                 {/* Catalog thumbnails are remote public URLs; keep the card resilient if one is missing. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={item.image_url || "/images/serve/servelogo.png"} alt="" className="h-16 w-20 shrink-0 rounded-lg bg-[#06182b] object-contain" />
                 <span className="min-w-0 flex-1">
-                  <span className="block break-words font-semibold text-white">{item.title}</span>
-                  <span className="block text-sm text-white/60">{item.category}{item.type === "design" && item.is_pdf ? " · PDF" : ""}</span>
-                  {!item.published ? <span className="mt-1 inline-block rounded-full border border-white/20 px-2 py-0.5 text-xs text-white/70">Unpublished</span> : null}
+                  <span className="block break-words font-semibold text-slate-900 dark:text-white">{item.title}</span>
+                  <span className="block text-sm text-slate-600 dark:text-slate-300">{item.category}{item.type === "design" && item.is_pdf ? " · PDF" : ""}</span>
+                  {!item.published ? <span className="mt-1 inline-block rounded-full border border-slate-300 px-2 py-0.5 text-xs text-slate-600 dark:border-slate-600 dark:text-slate-300">Unpublished</span> : null}
                 </span>
-                <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[#a5ff00]">
+                <span className="flex shrink-0 items-center gap-2 text-sm font-semibold text-blue-700 dark:text-[#a5ff00]">
                   <input
                     type="checkbox"
                     checked={item.selected}
                     disabled={Boolean(savingKey)}
                     onChange={(event) => void setDisplayed(item, event.target.checked)}
-                    className="h-5 w-5 accent-[#a5ff00]"
+                    className="h-5 w-5 accent-blue-600 dark:accent-[#a5ff00]"
                     aria-label={`Display ${item.title} in SERVE`}
                   />
                   {savingKey === key ? "Saving" : "Display"}
