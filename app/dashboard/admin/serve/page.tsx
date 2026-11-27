@@ -6,7 +6,9 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import PageSkeleton from "@/components/ui/PageSkeleton";
+import RichTextEditor from "@/components/ui/RichTextEditor";
 import StatusCard from "@/components/ui/StatusCard";
+import ServeGalleryManager from "./ServeGalleryManager";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import type { ServeApplication, ServeApplicationStatus, ServeTimetableEntry } from "@/lib/serve/types";
 
@@ -76,15 +78,13 @@ function TimetableEntryEditor({
         <Input label="Date (optional)" type="date" value={draft.session_date ?? ""} onChange={(event) => update("session_date", event.target.value || null)} />
         <Input label="Start time (optional)" type="time" value={draft.start_time?.slice(0, 5) ?? ""} onChange={(event) => update("start_time", event.target.value || null)} />
       </div>
-      <div className="flex flex-col gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
-        <label htmlFor={`serve-description-${entry.id}`}>Description (optional)</label>
-        <textarea
-          id={`serve-description-${entry.id}`}
-          rows={2}
-          maxLength={1200}
+      <div className="space-y-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
+        <p>Description (optional)</p>
+        <RichTextEditor
           value={draft.description}
-          onChange={(event) => update("description", event.target.value)}
-          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          onChange={(value) => update("description", value)}
+          placeholder=""
+          ariaLabel={`Description for ${draft.title}`}
         />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -146,6 +146,8 @@ export default function ServeAdminPage() {
       full_name: application.full_name,
       email: application.email,
       phone: application.phone,
+      country: application.country,
+      city: application.city,
       church: application.church,
       motivation: application.motivation,
       status: application.status,
@@ -239,6 +241,9 @@ export default function ServeAdminPage() {
                       <span className="min-w-0">
                         <span className="block break-words font-semibold text-slate-950 dark:text-white">{application.full_name}</span>
                         <span className="block break-all text-sm text-slate-600 dark:text-slate-300">{application.email}</span>
+                        <span className="mt-1 block break-words text-xs text-slate-500 dark:text-slate-400">
+                          {[application.city, application.country].filter(Boolean).join(", ") || "Location not provided"}
+                        </span>
                         <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">{new Date(application.created_at).toLocaleDateString()}</span>
                       </span>
                       <span className={`rounded-full px-3 py-1 text-xs font-bold ${application.status === "pending" ? "bg-amber-100 text-amber-900" : application.status === "accepted" ? "bg-emerald-100 text-emerald-900" : "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200"}`}>
@@ -263,6 +268,8 @@ export default function ServeAdminPage() {
               <Input label="Full name" required minLength={2} maxLength={120} value={draft.full_name} onChange={(event) => setDraft({ ...draft, full_name: event.target.value })} />
               <Input label="Email" type="email" required maxLength={254} value={draft.email} onChange={(event) => setDraft({ ...draft, email: event.target.value })} />
               <Input label="Phone" type="tel" required minLength={7} maxLength={32} value={draft.phone} onChange={(event) => setDraft({ ...draft, phone: event.target.value })} />
+              <Input label="Country" maxLength={100} value={draft.country} onChange={(event) => setDraft({ ...draft, country: event.target.value })} />
+              <Input label="Town or city" maxLength={120} value={draft.city} onChange={(event) => setDraft({ ...draft, city: event.target.value })} />
               <Input label="Church or fellowship" maxLength={160} value={draft.church} onChange={(event) => setDraft({ ...draft, church: event.target.value })} />
               <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
                 Applicant&apos;s learning goals
@@ -300,6 +307,15 @@ export default function ServeAdminPage() {
           <Input label="Date (optional)" type="date" value={newEntry.session_date} onChange={(event) => setNewEntry({ ...newEntry, session_date: event.target.value })} />
           <Input label="Time (optional)" type="time" value={newEntry.start_time} onChange={(event) => setNewEntry({ ...newEntry, start_time: event.target.value })} />
           <div className="flex items-end"><Button type="submit" loading={addingEntry} loadingText="Adding..." className="w-full">Add study</Button></div>
+          <div className="space-y-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 sm:col-span-2 lg:col-span-full">
+            <p>Study description (optional)</p>
+            <RichTextEditor
+              value={newEntry.description}
+              onChange={(description) => setNewEntry((current) => ({ ...current, description }))}
+              placeholder=""
+              ariaLabel="New study description"
+            />
+          </div>
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200 lg:col-span-full">
             <input type="checkbox" checked={newEntry.published} onChange={(event) => setNewEntry({ ...newEntry, published: event.target.checked })} className="h-4 w-4 accent-blue-600" />
             Publish this study immediately
@@ -315,6 +331,8 @@ export default function ServeAdminPage() {
           ))}
         </div>
       </section>
+
+      <ServeGalleryManager />
     </section>
   );
 }

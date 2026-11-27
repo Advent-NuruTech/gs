@@ -1,57 +1,16 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import Button from "@/components/ui/Button";
 import PageSkeleton from "@/components/ui/PageSkeleton";
 import StatusCard from "@/components/ui/StatusCard";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { ServeTimetableEntry } from "@/lib/serve/types";
+import ServeStudyDescription from "@/components/serve/ServeStudyDescription";
+import { useServeTimetable } from "@/hooks/useServeTimetable";
 
 export default function TimetablePage() {
-  const [studies, setStudies] = useState<ServeTimetableEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const supabase = getSupabaseBrowserClient();
-    let active = true;
-
-    const loadTimetable = async () => {
-      const { data, error: queryError } = await supabase
-        .from("serve_timetable")
-        .select("id,study_number,title,description,session_date,start_time,published,created_at,updated_at")
-        .eq("published", true)
-        .order("study_number", { ascending: true });
-
-      if (!active) return;
-      if (queryError) {
-        setError(queryError.message);
-      } else {
-        setStudies((data ?? []) as ServeTimetableEntry[]);
-        setError("");
-      }
-      setLoading(false);
-    };
-
-    void loadTimetable();
-    const channel = supabase
-      .channel("serve-public-timetable")
-      .on("postgres_changes", { event: "*", schema: "public", table: "serve_timetable_revisions" }, () => {
-        void loadTimetable();
-      })
-      .subscribe((status: string) => {
-        if (status === "CHANNEL_ERROR" && active) {
-          setError("Live timetable updates are temporarily unavailable. Reload the page to check for changes.");
-        }
-      });
-
-    return () => {
-      active = false;
-      void supabase.removeChannel(channel);
-    };
-  }, []);
+  const { studies, loading, error, reload } = useServeTimetable();
 
   if (loading) return <PageSkeleton label="Loading the SERVE timetable" variant="cards" />;
 
@@ -150,15 +109,18 @@ export default function TimetablePage() {
             </p>
           </div>
 
-          {error ? <StatusCard kind="error" title="The public timetable could not be loaded" description={error} className="mb-5" /> : null}
+          {error ? <StatusCard kind="error" title="The public timetable could not be loaded" description={error} actions={<Button size="sm" onClick={reload}>Retry</Button>} className="mb-5" /> : null}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {studies.map((study) => (
               <article
                 key={study.id}
                 className="group flex items-start gap-4 rounded-2xl border border-[#06182b]/10 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#06182b] text-sm font-black text-[#a5ff00] transition group-hover:bg-[#a5ff00] group-hover:text-[#06182b]">
-                  {study.study_number.toString().padStart(2, "0")}
+                <div
+                  aria-label={`Study ${study.study_number} of ${studies.length}`}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#06182b] text-xs font-black text-[#a5ff00] transition group-hover:bg-[#a5ff00] group-hover:text-[#06182b]"
+                >
+                  {study.study_number.toString().padStart(2, "0")} / {studies.length.toString().padStart(2, "0")}
                 </div>
 
                 <div className="pt-1">
@@ -169,7 +131,14 @@ export default function TimetablePage() {
                   <h3 className="mt-2 font-bold leading-6 text-[#06182b]">
                     {study.title}
                   </h3>
-                  {study.description ? <p className="mt-2 text-sm leading-6 text-[#06182b]/70">{study.description}</p> : null}
+                  {study.description ? (
+                    <ServeStudyDescription
+                      id={study.id}
+                      title={study.title}
+                      description={study.description}
+                      className="mt-2 text-[#06182b]/70"
+                    />
+                  ) : null}
                   {study.session_date || study.start_time ? (
                     <p className="mt-3 text-xs font-semibold text-[#06182b]/70">
                       {study.session_date ? new Date(`${study.session_date}T00:00:00`).toLocaleDateString(undefined, { dateStyle: "long" }) : ""}

@@ -10,7 +10,7 @@ function text(value: unknown, maxLength: number) {
 function timetableValues(body: Record<string, unknown>) {
   const studyNumber = Number(body.study_number);
   const title = text(body.title, 160);
-  const description = text(body.description, 1200);
+  const description = typeof body.description === "string" ? body.description.trim() : "";
   const sessionDate = body.session_date === "" || body.session_date == null ? null : text(body.session_date, 10);
   const startTime = body.start_time === "" || body.start_time == null ? null : text(body.start_time, 5);
 

@@ -5,6 +5,8 @@ export interface ServeApplication {
   full_name: string;
   email: string;
   phone: string;
+  country: string;
+  city: string;
   church: string;
   motivation: string;
   status: ServeApplicationStatus;

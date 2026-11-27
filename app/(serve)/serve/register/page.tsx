@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -12,6 +13,8 @@ interface ApplicationForm {
   full_name: string;
   email: string;
   phone: string;
+  country: string;
+  city: string;
   church: string;
   motivation: string;
   website: string;
@@ -21,6 +24,8 @@ const initialForm: ApplicationForm = {
   full_name: "",
   email: "",
   phone: "",
+  country: "",
+  city: "",
   church: "",
   motivation: "",
   website: "",
@@ -38,12 +43,22 @@ async function submitApplication(form: ApplicationForm) {
 }
 
 export default function ServeRegistrationPage() {
+  const router = useRouter();
   const [form, setForm] = useState(initialForm);
+  const [submitted, setSubmitted] = useState(false);
   const action = useAsyncAction({
     action: submitApplication,
-    successMessage: "Your application has been received. The SERVE team will be in touch.",
-    onSuccess: () => setForm(initialForm),
+    onSuccess: () => {
+      setForm(initialForm);
+      setSubmitted(true);
+    },
   });
+
+  useEffect(() => {
+    if (!submitted) return;
+    const timeout = window.setTimeout(() => router.replace("/serve"), 15_000);
+    return () => window.clearTimeout(timeout);
+  }, [router, submitted]);
 
   const update = (key: keyof ApplicationForm, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -53,6 +68,29 @@ export default function ServeRegistrationPage() {
     event.preventDefault();
     void action.run(form);
   };
+
+  if (submitted) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#06182b] px-4 py-10 text-white sm:px-6">
+        <section className="w-full max-w-2xl rounded-3xl border border-white/10 bg-white/[.04] p-6 text-center sm:p-10">
+          <p className="text-sm font-bold uppercase tracking-[.2em] text-[#a5ff00]">SERVE* If Saved</p>
+          <h1 className="mt-4 text-3xl font-black sm:text-5xl">Thank you for registering!</h1>
+          <p className="mx-auto mt-5 max-w-xl leading-7 text-white/75">
+            Your registration has been received. The SERVE team will be in touch with you about the next steps.
+          </p>
+          <p className="mt-4 text-sm text-white/55">You&apos;ll return to the SERVE homepage in 15 seconds.</p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/serve" className="rounded-full bg-[#a5ff00] px-6 py-3 font-bold text-[#06182b] hover:bg-[#baff36]">
+              Back to homepage
+            </Link>
+            <Link href="/serve/timetable" className="rounded-full border border-white/30 px-6 py-3 font-bold hover:border-[#a5ff00] hover:text-[#a5ff00]">
+              Explore timetable
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#06182b] px-4 py-10 text-white sm:px-6 sm:py-16">
@@ -69,7 +107,6 @@ export default function ServeRegistrationPage() {
           </p>
 
           <div className="mt-6 space-y-3">
-            {action.successMessage ? <StatusCard kind="success" title={action.successMessage} /> : null}
             {action.errorMessage ? <StatusCard kind="error" title="Application not submitted" description={action.errorMessage} /> : null}
           </div>
 
@@ -84,6 +121,7 @@ export default function ServeRegistrationPage() {
               value={form.full_name}
               onChange={(event) => update("full_name", event.target.value)}
               className="border-white/20 bg-[#06182b] text-white placeholder:text-white/40 focus:border-[#a5ff00] focus:ring-[#a5ff00]"
+              style={{ backgroundColor: "#06182b", color: "#fff", WebkitTextFillColor: "#fff" }}
             />
             <Input
               id="serve-email"
@@ -95,6 +133,7 @@ export default function ServeRegistrationPage() {
               value={form.email}
               onChange={(event) => update("email", event.target.value)}
               className="border-white/20 bg-[#06182b] text-white placeholder:text-white/40 focus:border-[#a5ff00] focus:ring-[#a5ff00]"
+              style={{ backgroundColor: "#06182b", color: "#fff", WebkitTextFillColor: "#fff" }}
             />
             <Input
               id="serve-phone"
@@ -107,6 +146,31 @@ export default function ServeRegistrationPage() {
               value={form.phone}
               onChange={(event) => update("phone", event.target.value)}
               className="border-white/20 bg-[#06182b] text-white placeholder:text-white/40 focus:border-[#a5ff00] focus:ring-[#a5ff00]"
+              style={{ backgroundColor: "#06182b", color: "#fff", WebkitTextFillColor: "#fff" }}
+            />
+            <Input
+              id="serve-country"
+              label="Country"
+              required
+              minLength={2}
+              maxLength={100}
+              autoComplete="country-name"
+              value={form.country}
+              onChange={(event) => update("country", event.target.value)}
+              className="border-white/20 bg-[#06182b] text-white caret-[#a5ff00] placeholder:text-white/40 focus:border-[#a5ff00] focus:ring-[#a5ff00]"
+              style={{ backgroundColor: "#06182b", color: "#fff", WebkitTextFillColor: "#fff" }}
+            />
+            <Input
+              id="serve-city"
+              label="Town or city"
+              required
+              minLength={2}
+              maxLength={120}
+              autoComplete="address-level2"
+              value={form.city}
+              onChange={(event) => update("city", event.target.value)}
+              className="border-white/20 bg-[#06182b] text-white caret-[#a5ff00] placeholder:text-white/40 focus:border-[#a5ff00] focus:ring-[#a5ff00]"
+              style={{ backgroundColor: "#06182b", color: "#fff", WebkitTextFillColor: "#fff" }}
             />
             <Input
               id="serve-church"
@@ -114,7 +178,10 @@ export default function ServeRegistrationPage() {
               maxLength={160}
               value={form.church}
               onChange={(event) => update("church", event.target.value)}
-              className="border-white/20 bg-[#06182b] text-white placeholder:text-white/40 focus:border-[#a5ff00] focus:ring-[#a5ff00]"
+              placeholder="Enter your church or fellowship"
+              autoComplete="organization"
+              className="border-white/20 bg-[#06182b] text-white caret-[#a5ff00] placeholder:text-white/40 focus:border-[#a5ff00] focus:ring-[#a5ff00]"
+              style={{ backgroundColor: "#06182b", color: "#fff", WebkitTextFillColor: "#fff" }}
             />
             <div className="flex flex-col gap-1.5 text-sm font-medium text-white/90">
               <label htmlFor="serve-motivation">What would you like to learn? (optional)</label>

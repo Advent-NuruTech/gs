@@ -1,39 +1,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-
-const series = [
-  {
-    n: "01",
-    title: "The Bible & Its Authority",
-    desc: "Begin with the foundation: why Scripture is our guide and how to study it.",
-  },
-  {
-    n: "02",
-    title: "God, Creation & the Great Controversy",
-    desc: "Discover the story behind the world, sin, redemption and God's character.",
-  },
-  {
-    n: "03",
-    title: "Jesus Christ & the Gospel",
-    desc: "Understand the life, death, resurrection and ministry of Jesus.",
-  },
-  {
-    n: "04",
-    title: "Prophecy & the Last Days",
-    desc: "Build a clear, Bible-based framework for prophetic study.",
-  },
-  {
-    n: "05",
-    title: "The Sanctuary & Present Truth",
-    desc: "Explore the sanctuary message and its place in the plan of salvation.",
-  },
-  {
-    n: "06",
-    title: "Christian Living & Mission",
-    desc: "Put what you learn into practice through a life of faith and service.",
-  },
-];
+import ServeImageCarousel from "@/components/serve/ServeImageCarousel";
+import ServeLearningPath from "@/components/serve/ServeLearningPath";
 
 function ServeLogoText({
   size = "normal",
@@ -178,32 +147,7 @@ export default function ServeIfSavedPage() {
             </div>
           </div>
 
-          {/* HERO IMAGE */}
-          <div className="relative mx-auto w-full max-w-lg">
-            <div className="absolute -inset-5 rounded-[2rem] border border-[#a5ff00]/20 rotate-3" />
-
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl">
-              <Image
-                src="/images/serve/40daysbanner.jpeg"
-                alt="SERVE 40 Bible studies program banner"
-                width={1024}
-                height={1024}
-                className="h-auto w-full object-contain"
-              />
-
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#06182b] via-[#06182b]/85 to-transparent p-8 pt-24">
-                <p className="text-xs font-bold uppercase tracking-[.22em] text-[#a5ff00]">
-                  The invitation
-                </p>
-
-                <p className="mt-2 text-2xl font-bold">
-                  “Search the scriptures.”
-                </p>
-
-                <p className="mt-2 text-white/70">John 5:39</p>
-              </div>
-            </div>
-          </div>
+          <ServeImageCarousel />
         </div>
       </section>
 
@@ -329,81 +273,7 @@ export default function ServeIfSavedPage() {
         </div>
       </section>
 
-      {/* LEARNING PATH */}
-      <section id="journey" className="bg-[#0788dc] px-5 py-24 text-[#06182b]">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-8 rounded-[2rem] border border-white/15 bg-[#06182b]/15 p-5 sm:p-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-            <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/15 shadow-xl">
-              <Image
-                src="/images/serve/40daysbanner.jpeg"
-                alt="SERVE 40 Bible studies program banner"
-                fill
-                sizes="(max-width: 1024px) 100vw, 40vw"
-                className="object-cover"
-              />
-            </div>
-
-            <div className="max-w-3xl">
-              <p className="mb-3 text-sm font-extrabold uppercase tracking-[.2em] text-white">
-                The learning path
-              </p>
-
-              <h2 className="text-4xl font-black leading-tight text-white sm:text-6xl">
-                40 Bible studies.
-                <br />
-                4 months of discovery.
-              </h2>
-
-              <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-white">
-                A progressive curriculum—from the foundations of Bible study to
-                the connected truths that shape a Present Truth understanding.
-                The six themes below are illustrative pillars; the full program
-                can be organized into all 40 individual studies.
-              </p>
-            </div>
-          </div>
-
-          {/* SERIES CARDS */}
-          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {series.map((item) => (
-              <article
-                key={item.n}
-                className="rounded-3xl border border-[#06182b]/15 bg-white/90 p-7 shadow-sm"
-              >
-                <span className="text-sm font-black tracking-[.18em]">
-                  {item.n} / 40
-                </span>
-
-                <h3 className="mt-4 text-xl font-black">{item.title}</h3>
-
-                <p className="mt-3 leading-7 text-[#06182b]/75">
-                  {item.desc}
-                </p>
-              </article>
-            ))}
-          </div>
-
-          {/* COMPLETE CURRICULUM */}
-          <div className="mt-8 rounded-3xl bg-[#06182b] p-8 text-white md:flex md:items-center md:justify-between">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-[#a5ff00]">
-                The complete curriculum
-              </p>
-
-              <h3 className="mt-2 text-2xl font-black">
-                40 individual studies, arranged into a four-month plan.
-              </h3>
-            </div>
-
-            <a
-              href="#join"
-              className="mt-6 inline-block rounded-full bg-[#a5ff00] px-7 py-3 font-bold text-[#06182b] md:mt-0"
-            >
-              Join us <span aria-hidden>→</span>
-            </a>
-          </div>
-        </div>
-      </section>
+      <ServeLearningPath />
 
       {/* METHOD */}
       <section id="method" className="mx-auto max-w-7xl px-5 py-24">

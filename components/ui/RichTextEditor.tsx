@@ -8,12 +8,14 @@ interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  ariaLabel?: string;
 }
 
 export default function RichTextEditor({
   value,
   onChange,
   placeholder = "Write here...",
+  ariaLabel = "Rich text editor",
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement | null>(null);
 
@@ -81,6 +83,9 @@ export default function RichTextEditor({
         ref={editorRef}
         className="min-h-[180px] rounded-b-md border border-slate-300 border-t-0 bg-white p-3 outline-none"
         contentEditable
+        role="textbox"
+        aria-label={ariaLabel}
+        aria-multiline="true"
         suppressContentEditableWarning
         onInput={(event) => onChange((event.target as HTMLDivElement).innerHTML)}
       />

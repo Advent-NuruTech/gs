@@ -22,18 +22,20 @@ export async function POST(request: NextRequest) {
   const fullName = cleanText(body?.full_name, 120);
   const email = cleanText(body?.email, 254).toLowerCase();
   const phone = cleanText(body?.phone, 32);
+  const country = cleanText(body?.country, 100);
+  const city = cleanText(body?.city, 120);
   const church = cleanText(body?.church, 160);
   const motivation = cleanText(body?.motivation, 1200);
   const website = cleanText(body?.website, 200);
 
   if (website) return NextResponse.json({ ok: true });
-  if (fullName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length < 7) {
-    return NextResponse.json({ error: "Enter your name, a valid email address, and a phone number." }, { status: 400 });
+  if (fullName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length < 7 || country.length < 2 || city.length < 2) {
+    return NextResponse.json({ error: "Enter your name, a valid email address, phone number, country, and town or city." }, { status: 400 });
   }
 
   const { error } = await getSupabaseAdminClient()
     .from("serve_student_applications")
-    .insert({ full_name: fullName, email, phone, church, motivation });
+    .insert({ full_name: fullName, email, phone, country, city, church, motivation });
 
   if (error) return NextResponse.json({ error: "Your application could not be submitted. Please try again." }, { status: 500 });
   return NextResponse.json({ ok: true }, { status: 201 });
@@ -62,6 +64,8 @@ export async function PATCH(request: NextRequest) {
   const fullName = cleanText(body?.full_name, 120);
   const email = cleanText(body?.email, 254).toLowerCase();
   const phone = cleanText(body?.phone, 32);
+  const country = cleanText(body?.country, 100);
+  const city = cleanText(body?.city, 120);
 
   if (!id || !statuses.includes(status) || fullName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length < 7) {
     return NextResponse.json({ error: "Check the applicant details and status, then try again." }, { status: 400 });
@@ -73,6 +77,8 @@ export async function PATCH(request: NextRequest) {
       full_name: fullName,
       email,
       phone,
+      country,
+      city,
       church: cleanText(body?.church, 160),
       motivation: cleanText(body?.motivation, 1200),
       admin_notes: cleanText(body?.admin_notes, 2000),
