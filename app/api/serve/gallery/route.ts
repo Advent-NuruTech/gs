@@ -1,23 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getRequestUser } from "@/lib/api/requireUser";
-import { destroyCloudinaryAssetByUrl } from "@/lib/cloudinary/destroyServer";
+import { assetIdFromReference, getAsset, removeStoredAsset } from "@/lib/cloudflare/assets";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+
+export const runtime = "nodejs";
 
 function text(value: unknown, maxLength: number) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
-}
-
-function isServeGalleryImageUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:"
-      && url.hostname === "res.cloudinary.com"
-      && url.pathname.includes("/image/upload/")
-      && url.pathname.includes("/adventskool/serve-gallery/");
-  } catch {
-    return false;
-  }
 }
 
 async function requireAdmin(request: NextRequest) {
@@ -45,8 +35,22 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const imageUrl = text(body?.image_url, 2000);
   const caption = text(body?.caption, 500);
-  if (!isServeGalleryImageUrl(imageUrl) || !caption) {
+  const assetId = assetIdFromReference(imageUrl);
+  if (!assetId || !caption) {
     return NextResponse.json({ error: "Upload a SERVE gallery image and enter its caption." }, { status: 400 });
+  }
+
+  const asset = await getAsset(assetId);
+  if (
+    !asset
+    || asset.ownerId !== authorization.user.id
+    || asset.productKind !== "design"
+    || asset.purpose !== "product_image"
+    || asset.visibility !== "public"
+    || asset.status !== "ready"
+    || !asset.contentType.startsWith("image/")
+  ) {
+    return NextResponse.json({ error: "Upload a verified SERVE image to Cloudflare before adding it." }, { status: 400 });
   }
 
   const db = getSupabaseAdminClient();
@@ -113,7 +117,7 @@ export async function DELETE(request: NextRequest) {
 
   let cleanupWarning: string | undefined;
   try {
-    if (!isServeGalleryImageUrl(image.image_url) || !await destroyCloudinaryAssetByUrl(image.image_url)) {
+    if (!await removeStoredAsset(image.image_url, authorization.user.id, true)) {
       cleanupWarning = "The image was removed from the gallery, but its hosted file could not be deleted.";
     }
   } catch {

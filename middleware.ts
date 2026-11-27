@@ -20,6 +20,25 @@ export async function middleware(request: NextRequest) {
   // All tenant domains still share this one application and deployment.
   const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
   const hostname = forwardedHost.split(":")[0].toLowerCase().replace(/^www\./, "");
+  if (hostname === "serve.adventskool.co.ke") {
+    const servePath = pathname.match(/^\/serve(?:\/(.*))?$/);
+    if (servePath) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = servePath[1] ? `/${servePath[1]}` : "/";
+      const redirect = NextResponse.redirect(redirectUrl, 308);
+      response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+      return redirect;
+    }
+
+    if (pathname === "/" || pathname === "/register" || pathname === "/timetable") {
+      const rewriteUrl = request.nextUrl.clone();
+      rewriteUrl.pathname = pathname === "/" ? "/serve" : `/serve${pathname}`;
+      const rewrite = NextResponse.rewrite(rewriteUrl);
+      response.cookies.getAll().forEach((cookie) => rewrite.cookies.set(cookie));
+      return rewrite;
+    }
+  }
+
   let officialHostname = "adventskool.co.ke";
   try {
     officialHostname = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://adventskool.co.ke").hostname.replace(/^www\./, "");

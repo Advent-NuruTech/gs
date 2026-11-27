@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import StatusCard from "@/components/ui/StatusCard";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
-import { uploadImage } from "@/lib/cloudinary/uploadImage";
+import { uploadAsset } from "@/lib/cloudflare/uploadAsset";
 
 interface ServeGalleryImage {
   id: string;
@@ -52,7 +52,7 @@ function ServeGalleryImageEditor({
 
   return (
     <article className="grid min-w-0 gap-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 sm:grid-cols-[10rem_minmax(0,1fr)]">
-      {/* Administrator-uploaded images are public Cloudinary assets. */}
+      {/* Administrator-uploaded images are public Cloudflare assets. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={image.image_url} alt={image.caption} className="aspect-[4/3] w-full bg-slate-100 object-contain dark:bg-slate-950" />
       <div className="min-w-0 space-y-3">
@@ -116,14 +116,21 @@ export default function ServeGalleryManager() {
     action: async () => {
       if (!file) throw new Error("Choose an image to upload.");
       if (!file.type.startsWith("image/")) throw new Error("Choose an image file.");
-      if (file.size > 10 * 1024 * 1024) throw new Error("Choose an image no larger than 10 MB.");
       if (!caption.trim()) throw new Error("Enter a caption for this image.");
 
-      const imageUrl = await uploadImage(file, "adventskool/serve-gallery");
-      return requestJson<{ image: ServeGalleryImage }>("/api/serve/gallery", {
-        method: "POST",
-        body: JSON.stringify({ image_url: imageUrl, caption }),
-      });
+      const uploaded = await uploadAsset(file, "serve/gallery", "product_image");
+      try {
+        return await requestJson<{ image: ServeGalleryImage }>("/api/serve/gallery", {
+          method: "POST",
+          body: JSON.stringify({ image_url: uploaded.url, caption }),
+        });
+      } catch (error) {
+        await requestJson("/api/storage/assets/delete", {
+          method: "POST",
+          body: JSON.stringify({ reference: uploaded.url }),
+        });
+        throw error;
+      }
     },
     successMessage: "Image added to the public SERVE gallery.",
     onSuccess: async () => {
@@ -165,7 +172,7 @@ export default function ServeGalleryManager() {
       <form onSubmit={addImage} className="grid min-w-0 gap-4 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30 sm:grid-cols-2">
         <label className="flex min-w-0 cursor-pointer flex-col justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 bg-white p-4 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
           <span className="inline-flex items-center gap-2"><ImagePlus className="h-5 w-5" />{file?.name ?? "Choose gallery image"}</span>
-          <span className="text-xs font-normal text-slate-500 dark:text-slate-400">Image files up to 10 MB. Images display without a shadow or text overlay.</span>
+          <span className="text-xs font-normal text-slate-500 dark:text-slate-400">Cloudflare storage checks your configured upload allowance. Images display without a shadow or text overlay.</span>
           <input type="file" accept="image/*" className="sr-only" onChange={handleFile} disabled={uploadAction.isLoading} />
         </label>
         <div className="space-y-3">

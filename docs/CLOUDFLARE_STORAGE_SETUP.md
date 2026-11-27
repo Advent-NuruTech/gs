@@ -78,6 +78,8 @@ Keep all credentials server-side. None of these variables may use a `NEXT_PUBLIC
 
 New Digital Product uploads go directly to R2 after the server checks the effective account allowance. D1 first records a pending asset; completion performs an R2 `HEAD` check and marks it ready only when the size exactly matches.
 
+The SERVE landing-page image gallery uses the same public `product_image` upload flow. Administrators upload through `/dashboard/admin/serve`; image bytes go to the private R2 bucket, D1 stores asset metadata, and the public application serves approved gallery images through `/api/storage/assets/{id}`. The gallery does not upload images to Cloudinary.
+
 Existing products continue to work from Cloudinary. On either admin product list, click **Sync** for one product at a time. Sync performs this order:
 
 1. read the legacy image and deliverable;
