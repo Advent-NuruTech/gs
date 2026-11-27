@@ -20,7 +20,7 @@ const sections = [
   {
     title: "3. Preferences and third-party websites",
     content:
-      "Your browser may store basic preferences locally. SERVE* If Saved does not intentionally set advertising cookies on these pages. Links to AdventSkool or other third-party websites may use their own cookies and tracking technologies, which are governed by their respective policies.",
+      "Your browser may store basic preferences locally. SERVE* If Saved does not intentionally set advertising cookies on these pages. Links to other websites may use their own cookies and tracking technologies, which are governed by their respective policies.",
   },
   {
     title: "4. Managing cookies",
@@ -30,7 +30,7 @@ const sections = [
   {
     title: "5. Changes and contact",
     content:
-      "We may update this policy as the website or applicable requirements change. The updated date will appear at the top of this page. For questions about cookies or privacy, contact adventskool@gmail.com or call +254 142 225 233.",
+      "We may update this policy as the website or applicable requirements change. The updated date will appear at the top of this page. For questions about cookies or privacy, email ifsavedserve@gmail.com or call +254 142 225 233.",
   },
 ];
 

@@ -28,9 +28,9 @@ const sections = [
       "Unless stated otherwise, materials published specifically for SERVE* If Saved are owned by their respective rights holders. You may use them for your own personal study. You may not republish, sell, modify, or distribute them without permission from the rights holder, except where applicable law allows. Bible translations and linked materials may belong to third parties and remain subject to their terms.",
   },
   {
-    title: "5. Other websites and AdventSkool resources",
+    title: "5. External websites and resources",
     content:
-      "The SERVE website may link to third-party services or to AdventSkool courses and digital resources. Those services have their own terms, privacy notices, availability, and payment conditions. A purchase or account on AdventSkool is not governed by these SERVE terms; review the terms shown on the relevant AdventSkool service before using it.",
+      "The SERVE website may link to external services and learning resources. Those services have their own terms, privacy notices, availability, and payment conditions. Review the terms shown on an external service before using it or making a purchase.",
   },
   {
     title: "6. Availability and changes",
@@ -45,7 +45,7 @@ const sections = [
   {
     title: "8. Governing law and contact",
     content:
-      "These terms are governed by the laws of Kenya, subject to any mandatory protections that apply where you live. For questions about these terms or the SERVE programme, contact adventskool@gmail.com or call +254 142 225 233.",
+      "These terms are governed by the laws of Kenya, subject to any mandatory protections that apply where you live. For questions about these terms or the SERVE programme, email ifsavedserve@gmail.com or call +254 142 225 233.",
   },
 ];
 

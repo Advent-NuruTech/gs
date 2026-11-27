@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Instagram, Mail, MessageCircle, Music2, Phone, Youtube } from "lucide-react";
+import { ArrowUpRight, Instagram, Mail, MessageCircle, Music2, Phone, Youtube } from "lucide-react";
+
+const SERVE_CONTACT_EMAIL = "ifsavedserve@gmail.com";
 
 const usefulLinks = [
   { href: "/serve", label: "SERVE* If Saved home" },
@@ -42,12 +44,6 @@ export default function ServeFooter() {
             <p className="mt-3 max-w-sm text-sm leading-6 text-white/65">
               Study the Word. Live the Word. Serve the Word.
             </p>
-            <a
-              href="https://adventskool.co.ke/"
-              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full border border-[#a5ff00]/60 px-5 py-2 text-sm font-bold text-[#a5ff00] transition hover:bg-[#a5ff00] hover:text-[#06182b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a5ff00]"
-            >
-              Visit AdventSkool
-            </a>
           </div>
 
           <nav aria-label="Useful links">
@@ -60,6 +56,15 @@ export default function ServeFooter() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <a
+                  href="https://adventskool.co.ke/"
+                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#a5ff00]/60 px-4 py-2 text-sm font-bold text-[#a5ff00] transition hover:bg-[#a5ff00] hover:text-[#06182b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a5ff00]"
+                >
+                  Visit AdventSkool
+                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </li>
             </ul>
           </nav>
 
@@ -86,14 +91,18 @@ export default function ServeFooter() {
                   WhatsApp channel
                 </a>
               </li>
-              <li>
-                <a
-                  href="mailto:adventskool@gmail.com"
-                  className="inline-flex items-center gap-2 break-all text-sm text-white/65 transition hover:text-[#a5ff00]"
-                >
-                  <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  adventskool@gmail.com
-                </a>
+              <li className="inline-flex items-center gap-2 text-sm text-white/55">
+                <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {SERVE_CONTACT_EMAIL ? (
+                  <a
+                    href={`mailto:${SERVE_CONTACT_EMAIL}`}
+                    className="break-all transition hover:text-[#a5ff00]"
+                  >
+                    {SERVE_CONTACT_EMAIL}
+                  </a>
+                ) : (
+                  <span>Email address coming soon</span>
+                )}
               </li>
             </ul>
           </div>

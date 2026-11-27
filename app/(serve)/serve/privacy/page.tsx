@@ -10,7 +10,7 @@ const sections = [
   {
     title: "1. Who is responsible",
     content:
-      "This notice explains how information is handled when you use SERVE* If Saved. The programme is administered through AdventSkool. For questions or requests about your information, contact adventskool@gmail.com or call +254 142 225 233.",
+      "This notice explains how information is handled when you use SERVE* If Saved. The SERVE* If Saved programme team is responsible for administering the programme and its applications. For questions or requests about your information, email ifsavedserve@gmail.com or call +254 142 225 233.",
   },
   {
     title: "2. Information collected",
@@ -25,7 +25,7 @@ const sections = [
   {
     title: "4. Sharing and service providers",
     content:
-      "Access to application details is limited to authorised people who administer or review the programme. We may use hosting, database, and security providers to operate the website; those providers process information as needed to provide their services. We may also disclose information where required by law or where reasonably necessary to protect rights, safety, and the service. AdventSkool-linked products and third-party websites have separate data practices described in their own notices.",
+      "Access to application details is limited to authorised people who administer or review the programme. We may use hosting, database, and security providers to operate the website; those providers process information as needed to provide their services. We may also disclose information where required by law or where reasonably necessary to protect rights, safety, and the service. External websites and services have separate data practices described in their own notices.",
   },
   {
     title: "5. Retention and security",
@@ -35,7 +35,7 @@ const sections = [
   {
     title: "6. Your choices and rights",
     content:
-      "Depending on applicable law, you may ask to access or correct your personal information, request deletion, or object to or restrict certain processing. Contact us at adventskool@gmail.com to make a request. We may need to verify your identity and may retain information where the law requires or permits it. You may choose not to provide optional application details; required fields are needed to process an application.",
+      "Under the Kenya Data Protection Act, 2019 and other applicable laws, you may have the right to access or correct your personal information, request deletion, or object to or restrict certain processing. Email ifsavedserve@gmail.com or call +254 142 225 233 to make a request. We may need to verify your identity and may retain information where the law requires or permits it. You may also raise a concern with the Office of the Data Protection Commissioner in Kenya. You may choose not to provide optional application details; required fields are needed to process an application.",
   },
   {
     title: "7. Children and international use",
@@ -45,7 +45,7 @@ const sections = [
   {
     title: "8. Updates",
     content:
-      "We may update this notice when our practices or legal requirements change. The revised date will be shown at the top of this page. For privacy questions or requests, email adventskool@gmail.com.",
+      "We may update this notice when our practices or legal requirements change. The revised date will be shown at the top of this page. For privacy questions or requests, email ifsavedserve@gmail.com.",
   },
 ];
 

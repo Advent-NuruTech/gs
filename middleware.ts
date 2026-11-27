@@ -21,15 +21,6 @@ export async function middleware(request: NextRequest) {
   const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "";
   const hostname = forwardedHost.split(":")[0].toLowerCase().replace(/^www\./, "");
   if (hostname === "serve.adventskool.co.ke") {
-    const servePath = pathname.match(/^\/serve(?:\/(.*))?$/);
-    if (servePath) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = servePath[1] ? `/${servePath[1]}` : "/";
-      const redirect = NextResponse.redirect(redirectUrl, 308);
-      response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
-      return redirect;
-    }
-
     if (pathname === "/" || ["/register", "/timetable", "/library", "/terms", "/privacy", "/cookies"].includes(pathname)) {
       const rewriteUrl = request.nextUrl.clone();
       rewriteUrl.pathname = pathname === "/" ? "/serve" : `/serve${pathname}`;
